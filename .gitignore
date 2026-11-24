@@ -1,0 +1,11 @@
+# Raw archives and backup folders
+WhatsApp Unknown*
+source_assets/
+scripts/
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+*.tmp
+.vscode/
+.idea/
