@@ -236,7 +236,7 @@
 
     .reveal.in-view {
       opacity: 1;
-      transform: translateY(0);
+      transform: none;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -442,14 +442,30 @@
     }
 
     /* ========================================================
-       00 // HERO (21st.dev HolographicBeams + Vibrant Brutalist HUD)
+       00 // HERO (21st.dev GridPulse Interactive Spectrum Grid + ARGUS HUD)
        ======================================================== */
     .hero {
       position: relative;
       overflow: hidden;
       padding: clamp(32px, 5vw, 68px) var(--pad-x);
-      background: linear-gradient(155deg, #090514 0%, #170a33 56%, #07050c 100%);
+      background: radial-gradient(ellipse 75% 60% at 72% 40%, rgba(125, 57, 235, 0.22) 0%, #090514 58%, #05030a 100%);
       color: var(--white);
+    }
+
+    .grid-pulse-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+      --grid-pulse-cell: 24px;
+      --grid-pulse-line: rgba(181, 146, 247, 0.115);
+      background-image:
+        linear-gradient(to right, var(--grid-pulse-line) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-pulse-line) 1px, transparent 1px);
+      background-size: var(--grid-pulse-cell) var(--grid-pulse-cell);
+      -webkit-mask-image: linear-gradient(to bottom, #000 92%, transparent);
+      mask-image: linear-gradient(to bottom, #000 92%, transparent);
     }
 
     .hero-canvas {
@@ -457,20 +473,7 @@
       inset: 0;
       width: 100%;
       height: 100%;
-      z-index: 0;
-      pointer-events: none;
-      filter: blur(2.5px);
-      opacity: 0.92;
-    }
-
-    .hero-scanlines {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      pointer-events: none;
-      opacity: 0.24;
-      background-image: linear-gradient(rgba(0,0,0,0) 50%, rgba(0,0,0,0.9) 50%), linear-gradient(90deg, rgba(125,57,235,0.08), rgba(198,255,51,0.03), rgba(125,57,235,0.08));
-      background-size: 100% 4px, 4px 100%;
+      display: block;
     }
 
     .hero-vignette {
@@ -478,7 +481,11 @@
       inset: 0;
       z-index: 1;
       pointer-events: none;
-      background: radial-gradient(circle at 50% 42%, transparent 25%, rgba(7, 5, 14, 0.72) 100%);
+      background: radial-gradient(circle at 50% 42%, transparent 32%, rgba(5, 3, 10, 0.62) 100%);
+    }
+
+    .hero-title, .hero-sub {
+      text-shadow: 0 0 10px rgba(7, 4, 14, 0.92), 0 0 28px rgba(7, 4, 14, 0.85);
     }
 
     .hero-content {
@@ -1083,7 +1090,48 @@
       color: var(--white);
       box-shadow: 8px 8px 0px var(--violet);
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
+
+    .arena-sim-shell:fullscreen,
+    .arena-sim-shell.is-pseudo-fs {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      max-width: none !important;
+      z-index: 99990 !important;
+      border: none !important;
+      box-shadow: none !important;
+      background: #07050c !important;
+    }
+
+    .arena-sim-shell:fullscreen .arena-viewport,
+    .arena-sim-shell.is-pseudo-fs .arena-viewport {
+      flex: 1 1 auto !important;
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: none !important;
+      aspect-ratio: auto !important;
+    }
+
+    .hud-fs-btn {
+      background: #1d1438;
+      color: var(--lime);
+      border: 1.5px solid var(--lime);
+      padding: 5px 11px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .hud-fs-btn:hover { background: var(--lime); color: var(--black); }
 
     .arena-hud-bar {
       background: linear-gradient(90deg, #07050c 0%, #160c2e 100%);
@@ -1505,39 +1553,40 @@
 
   <!-- 00 // HERO -->
   <header class="hero" id="hero">
-    <canvas id="heroCanvas" class="hero-canvas"></canvas>
-    <div class="hero-scanlines" aria-hidden="true"></div>
+    <div class="grid-pulse-layer" id="heroGridPulse" aria-hidden="true">
+      <canvas id="heroCanvas" class="hero-canvas"></canvas>
+    </div>
     <div class="hero-vignette" aria-hidden="true"></div>
 
     <div class="hero-content">
       <div>
-        <div class="hero-meta-badges">
+        <div class="hero-meta-badges" data-grid-avoid>
           <span class="badge-champion">★ REGIONAL CHAMPIONS — DELHI 2026</span>
           <span class="badge-meta">TEAM 012 // #298</span>
         </div>
 
-        <h1 class="hero-title">
+        <h1 class="hero-title" data-grid-avoid>
           Built to think.<br>
           <span class="accent-vio">Engineered to compete.</span>
         </h1>
 
-        <p class="hero-sub">
+        <p class="hero-sub" data-grid-avoid>
           We are ARGUS, ten students from DBRA CM SHRI Sector 11 &amp; DBRA CM SHRI Sector 23 turning engineering principles into real-world machines. Delhi Regional champions, heading to the NRL National Finals in Mumbai, December 2026.
         </p>
 
-        <div class="hero-ctas">
+        <div class="hero-ctas" data-grid-avoid>
           <a href="#robot-tour" class="btn btn-lime">Inspect 3D Robot ➔</a>
           <a href="#field" class="btn btn-white">Drive Virtual Arena ➔</a>
         </div>
 
-        <a href="#sessions" class="hero-bootcamp-pill">
+        <a href="#sessions" class="hero-bootcamp-pill" data-grid-avoid>
           <span class="free-chip">FREE VIRTUAL BOOTCAMP</span>
           <span>4–9 DEC 2026 • 8–9 PM DAILY (UP TO 2 HRS) • ₹0 COST ➔</span>
         </a>
       </div>
 
       <div>
-        <div class="countdown-card">
+        <div class="countdown-card" data-grid-avoid>
           <div class="countdown-header">
             <span class="m" style="color:var(--lime);">COUNTDOWN TO NATIONAL FINALS</span>
             <span class="m" style="color:var(--lime);">DECEMBER 2026</span>
@@ -2003,7 +2052,7 @@
       <p class="m" style="color:#555;">HYPERDRIVE 2026 3D Simulator // Use WASD / Arrow Keys or Touch Controls below</p>
     </div>
 
-    <div class="arena-sim-shell">
+    <div class="arena-sim-shell" id="arenaSimShell">
       <!-- Live HEXA Telemetry HUD -->
       <div class="arena-hud-bar">
         <div class="hud-stats">
@@ -2014,7 +2063,8 @@
           <div class="hud-chip">ARM: <b id="hudArmPose">CARRY</b></div>
           <div class="hud-chip">CLAW: <b id="hudClawState">OPEN (0°)</b></div>
         </div>
-        <div style="display:flex;gap:8px;align-items:center;">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <button type="button" class="hud-fs-btn" id="btnArenaFullscreen" title="Toggle Fullscreen (F)">⛶ FULLSCREEN</button>
           <div class="hud-score-pill" id="hudScore">SCORE: 0</div>
         </div>
       </div>
@@ -2029,7 +2079,7 @@
         <div class="arena-obj-banner" id="arenaObjBanner">OBJECTIVE: <b>DRIVE TO A GLOWING CORE BEAM</b> &amp; PRESS <b>[C]</b> TO GRAB</div>
         <div class="arena-score-pop" id="arenaScorePop">+25 PTS // HIGH POLE!</div>
         <div class="arena-focus-hint">
-          CLICK ARENA &amp; USE <b>W A S D</b> / <b>ARROWS</b> • <b>Q/E</b> 90° SNAP • <b>C</b> PICK/SCORE • <b>V</b> CAM • <b>SHIFT</b> SPEED
+          CLICK ARENA &amp; USE <b>W A S D</b> / <b>ARROWS</b> • <b>R/G</b> ARM UP/DN • <b>Q/E</b> 90° SNAP • <b>C</b> PICK/SCORE • <b>V</b> CAM • <b>F</b> FULLSCREEN
         </div>
       </div>
 
@@ -2045,10 +2095,12 @@
         <div class="arena-actions-cluster">
           <button class="drive-btn" id="btnSnapLeft" title="90° Gyro Snap Left (Q)">-90°</button>
           <button class="drive-btn" id="btnSnapRight" title="90° Gyro Snap Right (E)">+90°</button>
+          <button class="drive-btn" id="btnArmUp" title="Raise Arm Rung Up (R)">▲ ARM UP</button>
+          <button class="drive-btn" id="btnArmDown" title="Lower Arm Rung Down (G)">▼ ARM DN</button>
           <button class="drive-btn accent-vio" id="btnCoreAction" title="Pick Up or Score Nearby CORE (C)">PICK / SCORE CORE</button>
-          <button class="drive-btn" id="btnArmCycle">ARM: CARRY</button>
-          <button class="drive-btn" id="btnSpeedToggle">FAST</button>
-          <button class="drive-btn" id="btnCamToggle">CAM: CHASE</button>
+          <button class="drive-btn" id="btnSpeedToggle" title="Toggle Speed Mode (Shift)">FAST</button>
+          <button class="drive-btn" id="btnCamToggle" title="Cycle Camera View (V)">CAM: CHASE</button>
+          <button class="drive-btn" id="btnConsoleFullscreen" title="Fullscreen Mode (F)">⛶ FULL</button>
           <button class="drive-btn" id="btnArenaReset">RESET</button>
         </div>
       </div>
@@ -2376,70 +2428,174 @@
   window.addEventListener('scroll', updateScrollProg, { passive: true });
   updateScrollProg();
 
-  // 1. Hero Canvas — Adapted from 21st.dev HolographicBeams (#25483) in ARGUS Violet & Cyber Lime
-  (function initHeroBeams() {
-    const canvas = document.getElementById('heroCanvas');
-    if (!canvas || !canvas.parentElement) return;
-    const ctx = canvas.getContext('2d');
-    let width = 0, height = 0, time = 0, heroVisible = true;
-    const density = 18;
-    const aberration = 3.2;
+  // 1. Hero Canvas — 21st.dev GridPulse Interactive Spectrum Grid
+  (function initHeroGridPulse() {
+    const el = document.getElementById('heroGridPulse');
+    const paper = document.getElementById('heroCanvas');
+    const ctx = paper?.getContext('2d');
+    if (!el || !paper || !ctx) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    function resizeCanvas() {
-      width = canvas.width = canvas.parentElement.offsetWidth || 1200;
-      height = canvas.height = canvas.parentElement.offsetHeight || 640;
+    const cell = 24;
+    const reach = 2.6;
+    const ambient = 3;
+    const maxLit = 190;
+    const avoid = '[data-grid-avoid]';
+    const HUE_TOP = 60;
+    const HUE_SPAN = 270;
+    const TINTS_DARK = [72, 65, 58, 51, 44];
+    const FAINT = 0.13;
+    const FADE = 2.2;
+    const PAD = 6;
+    const FADE_IN = 160;
+    const FADE_OUT = 750;
+
+    let cols = 1, rows = 1, width = 0, height = 0;
+    let clear = [];
+    const cells = new Map();
+    const easeOut = t => 1 - (1 - t) ** 2;
+    const easeIn = t => t * t;
+
+    function measureText() {
+      const bounds = el.getBoundingClientRect();
+      const scope = el.parentElement || document;
+      clear = [...scope.querySelectorAll(avoid)].flatMap(node => {
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        const lines = [...range.getClientRects()].filter(r => r.width > 0 && r.height > 0);
+        const boxes = lines.length > 0 ? lines : [node.getBoundingClientRect()];
+        return boxes.map(r => new DOMRect(
+          r.left - bounds.left - PAD,
+          r.top - bounds.top - PAD,
+          r.width + PAD * 2,
+          r.height + PAD * 2
+        ));
+      });
     }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
 
-    function noise(x, t) {
-      return (Math.sin(x * 0.01 + t) + Math.sin(x * 0.03 + t * 2) * 0.5 + Math.sin(x * 0.1 + t * 4) * 0.25) / 1.75;
+    function brightness(col, row) {
+      const x = col * cell + cell / 2;
+      const y = row * cell + cell / 2;
+      let nearest = Infinity;
+      for (const r of clear) {
+        const dx = Math.max(r.left - x, 0, x - r.right);
+        const dy = Math.max(r.top - y, 0, y - r.bottom);
+        nearest = Math.min(nearest, Math.hypot(dx, dy));
+        if (nearest === 0) break;
+      }
+      if (nearest === Infinity) return 1;
+      return FAINT + (1 - FAINT) * Math.min(1, nearest / (FADE * cell));
     }
 
-    function drawBeam(x, t, color, widthMod) {
-      const n = noise(x, t * 0.5);
-      const beamHeight = height * (0.58 + n * 0.38);
-      const beamWidth = (width / density) * widthMod;
-      const gradient = ctx.createLinearGradient(x, height, x, height - beamHeight);
-      gradient.addColorStop(0, color);
-      gradient.addColorStop(1, 'transparent');
-      ctx.fillStyle = gradient;
-      ctx.beginPath();
-      ctx.moveTo(x - beamWidth / 2, height);
-      ctx.lineTo(x + beamWidth / 2, height);
-      ctx.lineTo(x + beamWidth * 1.15, height - beamHeight);
-      ctx.lineTo(x - beamWidth * 1.15, height - beamHeight);
-      ctx.fill();
+    function ink(row) {
+      const t = rows > 1 ? Math.min(1, row / (rows - 1)) : 0;
+      const hue = (((HUE_TOP - t * HUE_SPAN) % 360) + 360) % 360;
+      const tint = TINTS_DARK[Math.floor(Math.random() * TINTS_DARK.length)];
+      return `hsl(${Math.round(hue)} 94% ${tint}%)`;
+    }
+
+    let frame = 0;
+    function draw(now) {
+      frame = 0;
+      ctx.clearRect(0, 0, width, height);
+      for (const [key, c] of cells) {
+        let alpha;
+        if (now < c.until) {
+          alpha = easeOut(Math.min(1, (now - c.born) / FADE_IN));
+        } else {
+          const t = (now - c.until) / FADE_OUT;
+          if (t >= 1) { cells.delete(key); continue; }
+          alpha = 1 - easeIn(t);
+        }
+        ctx.globalAlpha = alpha * c.dim;
+        ctx.fillStyle = c.colour;
+        ctx.fillRect(c.col * cell + 1, c.row * cell + 1, cell - 1, cell - 1);
+      }
+      ctx.globalAlpha = 1;
+      if (cells.size > 0) frame = requestAnimationFrame(draw);
+    }
+
+    function wake() { if (!frame) frame = requestAnimationFrame(draw); }
+
+    function light(col, row, hold) {
+      if (col < 0 || row < 0 || col >= cols || row >= rows) return;
+      if (cells.size >= maxLit) return;
+      const key = `${col},${row}`;
+      const now = performance.now();
+      const lit = cells.get(key);
+      if (lit && now < lit.until) return;
+      let born = now;
+      if (lit) {
+        const faded = 1 - easeIn(Math.min(1, (now - lit.until) / FADE_OUT));
+        born = now - (1 - Math.sqrt(1 - faded)) * FADE_IN;
+      }
+      cells.set(key, {
+        col, row,
+        colour: lit ? lit.colour : ink(row),
+        dim: brightness(col, row),
+        born,
+        until: now + hold
+      });
+      wake();
+    }
+
+    function measure() {
+      width = el.clientWidth;
+      height = el.clientHeight;
+      cols = Math.max(1, Math.ceil(width / cell));
+      rows = Math.max(1, Math.ceil(height / cell));
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      paper.width = Math.round(width * dpr);
+      paper.height = Math.round(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      measureText();
+      wake();
+    }
+
+    let pending = 0, at = null;
+    function paint() {
+      pending = 0;
+      if (!at) return;
+      const cx = Math.floor(at.x / cell);
+      const cy = Math.floor(at.y / cell);
+      const span = Math.ceil(reach);
+      for (let dy = -span; dy <= span; dy++) {
+        for (let dx = -span; dx <= span; dx++) {
+          const away = Math.hypot(dx, dy);
+          if (away > reach) continue;
+          if (Math.random() > 1 - away / (reach + 0.6)) continue;
+          light(cx + dx, cy + dy, 260 + Math.random() * 900);
+        }
+      }
+    }
+
+    window.addEventListener('pointermove', (e) => {
+      const bounds = el.getBoundingClientRect();
+      at = { x: e.clientX - bounds.left, y: e.clientY - bounds.top };
+      if (!pending) pending = requestAnimationFrame(paint);
+    }, { passive: true });
+
+    let visible = true;
+    function drift() {
+      setTimeout(drift, 1100 + Math.random() * 1400);
+      if (!visible || document.hidden) return;
+      for (let i = 0; i < ambient; i++) {
+        light(Math.floor(Math.random() * cols), Math.floor(Math.random() * rows), 900 + Math.random() * 1600);
+      }
+    }
+    setTimeout(drift, 200);
+    // Initial sparkle band so grid feels alive immediately on arrival
+    measure();
+    for (let k = 0; k < 14; k++) {
+      light(Math.floor(Math.random() * cols), Math.floor(Math.random() * rows), 1100 + Math.random() * 1400);
     }
 
     if ('IntersectionObserver' in window) {
-      new IntersectionObserver(entries => { heroVisible = entries[0].isIntersecting; }, { threshold: 0.01 }).observe(canvas.parentElement);
+      new IntersectionObserver(([entry]) => { visible = entry ? entry.isIntersecting : true; }).observe(el);
     }
-
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    function drawHeroCanvas() {
-      requestAnimationFrame(drawHeroCanvas);
-      if (!heroVisible) return;
-      ctx.clearRect(0, 0, width, height);
-      ctx.globalCompositeOperation = 'screen';
-      time += reduceMotion ? 0 : 0.014;
-      const stepW = width / density;
-
-      for (let i = 0; i <= density; i++) {
-        const x = i * stepW;
-        // Electric Violet Channel
-        const vAlpha = 0.28 + 0.24 * Math.cos(i * 0.5 + time);
-        drawBeam(x - aberration, time + i * 0.11, `rgba(125, 57, 235, ${vAlpha.toFixed(3)})`, 1.45);
-        // Cyber Lime Accent Channel
-        const lAlpha = 0.14 + 0.14 * Math.sin(i * 0.65 + time * 1.15);
-        drawBeam(x + aberration, time + i * 0.13 + 7, `rgba(198, 255, 51, ${lAlpha.toFixed(3)})`, 1.05);
-        // Core Lilac Beam
-        const cAlpha = 0.12 + 0.10 * Math.sin(i * 0.35 - time);
-        drawBeam(x, time + i * 0.1 + 3, `rgba(210, 190, 255, ${cAlpha.toFixed(3)})`, 0.72);
-      }
-      ctx.globalCompositeOperation = 'source-over';
-    }
-    drawHeroCanvas();
+    if ('ResizeObserver' in window) new ResizeObserver(measure).observe(el);
+    else window.addEventListener('resize', measure);
+    document.fonts?.ready.then(measureText).catch(() => {});
   })();
 
   // 1B. Interactive 3D Tilt & Cursor Border Glow — Adapted from 21st.dev TiltGlowCard (#44838)
@@ -2857,45 +3013,120 @@
      B. SECTION 07 // PLAYABLE VIRTUAL ROBOT ARENA (HYPERDRIVE 2026)
      ============================================================ */
   (function initArenaSimulator() {
+    const shell = document.getElementById('arenaSimShell');
     const wrap = document.getElementById('arenaCanvasWrap');
     const pill = document.getElementById('arenaLoadPill');
     const poster = document.getElementById('arenaPosterFallback');
     const objBanner = document.getElementById('arenaObjBanner');
     const scorePop = document.getElementById('arenaScorePop');
-    if (!wrap) return;
+    const fsHudBtn = document.getElementById('btnArenaFullscreen');
+    const fsConsoleBtn = document.getElementById('btnConsoleFullscreen');
+    if (!wrap || !shell) return;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(wrap.clientWidth, wrap.clientHeight);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.08;
+    renderer.toneMappingExposure = 1.12;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     wrap.appendChild(renderer.domElement);
 
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x130e22);
-    scene.fog = new THREE.FogExp2(0x130e22, 0.036);
-    const pmrem = new THREE.PMREMGenerator(renderer);
-    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.05).texture;
+    const maxAniso = Math.min(8, renderer.capabilities.getMaxAnisotropy() || 4);
 
-    const camera = new THREE.PerspectiveCamera(44, wrap.clientWidth / wrap.clientHeight, 0.05, 60);
+    // Procedural PBR Surface Micro-Textures (eliminates flat/blocky CG look)
+    function createFoamMatBumpTexture() {
+      const c = document.createElement('canvas');
+      c.width = 512; c.height = 512;
+      const g = c.getContext('2d');
+      g.fillStyle = '#888888';
+      g.fillRect(0, 0, 512, 512);
+      // EVA foam micro-grain
+      for (let i = 0; i < 16000; i++) {
+        const x = Math.random() * 512, y = Math.random() * 512;
+        const v = 115 + Math.floor(Math.random() * 44);
+        g.fillStyle = `rgb(${v},${v},${v})`;
+        g.fillRect(x, y, 2, 2);
+      }
+      // Subtle puzzle tile seams
+      g.strokeStyle = '#565656';
+      g.lineWidth = 3;
+      g.strokeRect(1, 1, 510, 510);
+      g.strokeStyle = 'rgba(220,220,220,0.22)';
+      g.lineWidth = 1;
+      g.strokeRect(4, 4, 504, 504);
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(6, 6);
+      tex.anisotropy = maxAniso;
+      return tex;
+    }
+
+    function createStageFloorTexture() {
+      const c = document.createElement('canvas');
+      c.width = 512; c.height = 512;
+      const g = c.getContext('2d');
+      g.fillStyle = '#0d0a18';
+      g.fillRect(0, 0, 512, 512);
+      g.strokeStyle = 'rgba(125, 57, 235, 0.22)';
+      g.lineWidth = 2;
+      g.strokeRect(1, 1, 510, 510);
+      g.strokeStyle = 'rgba(198, 255, 51, 0.08)';
+      g.lineWidth = 1;
+      for (let k = 64; k < 512; k += 64) {
+        g.beginPath(); g.moveTo(k, 0); g.lineTo(k, 512); g.stroke();
+        g.beginPath(); g.moveTo(0, k); g.lineTo(512, k); g.stroke();
+      }
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(16, 16);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.anisotropy = maxAniso;
+      return tex;
+    }
+
+    const foamBumpTex = createFoamMatBumpTexture();
+    const stageFloorTex = createStageFloorTexture();
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0c0918);
+    scene.fog = new THREE.FogExp2(0x0c0918, 0.028);
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.035).texture;
+
+    const camera = new THREE.PerspectiveCamera(44, (wrap.clientWidth || 800) / (wrap.clientHeight || 450), 0.05, 80);
     const orbit = new OrbitControls(camera, renderer.domElement);
     orbit.enableDamping = true;
     orbit.dampingFactor = 0.08;
-    orbit.maxPolarAngle = Math.PI / 2 - 0.05;
+    orbit.maxPolarAngle = Math.PI / 2 - 0.04;
+    orbit.minDistance = 0.8;
+    orbit.maxDistance = 11.5;
 
-    // Championship Stadium Lighting Rig
-    const keyLight = new THREE.DirectionalLight(0xfffcf5, 2.1);
-    keyLight.position.set(3.5, 8.5, 4.5);
+    // Centered Stadium 3-Point + Precision Shadow Rig
+    const keyLight = new THREE.DirectionalLight(0xfffaf2, 2.25);
+    keyLight.position.set(3.0, 8.0, 4.8);
     keyLight.castShadow = true;
-    keyLight.shadow.mapSize.set(1024, 1024);
+    keyLight.shadow.mapSize.set(2048, 2048);
+    keyLight.shadow.camera.near = 1.0;
+    keyLight.shadow.camera.far = 22.0;
+    keyLight.shadow.camera.left = -3.4;
+    keyLight.shadow.camera.right = 3.4;
+    keyLight.shadow.camera.top = 3.4;
+    keyLight.shadow.camera.bottom = -3.4;
+    keyLight.shadow.bias = -0.00035;
+    keyLight.shadow.normalBias = 0.015;
     scene.add(keyLight);
+    scene.add(keyLight.target);
 
-    const vioFill = new THREE.DirectionalLight(0x8e54f5, 0.9);
-    vioFill.position.set(-4.5, 4.5, -3.5);
-    scene.add(vioFill);
-    scene.add(new THREE.HemisphereLight(0xeae4ff, 0x1b152b, 0.78));
+    const vioRimLight = new THREE.DirectionalLight(0x9d6cff, 1.05);
+    vioRimLight.position.set(-4.5, 4.2, -3.5);
+    scene.add(vioRimLight);
+
+    const limeFillLight = new THREE.DirectionalLight(0xC6FF33, 0.55);
+    limeFillLight.position.set(4.5, 2.8, -3.5);
+    scene.add(limeFillLight);
+
+    scene.add(new THREE.HemisphereLight(0xf2ecff, 0x1a132b, 0.82));
 
     // Arena State
     let fieldCenter = new THREE.Vector3(-0.28, 0, 1.42);
@@ -2904,15 +3135,18 @@
     let walkableMeshes = [];
     let robotPivot = null;
     let robotVisual = null;
-    let headlights = null;
     let underglowRing = null;
+    let statusLedMat = null;
+    let armLevelRing = null;
     let carriedCore = null;
     let score = 0;
     let levelUpAwarded = false;
-    let camMode = 0; // 0: Chase, 1: Orbit, 2: Top
+    let camMode = 0; // 0: Chase, 1: Orbit, 2: Top, 3: Driver POV
     let fastMode = true;
     let armIndex = 1;
     const armPoses = ['FLOOR', 'CARRY', 'STAR', 'HIGH', 'APEX'];
+    const armHeights = [0.06, 0.14, 0.22, 0.30, 0.36];
+    let armCurY = 0.14;
     let isVisible = true;
     let popTimer = 0;
 
@@ -2955,13 +3189,13 @@
         const holder = new THREE.Group();
         const isViolet = idx % 2 === 0;
         const ring = new THREE.Mesh(
-          new THREE.TorusGeometry(0.056, 0.021, 14, 28),
+          new THREE.TorusGeometry(0.056, 0.021, 16, 32),
           new THREE.MeshStandardMaterial({
             color: isViolet ? 0x7D39EB : 0xC6FF33,
             emissive: isViolet ? 0x521db8 : 0x6ea60d,
-            emissiveIntensity: 0.65,
-            roughness: 0.28,
-            metalness: 0.25
+            emissiveIntensity: 0.72,
+            roughness: 0.22,
+            metalness: 0.32
           })
         );
         ring.rotation.x = Math.PI / 2;
@@ -2991,22 +3225,56 @@
     }
 
     function buildArenaStage(box, center, size, baseFloorY) {
-      // Matte Championship Riser under the field + Neon Perimeter Trim
-      const riserGeo = new THREE.BoxGeometry(size.x + 1.0, 0.24, size.z + 1.0);
-      const riserMat = new THREE.MeshStandardMaterial({ color: 0x161322, roughness: 0.85, metalness: 0.1 });
+      // Competition Riser Platform + Dual Neon Guard Rails
+      const riserGeo = new THREE.BoxGeometry(size.x + 1.05, 0.24, size.z + 1.05);
+      const riserMat = new THREE.MeshStandardMaterial({
+        color: 0x161224,
+        roughness: 0.58,
+        metalness: 0.22,
+        bumpMap: foamBumpTex,
+        bumpScale: 0.004
+      });
       const riser = new THREE.Mesh(riserGeo, riserMat);
       riser.position.set(center.x, baseFloorY - 0.145, center.z);
       riser.receiveShadow = true;
       scene.add(riser);
 
-      const trimGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(size.x + 1.02, 0.04, size.z + 1.02));
-      const trim = new THREE.LineSegments(trimGeo, new THREE.LineBasicMaterial({ color: 0x7D39EB, transparent: true, opacity: 0.8 }));
-      trim.position.set(center.x, baseFloorY - 0.03, center.z);
+      const trimGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(size.x + 1.06, 0.045, size.z + 1.06));
+      const trim = new THREE.LineSegments(trimGeo, new THREE.LineBasicMaterial({ color: 0x7D39EB, transparent: true, opacity: 0.9 }));
+      trim.position.set(center.x, baseFloorY - 0.025, center.z);
       scene.add(trim);
 
+      // 4 Tournament Corner Spotlight Pillars around Stage
+      const corners = [
+        [center.x - (size.x * 0.5 + 0.52), center.z - (size.z * 0.5 + 0.52), 0x7D39EB],
+        [center.x + (size.x * 0.5 + 0.52), center.z - (size.z * 0.5 + 0.52), 0xC6FF33],
+        [center.x - (size.x * 0.5 + 0.52), center.z + (size.z * 0.5 + 0.52), 0xC6FF33],
+        [center.x + (size.x * 0.5 + 0.52), center.z + (size.z * 0.5 + 0.52), 0x7D39EB]
+      ];
+      const postMat = new THREE.MeshStandardMaterial({ color: 0x1c192a, roughness: 0.4, metalness: 0.65 });
+      corners.forEach(([px, pz, neonCol]) => {
+        const post = new THREE.Mesh(new THREE.BoxGeometry(0.09, 1.45, 0.09), postMat);
+        post.position.set(px, baseFloorY + 0.58, pz);
+        post.castShadow = true;
+        scene.add(post);
+
+        const strip = new THREE.Mesh(
+          new THREE.BoxGeometry(0.032, 1.25, 0.032),
+          new THREE.MeshBasicMaterial({ color: neonCol })
+        );
+        strip.position.set(px, baseFloorY + 0.62, pz);
+        scene.add(strip);
+      });
+
+      // Textured Specular Stadium Floor
       const stadiumFloor = new THREE.Mesh(
-        new THREE.PlaneGeometry(36, 36),
-        new THREE.MeshStandardMaterial({ color: 0x0b0814, roughness: 0.95 })
+        new THREE.PlaneGeometry(40, 40),
+        new THREE.MeshStandardMaterial({
+          map: stageFloorTex,
+          roughness: 0.52,
+          metalness: 0.25,
+          envMapIntensity: 0.75
+        })
       );
       stadiumFloor.rotation.x = -Math.PI / 2;
       stadiumFloor.position.set(center.x, baseFloorY - 0.27, center.z);
@@ -3023,7 +3291,7 @@
       }
     }
 
-    // Load HYPERDRIVE 2026 Field
+    // Load HYPERDRIVE 2026 Field + Enhance Material Micro-Textures
     gltfLoader.load('assets/hyperdrive-field.glb', (gltf) => {
       const field = gltf.scene;
       scene.add(field);
@@ -3039,13 +3307,18 @@
         minZ: box.min.z + 0.44, maxZ: box.max.z - 0.44
       };
 
+      // Center precision keyLight & shadow frustum onto actual field
+      keyLight.position.set(c.x + 2.8, box.min.y + 7.2, c.z + 3.6);
+      keyLight.target.position.copy(c);
+      keyLight.target.updateMatrixWorld();
+
       // Raycast baseline floor Y near open floor
       const ray = new THREE.Raycaster(new THREE.Vector3(c.x + 0.7, box.max.y + 1, c.z + 0.6), new THREE.Vector3(0, -1, 0));
       const hits = ray.intersectObject(field, true);
       floorY = hits.length ? hits[0].point.y : box.min.y + 0.05;
       if (floorY > box.min.y + 0.32) floorY = box.min.y + 0.05;
 
-      // Classify walkable surfaces (base tiles + LEVEL UP ramp/bridge) & detect pole scoring targets
+      // Apply PBR micro-grain to field tiles/ramps & classify walkable geometry
       field.traverse(child => {
         if (!child.isMesh) return;
         child.receiveShadow = true;
@@ -3053,9 +3326,27 @@
         const mb = new THREE.Box3().setFromObject(child);
         const h = mb.max.y - floorY;
         const isObst = /pole|buzzer|wall|channel|silo|diffuser|clamp|insert|switch|ring/i.test(nm);
-        if (!isObst && h < 0.46) {
-          walkableMeshes.push(child);
+
+        if (child.material) {
+          const mats = Array.isArray(child.material) ? child.material : [child.material];
+          mats.forEach(mat => {
+            if (mat.map) mat.map.anisotropy = maxAniso;
+            mat.envMapIntensity = 0.95;
+            if (!isObst && h < 0.46) {
+              // EVA foam competition mat sheen + tactile bump grain
+              mat.bumpMap = foamBumpTex;
+              mat.bumpScale = 0.0045;
+              mat.roughness = Math.max(0.55, Math.min(0.82, mat.roughness ?? 0.68));
+              mat.metalness = 0.06;
+            } else {
+              mat.roughness = Math.max(0.28, Math.min(0.55, mat.roughness ?? 0.38));
+              mat.metalness = Math.max(0.18, mat.metalness ?? 0.22);
+              child.castShadow = true;
+            }
+          });
         }
+
+        if (!isObst && h < 0.46) walkableMeshes.push(child);
         if ((nm.includes('vert pole') || nm.includes('100mm pole')) && poleTargets.length < 6) {
           const pc = new THREE.Vector3();
           mb.getCenter(pc);
@@ -3066,7 +3357,6 @@
 
       buildArenaStage(box, c, s, floorY);
 
-      // Visual beacons on pole scoring targets
       const targetCoords = poleTargets.length ? poleTargets.slice(0, 4) : [
         { x: c.x - 0.6, z: c.z + 1.1 }, { x: c.x + 0.6, z: c.z - 1.1 }
       ];
@@ -3091,20 +3381,69 @@
       markLoaded();
     }, undefined, () => markLoaded());
 
-    // Load ARGUS Robot #298 with Outlines + Dynamic Chase Lights onto Field
+    // Load ARGUS Robot #298 — Realistic PBR Sheen, Refined Creases, HEXA Hub LEDs & Headlights
     gltfLoader.load('assets/argus-robot.glb', (gltf) => {
       const { pivot } = normalizeRobotModel(gltf.scene, 0.46);
-      applyCadEdges(pivot, 0x050505, 22);
+      pivot.traverse(obj => {
+        if (!obj.isMesh) return;
+        obj.castShadow = true;
+        obj.receiveShadow = true;
+        if (obj.material) {
+          obj.material.roughness = Math.min(0.45, Math.max(0.18, obj.material.roughness ?? 0.32));
+          obj.material.metalness = Math.min(0.55, Math.max(0.2, obj.material.metalness ?? 0.25));
+          obj.material.envMapIntensity = 1.35;
+        }
+        if (obj.geometry) {
+          const line = new THREE.LineSegments(
+            new THREE.EdgesGeometry(obj.geometry, 24),
+            new THREE.LineBasicMaterial({ color: 0x0a0a10, transparent: true, opacity: 0.42 })
+          );
+          obj.add(line);
+        }
+      });
       // Rotate CAD so two-servo arm & claw face +Z local forward
       pivot.rotation.y = Math.PI;
 
       robotVisual = new THREE.Group();
       robotVisual.add(pivot);
 
+      // Authentic HEXA PCB Telemetry OLED & Dual LED Status Beacon on chassis deck
+      const oledGlow = new THREE.Mesh(
+        new THREE.BoxGeometry(0.065, 0.008, 0.042),
+        new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
+      );
+      oledGlow.position.set(0, 0.175, -0.02);
+      robotVisual.add(oledGlow);
+
+      statusLedMat = new THREE.MeshBasicMaterial({ color: 0x7D39EB });
+      const statusLed = new THREE.Mesh(new THREE.SphereGeometry(0.016, 12, 12), statusLedMat);
+      statusLed.position.set(0.055, 0.185, -0.05);
+      robotVisual.add(statusLed);
+
+      // Dynamic 3D Arm Elevation Target Indicator Ring
+      armLevelRing = new THREE.Mesh(
+        new THREE.RingGeometry(0.045, 0.062, 24),
+        new THREE.MeshBasicMaterial({ color: 0xC6FF33, transparent: true, opacity: 0.75, side: THREE.DoubleSide })
+      );
+      armLevelRing.rotation.x = -Math.PI / 2;
+      armLevelRing.position.set(0, armCurY, 0.22);
+      robotVisual.add(armLevelRing);
+
+      // Subtle Headlight Ground Beams ahead of claw (+Z forward)
+      const beamMat = new THREE.MeshBasicMaterial({
+        color: 0xe6ffd1, transparent: true, opacity: 0.14, side: THREE.DoubleSide, depthWrite: false
+      });
+      [-0.08, 0.08].forEach(hx => {
+        const cone = new THREE.Mesh(new THREE.ConeGeometry(0.11, 0.38, 16, 1, true), beamMat);
+        cone.rotation.x = -Math.PI / 2;
+        cone.position.set(hx, 0.04, 0.41);
+        robotVisual.add(cone);
+      });
+
       const carrier = new THREE.Group();
       carrier.add(robotVisual);
 
-      // Subtle speed underglow track
+      // Ground Underglow Ring + Forward Directional Chevron
       underglowRing = new THREE.Mesh(
         new THREE.RingGeometry(0.24, 0.275, 36),
         new THREE.MeshBasicMaterial({ color: 0xC6FF33, transparent: true, opacity: 0.72, side: THREE.DoubleSide })
@@ -3113,9 +3452,10 @@
       underglowRing.position.y = 0.008;
       carrier.add(underglowRing);
 
-      // Front directional laser chevron ahead of claw (+Z forward)
-      const chevMat = new THREE.MeshBasicMaterial({ color: 0xC6FF33, transparent: true, opacity: 0.92, side: THREE.DoubleSide });
-      const chev = new THREE.Mesh(new THREE.ConeGeometry(0.062, 0.12, 3), chevMat);
+      const chev = new THREE.Mesh(
+        new THREE.ConeGeometry(0.06, 0.12, 3),
+        new THREE.MeshBasicMaterial({ color: 0xC6FF33, transparent: true, opacity: 0.92, side: THREE.DoubleSide })
+      );
       chev.rotation.x = Math.PI / 2;
       chev.position.set(0, 0.032, 0.34);
       carrier.add(chev);
@@ -3141,13 +3481,82 @@
       return floorY;
     }
 
-    // Input Handling (Only intercept keys when arena is focused)
+    // Arm Up/Down Stepping
+    function stepArm(delta) {
+      armIndex = Math.max(0, Math.min(armPoses.length - 1, armIndex + delta));
+      const pose = armPoses[armIndex];
+      document.getElementById('hudArmPose').textContent = pose;
+    }
+
+    // Fullscreen Toggle (Reliable Edge-to-Edge Body Portal + Optional Native Fullscreen)
+    const fsAnchor = document.createComment('arena-fs-anchor');
+    shell.parentNode.insertBefore(fsAnchor, shell);
+
+    function enterFullscreen() {
+      if (shell.parentNode !== document.body) {
+        document.body.appendChild(shell);
+      }
+      shell.classList.add('is-pseudo-fs');
+      document.body.style.overflow = 'hidden';
+      if (shell.requestFullscreen) {
+        shell.requestFullscreen().catch(() => {});
+      }
+      syncFullscreenUI();
+    }
+
+    function exitFullscreen() {
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
+      shell.classList.remove('is-pseudo-fs');
+      document.body.style.overflow = '';
+      if (fsAnchor.parentNode && shell.parentNode === document.body) {
+        fsAnchor.parentNode.insertBefore(shell, fsAnchor.nextSibling);
+      }
+      syncFullscreenUI();
+    }
+
+    function syncFullscreenUI() {
+      const active = Boolean(document.fullscreenElement === shell || shell.classList.contains('is-pseudo-fs'));
+      if (fsHudBtn) fsHudBtn.textContent = active ? '✕ EXIT FULL' : '⛶ FULLSCREEN';
+      if (fsConsoleBtn) fsConsoleBtn.textContent = active ? '✕ EXIT' : '⛶ FULL';
+      setTimeout(handleResize, 40);
+      setTimeout(handleResize, 160);
+    }
+
+    function toggleFullscreen() {
+      const isFull = Boolean(document.fullscreenElement === shell || shell.classList.contains('is-pseudo-fs'));
+      if (isFull) exitFullscreen();
+      else enterFullscreen();
+    }
+
+    let hadNativeFs = false;
+    document.addEventListener('fullscreenchange', () => {
+      if (document.fullscreenElement === shell) {
+        hadNativeFs = true;
+      } else if (hadNativeFs) {
+        hadNativeFs = false;
+        exitFullscreen();
+        return;
+      }
+      syncFullscreenUI();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && shell.classList.contains('is-pseudo-fs')) exitFullscreen();
+    });
+    if (fsHudBtn) fsHudBtn.addEventListener('click', toggleFullscreen);
+    if (fsConsoleBtn) fsConsoleBtn.addEventListener('click', toggleFullscreen);
+
+    // Keyboard & Touch Input Handling
     const keyMap = { KeyW: 'f', ArrowUp: 'f', KeyS: 'b', ArrowDown: 'b', KeyA: 'l', ArrowLeft: 'l', KeyD: 'r', ArrowRight: 'r' };
     wrap.addEventListener('keydown', (e) => {
       if (keyMap[e.code]) { e.preventDefault(); keys[keyMap[e.code]] = true; }
       else if (e.code === 'KeyQ') { e.preventDefault(); snapTurn(Math.PI / 2); }
       else if (e.code === 'KeyE') { e.preventDefault(); snapTurn(-Math.PI / 2); }
+      else if (e.code === 'KeyR') { e.preventDefault(); stepArm(1); }
+      else if (e.code === 'KeyG') { e.preventDefault(); stepArm(-1); }
       else if (e.code === 'KeyC') { e.preventDefault(); handleCoreAction(); }
+      else if (e.code === 'KeyF') { e.preventDefault(); toggleFullscreen(); }
       else if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') { toggleSpeed(); }
       else if (e.code === 'KeyV') { toggleCam(); }
       else if (e.code === 'Space') { e.preventDefault(); bot.v = 0; bot.w = 0; }
@@ -3189,11 +3598,12 @@
           best.active = false;
           best.beam.visible = false;
           carriedCore = best;
-          robotPivot.add(best.holder);
-          best.holder.position.set(0, 0.21, 0.22);
+          robotVisual.add(best.holder);
+          best.holder.position.set(0, armCurY, 0.23);
           clawEl.textContent = 'GRIP (105°)';
+          if (statusLedMat) statusLedMat.color.setHex(0xC6FF33);
           triggerScorePop('CORE GRABBED!');
-          showToast('CORE gripped (105°)! Deliver to a Violet Pole (+25) or Lime Drop Zone (+15).');
+          showToast('CORE gripped (105°)! Raise arm [R] & deliver to Violet Pole (+30) or Lime Zone (+15).');
         } else {
           clawEl.textContent = 'CLAW TEST (105°)';
           setTimeout(() => { if (!carriedCore) clawEl.textContent = 'OPEN (0°)'; }, 650);
@@ -3219,6 +3629,7 @@
         carriedCore.holder.position.set(bot.x + Math.sin(bot.yaw) * 0.34, bot.y + 0.02, bot.z + Math.cos(bot.yaw) * 0.34);
         carriedCore = null;
         clawEl.textContent = 'OPEN (0°)';
+        if (statusLedMat) statusLedMat.color.setHex(0x7D39EB);
         triggerScorePop(zoneLabel);
         showToast(`${zoneLabel} Total Score: ${score}`);
         if (cores.every(c => !c.active)) setTimeout(spawnCores, 1400);
@@ -3233,26 +3644,25 @@
     }
 
     function toggleCam() {
-      camMode = (camMode + 1) % 3;
-      const names = ['CAM: CHASE', 'CAM: ORBIT', 'CAM: TOP'];
+      camMode = (camMode + 1) % 4;
+      const names = ['CAM: CHASE', 'CAM: ORBIT', 'CAM: TOP', 'CAM: DRIVER'];
       document.getElementById('btnCamToggle').textContent = names[camMode];
       if (camMode === 2) {
         camera.position.set(fieldCenter.x, floorY + 6.4, fieldCenter.z + 0.12);
         orbit.target.copy(fieldCenter);
+      } else if (camMode === 3) {
+        camera.position.set(fieldCenter.x - 2.6, floorY + 1.55, fieldCenter.z);
+        orbit.target.set(fieldCenter.x + 0.6, floorY + 0.2, fieldCenter.z);
       }
     }
 
     document.getElementById('btnSnapLeft').addEventListener('click', () => snapTurn(Math.PI / 2));
     document.getElementById('btnSnapRight').addEventListener('click', () => snapTurn(-Math.PI / 2));
+    document.getElementById('btnArmUp').addEventListener('click', () => stepArm(1));
+    document.getElementById('btnArmDown').addEventListener('click', () => stepArm(-1));
     document.getElementById('btnCoreAction').addEventListener('click', handleCoreAction);
     document.getElementById('btnSpeedToggle').addEventListener('click', toggleSpeed);
     document.getElementById('btnCamToggle').addEventListener('click', toggleCam);
-    document.getElementById('btnArmCycle').addEventListener('click', () => {
-      armIndex = (armIndex + 1) % armPoses.length;
-      const pose = armPoses[armIndex];
-      document.getElementById('btnArmCycle').textContent = `ARM: ${pose}`;
-      document.getElementById('hudArmPose').textContent = pose;
-    });
     document.getElementById('btnArenaReset').addEventListener('click', () => {
       bot.x = fieldCenter.x;
       bot.z = fieldCenter.z + 1.15;
@@ -3260,21 +3670,26 @@
       bot.yaw = Math.PI;
       bot.v = 0; bot.w = 0; bot.snapTargetYaw = null;
       score = 0; carriedCore = null; levelUpAwarded = false;
+      armIndex = 1;
+      document.getElementById('hudArmPose').textContent = 'CARRY';
       document.getElementById('hudScore').textContent = 'SCORE: 0';
       document.getElementById('hudClawState').textContent = 'OPEN (0°)';
+      if (statusLedMat) statusLedMat.color.setHex(0x7D39EB);
       spawnCores();
     });
+
+    function handleResize() {
+      if (!wrap.clientWidth || !wrap.clientHeight) return;
+      camera.aspect = wrap.clientWidth / wrap.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(wrap.clientWidth, wrap.clientHeight);
+    }
 
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(entries => { isVisible = entries[0].isIntersecting; }, { threshold: 0.05 }).observe(wrap);
     }
-
-    window.addEventListener('resize', () => {
-      if (!wrap.clientWidth) return;
-      camera.aspect = wrap.clientWidth / wrap.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(wrap.clientWidth, wrap.clientHeight);
-    });
+    if ('ResizeObserver' in window) new ResizeObserver(handleResize).observe(wrap);
+    else window.addEventListener('resize', handleResize);
 
     let lastTime = performance.now();
     const hdgEl = document.getElementById('hudHeading');
@@ -3314,10 +3729,13 @@
       const rawSlope = Math.atan2(fY - bY, 0.32);
       bot.slopePitch += (rawSlope - bot.slopePitch) * Math.min(1, dt * 10);
 
-      // Chassis acceleration/braking pitch + cornering roll dynamics
+      // Chassis acceleration/braking pitch + cornering roll + Arm Elevation Lerp
       const accel = (bot.v - bot.prevV) / Math.max(dt, 0.008);
       bot.pitch += (Math.max(-0.08, Math.min(0.08, accel * 0.008)) - bot.pitch) * Math.min(1, dt * 10);
       bot.roll += (Math.max(-0.06, Math.min(0.06, -bot.w * bot.v * 0.015)) - bot.roll) * Math.min(1, dt * 10);
+      armCurY += (armHeights[armIndex] - armCurY) * Math.min(1, dt * 10);
+      if (armLevelRing) armLevelRing.position.y = armCurY;
+      if (carriedCore) carriedCore.holder.position.y = armCurY;
 
       const elevCm = Math.max(0, Math.round((bot.y - floorY) * 100));
       if (!levelUpAwarded && elevCm >= 12) {
@@ -3337,7 +3755,6 @@
         robotVisual.rotation.z = bot.roll;
       }
 
-      // Pulse Collectibles + Check Nearest Prompt
       let minCoreDist = 99;
       for (const c of cores) {
         if (!c.active) continue;
@@ -3352,7 +3769,7 @@
         } else if (minCoreDist < 0.65) {
           objBanner.innerHTML = 'IN RANGE! PRESS <b>[C]</b> OR <b>PICK / SCORE CORE</b> TO GRAB';
         } else {
-          objBanner.innerHTML = 'OBJECTIVE: <b>DRIVE TO A GLOWING CORE BEAM</b> OR CLIMB <b>WHITE RAMP (+30)</b>';
+          objBanner.innerHTML = 'OBJECTIVE: <b>WASD TO DRIVE • [R/G] ARM UP/DN • [F] FULLSCREEN</b>';
         }
       }
 
