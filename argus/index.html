@@ -1229,6 +1229,27 @@
     }
 
     .arena-focus-hint b { color: var(--lime); }
+    .arena-focus-hint kbd {
+      display: inline-block; padding: 1px 5px; border: 1px solid #666; background: #1a1626;
+      color: #fff; font-weight: 700; margin: 0 1px; transition: background 0.08s, color 0.08s, border-color 0.08s;
+    }
+    .arena-focus-hint kbd.lit { background: var(--lime); color: var(--black); border-color: var(--lime); }
+
+    .arena-mobile-card {
+      display: none;
+      border: 2px solid var(--black);
+      background: #0d0919;
+      color: var(--white);
+      box-shadow: 6px 6px 0px var(--violet);
+      overflow: hidden;
+    }
+    .arena-mobile-card img { width: 100%; aspect-ratio: 16/10; object-fit: cover; display: block; border-bottom: 2px solid var(--black); }
+    .arena-mobile-card-body { padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+    .arena-pc-badge {
+      display: inline-flex; width: fit-content; align-items: center; gap: 6px;
+      background: var(--lime); color: var(--black); border: 2px solid var(--black);
+      padding: 4px 10px; font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+    }
 
     /* Virtual Drive Console Controls */
     .drive-console-bar {
@@ -1464,6 +1485,11 @@
       .win-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .gallery-masonry { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .gallery-item.col-span-2 { grid-column: span 2; }
+      /* Desktop-only Arena Drive Mode: keep mobile clean & fast */
+      #arenaSimShell { display: none !important; }
+      .arena-mobile-card { display: block !important; }
+      .field-meta-bar .m { display: none; }
+      .field-meta-bar { justify-content: center; background: transparent; border: none; padding: 8px 0 0; }
     }
 
     @media (max-width: 600px) {
@@ -2078,12 +2104,12 @@
         </div>
         <div class="arena-obj-banner" id="arenaObjBanner">OBJECTIVE: <b>DRIVE TO A GLOWING CORE BEAM</b> &amp; PRESS <b>[C]</b> TO GRAB</div>
         <div class="arena-score-pop" id="arenaScorePop">+25 PTS // HIGH POLE!</div>
-        <div class="arena-focus-hint">
-          CLICK ARENA &amp; USE <b>W A S D</b> / <b>ARROWS</b> • <b>R/G</b> ARM UP/DN • <b>Q/E</b> 90° SNAP • <b>C</b> PICK/SCORE • <b>V</b> CAM • <b>F</b> FULLSCREEN
+      <div class="arena-focus-hint" id="arenaKeyHint">
+          DRIVE: <kbd data-k="f">W</kbd><kbd data-k="l">A</kbd><kbd data-k="b">S</kbd><kbd data-k="r">D</kbd> / ARROWS • <kbd>R</kbd>/<kbd>G</kbd> ARM UP/DN • <kbd>Q</kbd>/<kbd>E</kbd> 90° • <kbd>C</kbd> PICK/SCORE • <kbd>V</kbd> CAM • <kbd>F</kbd> FULLSCREEN
         </div>
       </div>
 
-      <!-- Arcade / Mobile Touch Drive Console -->
+      <!-- Arcade Drive Console -->
       <div class="drive-console-bar">
         <div class="dpad-cluster" aria-label="Robot Drive Pad">
           <button class="drive-btn" id="btnTurnLeft" title="Turn Left (A / Left)">◀</button>
@@ -2106,10 +2132,22 @@
       </div>
     </div>
 
+    <!-- Mobile / Small-Screen Non-Interactive Showcase Card (Driving Simulator is Desktop-Only) -->
+    <div class="arena-mobile-card" aria-label="HYPERDRIVE 2026 Arena Overview">
+      <img src="assets/field-poster.jpg" alt="HYPERDRIVE 2026 Official Competition Arena" loading="lazy" decoding="async">
+      <div class="arena-mobile-card-body">
+        <span class="arena-pc-badge">PC / DESKTOP EXCLUSIVE SIMULATOR</span>
+        <div class="d" style="font-size:28px;color:var(--white);line-height:0.95;">Drive ARGUS #298 on Desktop</div>
+        <p style="font-size:13.5px;color:#d6d0e8;line-height:1.48;">
+          The interactive 3D HYPERDRIVE 2026 arena &amp; fullscreen keyboard simulator is available on laptop/desktop screens (≥ 920 px) for smooth WASD + Arm driving.
+        </p>
+      </div>
+    </div>
+
     <div class="field-meta-bar">
       <div>
         <div class="m" style="font-weight:700;">THE FIELD WE PLAY ON // INTERACTIVE TANKDRIVE SIM</div>
-        <div class="m" style="color:#555;margin-top:2px;">Drive ARGUS #298 into glowing rings, press <b>PICK / SCORE CORE</b>, and deliver to the Drop Zone or Poles.</div>
+        <div class="m" style="color:#555;margin-top:2px;">Use <b>WASD / Arrows</b> to drive, grab HYPERDRIVE COREs &amp; Payload, raise Arm <b>[R]</b>, and climb the Bridge Ramp.</div>
       </div>
       <a href="https://nrl.theinnovationstory.com/" target="_blank" rel="noopener noreferrer" class="btn btn-lime">Official NRL Website ↗</a>
     </div>
@@ -2765,21 +2803,136 @@
   const gltfLoader = new GLTFLoader();
   gltfLoader.setDRACOLoader(dracoLoader);
 
+  function styleArgusRobotMaterials(root, enableClearAcrylic = true) {
+    const cache = new Map();
+    function mapOne(mat) {
+      if (!mat) return mat;
+      if (cache.has(mat)) return cache.get(mat);
+      const nm = mat.name || '';
+      const c = mat.color ? mat.color.clone() : new THREE.Color(0.85, 0.88, 0.92);
+      const r = c.r, g = c.g, b = c.b;
+      const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      let out = mat;
+
+      // 1. Clear Translucent Laser-Cut Acrylic Plates & Arms (see through to motors/standoffs!)
+      if (enableClearAcrylic && (nm === 'polycarbonate' || (luma > 0.68 && (b - r) >= -0.02 && nm !== 'Steel_-_Satin'))) {
+        out = new THREE.MeshPhysicalMaterial({
+          color: new THREE.Color(0xdcf3ff),
+          transparent: true,
+          opacity: 0.34,
+          roughness: 0.07,
+          metalness: 0.04,
+          reflectivity: 0.95,
+          clearcoat: 1.0,
+          clearcoatRoughness: 0.05,
+          envMapIntensity: 1.55,
+          depthWrite: false,
+          side: THREE.DoubleSide
+        });
+        out.userData.isAcrylic = true;
+      }
+      // 2. Cream / Ivory 5-Spoke Wheel Rims
+      else if (luma > 0.60 && (r - b) >= 0.035 && (r - g) < 0.16) {
+        out = new THREE.MeshStandardMaterial({
+          color: new THREE.Color(0xf3ebd6),
+          roughness: 0.32,
+          metalness: 0.06,
+          envMapIntensity: 1.1
+        });
+      }
+      // 3. Matte Black Rubber Tires & Dark Servos
+      else if (r < 0.24 && g < 0.24 && b < 0.24) {
+        out = new THREE.MeshStandardMaterial({
+          color: c.multiplyScalar(0.72),
+          roughness: 0.86,
+          metalness: 0.04,
+          envMapIntensity: 0.75
+        });
+      }
+      // 4. Cobalt Blue Motor Pod & Aluminum Servos
+      else if (b > 0.50 && r < 0.28) {
+        out = new THREE.MeshStandardMaterial({
+          color: new THREE.Color(0x1e56f0),
+          roughness: 0.26,
+          metalness: 0.38,
+          envMapIntensity: 1.35
+        });
+      }
+      // 5. Flame Red Motor Pod & Accents
+      else if (r > 0.58 && g < 0.26 && b < 0.28) {
+        out = new THREE.MeshStandardMaterial({
+          color: new THREE.Color(0xe62626),
+          roughness: 0.26,
+          metalness: 0.36,
+          envMapIntensity: 1.35
+        });
+      }
+      // 6. Violet ARGUS Accents
+      else if (r > 0.45 && b > 0.75 && g < 0.72) {
+        out = new THREE.MeshStandardMaterial({
+          color: new THREE.Color(0x7D39EB),
+          roughness: 0.28,
+          metalness: 0.3,
+          envMapIntensity: 1.25
+        });
+      }
+      // 7. Brass Standoffs, XT60 & Gold PCB Pads
+      else if (r > 0.70 && g > 0.48 && b < 0.65 && (r - b) > 0.15) {
+        out = new THREE.MeshStandardMaterial({
+          color: c,
+          roughness: 0.22,
+          metalness: 0.82,
+          envMapIntensity: 1.45
+        });
+      }
+      // 8. HEXA Emerald PCB Solder Mask
+      else if (g > r + 0.10 && g > b + 0.04) {
+        out = new THREE.MeshStandardMaterial({
+          color: new THREE.Color(0x168049),
+          emissive: new THREE.Color(0x064e2b),
+          emissiveIntensity: 0.35,
+          roughness: 0.34,
+          metalness: 0.22
+        });
+      }
+      // 9. Satin Brushed Steel / Aluminum Hardware
+      else {
+        out = new THREE.MeshStandardMaterial({
+          color: c,
+          roughness: 0.28,
+          metalness: 0.68,
+          envMapIntensity: 1.3
+        });
+      }
+      out.name = nm;
+      cache.set(mat, out);
+      return out;
+    }
+
+    root.traverse(obj => {
+      if (!obj.isMesh || !obj.material) return;
+      obj.material = Array.isArray(obj.material) ? obj.material.map(mapOne) : mapOne(obj.material);
+    });
+  }
+
   function applyCadEdges(root, colorHex = 0x111111, threshold = 22) {
     const list = [];
     root.traverse(obj => {
       if (obj.isMesh && obj.geometry) {
-        if (obj.material) {
-          obj.material.roughness = Math.min(0.58, Math.max(0.28, obj.material.roughness ?? 0.42));
-          obj.material.metalness = Math.min(0.45, Math.max(0.18, obj.material.metalness ?? 0.25));
-          obj.material.envMapIntensity = 0.85;
-        }
+        const hasAcrylic = Array.isArray(obj.material)
+          ? obj.material.some(m => m?.userData?.isAcrylic)
+          : obj.material?.userData?.isAcrylic;
         const edges = new THREE.EdgesGeometry(obj.geometry, threshold);
         const line = new THREE.LineSegments(
           edges,
-          new THREE.LineBasicMaterial({ color: colorHex, transparent: true, opacity: 0.88 })
+          new THREE.LineBasicMaterial({
+            color: hasAcrylic ? 0xdbeafe : colorHex,
+            transparent: true,
+            opacity: hasAcrylic ? 0.55 : 0.82
+          })
         );
         line.name = 'cadOutline';
+        line.userData.isAcrylicEdge = Boolean(hasAcrylic);
         obj.add(line);
         list.push(line);
       }
@@ -2892,7 +3045,15 @@
 
     gltfLoader.load('assets/argus-robot.glb', (gltf) => {
       const { pivot } = normalizeRobotModel(gltf.scene, 1.95);
+      styleArgusRobotMaterials(pivot, true);
       outlineLines = applyCadEdges(pivot, 0x09090b, 22);
+      // Add subtle authentic HEXA OLED & LED beacons visible inside clear acrylic deck
+      const pcbGlow = new THREE.Mesh(
+        new THREE.BoxGeometry(0.18, 0.02, 0.12),
+        new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
+      );
+      pcbGlow.position.set(-0.08, 0.62, 0.04);
+      pivot.add(pcbGlow);
       robotRoot = pivot;
       scene.add(pivot);
       if (pill) pill.classList.add('hidden');
@@ -2929,7 +3090,8 @@
       wrap.classList.add(styleMode === 0 ? 'cad-mode-sticker' : styleMode === 1 ? 'cad-mode-neon' : 'cad-mode-studio');
       outlineLines.forEach(line => {
         line.visible = styleMode !== 2;
-        line.material.color.setHex(styleMode === 1 ? 0xC6FF33 : 0x09090b);
+        if (styleMode === 1) line.material.color.setHex(0xC6FF33);
+        else line.material.color.setHex(line.userData.isAcrylicEdge ? 0xdbeafe : 0x09090b);
       });
     });
 
@@ -3012,7 +3174,7 @@
   /* ============================================================
      B. SECTION 07 // PLAYABLE VIRTUAL ROBOT ARENA (HYPERDRIVE 2026)
      ============================================================ */
-  (function initArenaSimulator() {
+  function initArenaSimulator() {
     const shell = document.getElementById('arenaSimShell');
     const wrap = document.getElementById('arenaCanvasWrap');
     const pill = document.getElementById('arenaLoadPill');
@@ -3022,6 +3184,18 @@
     const fsHudBtn = document.getElementById('btnArenaFullscreen');
     const fsConsoleBtn = document.getElementById('btnConsoleFullscreen');
     if (!wrap || !shell) return;
+
+    // Desktop-only simulator guard (Mobile shows clean non-interactive showcase card)
+    if (window.innerWidth <= 920) {
+      const onWiden = () => {
+        if (window.innerWidth > 920) {
+          window.removeEventListener('resize', onWiden);
+          initArenaSimulator();
+        }
+      };
+      window.addEventListener('resize', onWiden);
+      return;
+    }
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -3041,23 +3215,41 @@
       const g = c.getContext('2d');
       g.fillStyle = '#888888';
       g.fillRect(0, 0, 512, 512);
-      // EVA foam micro-grain
-      for (let i = 0; i < 16000; i++) {
+      for (let i = 0; i < 18000; i++) {
         const x = Math.random() * 512, y = Math.random() * 512;
-        const v = 115 + Math.floor(Math.random() * 44);
+        const v = 110 + Math.floor(Math.random() * 52);
         g.fillStyle = `rgb(${v},${v},${v})`;
         g.fillRect(x, y, 2, 2);
       }
-      // Subtle puzzle tile seams
-      g.strokeStyle = '#565656';
+      g.strokeStyle = '#3f3f4a';
+      g.lineWidth = 4;
+      g.strokeRect(2, 2, 508, 508);
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(8, 8);
+      tex.anisotropy = maxAniso;
+      return tex;
+    }
+
+    function createCourtTileAlbedoTexture() {
+      const c = document.createElement('canvas');
+      c.width = 512; c.height = 512;
+      const g = c.getContext('2d');
+      g.fillStyle = '#e7ebf3';
+      g.fillRect(0, 0, 512, 512);
+      for (let i = 0; i < 9000; i++) {
+        const x = Math.random() * 512, y = Math.random() * 512;
+        const v = 220 + Math.floor(Math.random() * 24);
+        g.fillStyle = `rgb(${v},${v + 2},${v + 6})`;
+        g.fillRect(x, y, 2, 2);
+      }
+      g.strokeStyle = '#bfc7d6';
       g.lineWidth = 3;
-      g.strokeRect(1, 1, 510, 510);
-      g.strokeStyle = 'rgba(220,220,220,0.22)';
-      g.lineWidth = 1;
-      g.strokeRect(4, 4, 504, 504);
+      g.strokeRect(1.5, 1.5, 509, 509);
       const tex = new THREE.CanvasTexture(c);
       tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
       tex.repeat.set(6, 6);
+      tex.colorSpace = THREE.SRGBColorSpace;
       tex.anisotropy = maxAniso;
       return tex;
     }
@@ -3086,6 +3278,7 @@
     }
 
     const foamBumpTex = createFoamMatBumpTexture();
+    const courtTileTex = createCourtTileAlbedoTexture();
     const stageFloorTex = createStageFloorTexture();
 
     const scene = new THREE.Scene();
@@ -3159,12 +3352,20 @@
     const coreGroup = new THREE.Group();
     scene.add(coreGroup);
 
-    const dropPadMat = new THREE.MeshBasicMaterial({ color: 0xC6FF33, transparent: true, opacity: 0.55, side: THREE.DoubleSide });
-    const dropZoneRing = new THREE.Mesh(new THREE.RingGeometry(0.24, 0.34, 36), dropPadMat);
-    dropZoneRing.rotation.x = -Math.PI / 2;
-    scene.add(dropZoneRing);
+    const dropPadMat = new THREE.MeshBasicMaterial({ color: 0xC6FF33, transparent: true, opacity: 0.72, side: THREE.DoubleSide });
+    const dropZoneGroup = new THREE.Group();
+    scene.add(dropZoneGroup);
+    // Clean minimal architectural corner L-brackets instead of giant solid rings
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => {
+      const m1 = new THREE.Mesh(new THREE.PlaneGeometry(0.11, 0.02), dropPadMat);
+      m1.rotation.x = -Math.PI / 2; m1.position.set(sx * 0.22, 0, sz * 0.265);
+      const m2 = new THREE.Mesh(new THREE.PlaneGeometry(0.02, 0.11), dropPadMat);
+      m2.rotation.x = -Math.PI / 2; m2.position.set(sx * 0.265, 0, sz * 0.22);
+      dropZoneGroup.add(m1); dropZoneGroup.add(m2);
+    });
+    dropZoneGroup.visible = false;
 
-    const poleBeaconMat = new THREE.MeshBasicMaterial({ color: 0x7D39EB, transparent: true, opacity: 0.42, side: THREE.DoubleSide });
+    const poleBeaconMat = new THREE.MeshBasicMaterial({ color: 0x7D39EB, transparent: true, opacity: 0.55, side: THREE.DoubleSide });
     const poleTargets = [];
     const poleBeaconGroup = new THREE.Group();
     scene.add(poleBeaconGroup);
@@ -3182,57 +3383,68 @@
     function spawnCores() {
       while (coreGroup.children.length) coreGroup.remove(coreGroup.children[0]);
       cores.length = 0;
+      // Realistic HYPERDRIVE field placements (Blue & Coral-Orange TPU COREs + Team 012 90mm Payload Block)
       const laneOffsets = [
-        [-1.08, -0.78], [0.95, -0.78], [-1.08, 0.65], [0.95, 0.65], [0.0, -1.05], [-0.52, 0.18]
+        [-1.08, -0.78], [0.95, -0.78], [-1.08, 0.65], [0.95, 0.65], [0.0, -0.98], [-0.46, 0.22]
       ];
       laneOffsets.forEach(([ox, oz], idx) => {
         const holder = new THREE.Group();
-        const isViolet = idx % 2 === 0;
-        const ring = new THREE.Mesh(
-          new THREE.TorusGeometry(0.056, 0.021, 16, 32),
-          new THREE.MeshStandardMaterial({
-            color: isViolet ? 0x7D39EB : 0xC6FF33,
-            emissive: isViolet ? 0x521db8 : 0x6ea60d,
-            emissiveIntensity: 0.72,
-            roughness: 0.22,
-            metalness: 0.32
-          })
-        );
-        ring.rotation.x = Math.PI / 2;
-        ring.position.y = 0.025;
-        ring.castShadow = true;
+        const isBlue = idx % 2 === 0;
+        const isPayload = idx === 5;
+        let coreMesh;
+        if (isPayload) {
+          // Team 012 90mm 3D-printed chamfered Payload block (Orange + Violet cap)
+          coreMesh = new THREE.Mesh(
+            new THREE.BoxGeometry(0.078, 0.078, 0.078),
+            new THREE.MeshStandardMaterial({ color: 0xf97316, roughness: 0.42, metalness: 0.08 })
+          );
+          coreMesh.position.y = 0.039;
+          const cap = new THREE.Mesh(
+            new THREE.BoxGeometry(0.081, 0.014, 0.081),
+            new THREE.MeshStandardMaterial({ color: 0x7D39EB, roughness: 0.35 })
+          );
+          cap.position.y = 0.036;
+          coreMesh.add(cap);
+        } else {
+          // Authentic Matte TPU HYPERDRIVE CORE ring (Coral Orange / Cobalt Blue)
+          coreMesh = new THREE.Mesh(
+            new THREE.TorusGeometry(0.046, 0.018, 18, 36),
+            new THREE.MeshStandardMaterial({
+              color: isBlue ? 0x2563eb : 0xf97316,
+              roughness: 0.52,
+              metalness: 0.08,
+              envMapIntensity: 1.0
+            })
+          );
+          coreMesh.rotation.x = Math.PI / 2;
+          coreMesh.position.y = 0.019;
+        }
+        coreMesh.castShadow = true;
+        coreMesh.receiveShadow = true;
 
-        const beam = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.052, 0.058, 0.34, 16, 1, true),
-          new THREE.MeshBasicMaterial({
-            color: isViolet ? 0xB592F7 : 0xC6FF33,
-            transparent: true,
-            opacity: 0.22,
-            side: THREE.DoubleSide,
-            depthWrite: false
-          })
+        // Subtle flat ground pickup ring directly underneath element (no giant neon tubes!)
+        const subRing = new THREE.Mesh(
+          new THREE.RingGeometry(0.068, 0.082, 28),
+          new THREE.MeshBasicMaterial({ color: isPayload ? 0xC6FF33 : (isBlue ? 0x60a5fa : 0xfb923c), transparent: true, opacity: 0.42, side: THREE.DoubleSide })
         );
-        beam.position.y = 0.19;
-        holder.add(ring);
-        holder.add(beam);
+        subRing.rotation.x = -Math.PI / 2;
+        subRing.position.y = 0.004;
+
+        holder.add(coreMesh);
+        holder.add(subRing);
 
         const px = Math.max(fieldBounds.minX + 0.15, Math.min(fieldBounds.maxX - 0.15, fieldCenter.x + ox));
         const pz = Math.max(fieldBounds.minZ + 0.15, Math.min(fieldBounds.maxZ - 0.15, fieldCenter.z + oz));
         holder.position.set(px, floorY, pz);
         coreGroup.add(holder);
-        cores.push({ holder, ring, beam, active: true, phase: idx * 1.1 });
+        cores.push({ holder, ring: coreMesh, subRing, isPayload, active: true });
       });
     }
 
     function buildArenaStage(box, center, size, baseFloorY) {
-      // Competition Riser Platform + Dual Neon Guard Rails
       const riserGeo = new THREE.BoxGeometry(size.x + 1.05, 0.24, size.z + 1.05);
       const riserMat = new THREE.MeshStandardMaterial({
-        color: 0x161224,
-        roughness: 0.58,
-        metalness: 0.22,
-        bumpMap: foamBumpTex,
-        bumpScale: 0.004
+        color: 0x161224, roughness: 0.58, metalness: 0.22, bumpMap: foamBumpTex, bumpScale: 0.004
       });
       const riser = new THREE.Mesh(riserGeo, riserMat);
       riser.position.set(center.x, baseFloorY - 0.145, center.z);
@@ -3244,7 +3456,6 @@
       trim.position.set(center.x, baseFloorY - 0.025, center.z);
       scene.add(trim);
 
-      // 4 Tournament Corner Spotlight Pillars around Stage
       const corners = [
         [center.x - (size.x * 0.5 + 0.52), center.z - (size.z * 0.5 + 0.52), 0x7D39EB],
         [center.x + (size.x * 0.5 + 0.52), center.z - (size.z * 0.5 + 0.52), 0xC6FF33],
@@ -3258,23 +3469,14 @@
         post.castShadow = true;
         scene.add(post);
 
-        const strip = new THREE.Mesh(
-          new THREE.BoxGeometry(0.032, 1.25, 0.032),
-          new THREE.MeshBasicMaterial({ color: neonCol })
-        );
+        const strip = new THREE.Mesh(new THREE.BoxGeometry(0.032, 1.25, 0.032), new THREE.MeshBasicMaterial({ color: neonCol }));
         strip.position.set(px, baseFloorY + 0.62, pz);
         scene.add(strip);
       });
 
-      // Textured Specular Stadium Floor
       const stadiumFloor = new THREE.Mesh(
         new THREE.PlaneGeometry(40, 40),
-        new THREE.MeshStandardMaterial({
-          map: stageFloorTex,
-          roughness: 0.52,
-          metalness: 0.25,
-          envMapIntensity: 0.75
-        })
+        new THREE.MeshStandardMaterial({ map: stageFloorTex, roughness: 0.52, metalness: 0.25, envMapIntensity: 0.75 })
       );
       stadiumFloor.rotation.x = -Math.PI / 2;
       stadiumFloor.position.set(center.x, baseFloorY - 0.27, center.z);
@@ -3291,7 +3493,7 @@
       }
     }
 
-    // Load HYPERDRIVE 2026 Field + Enhance Material Micro-Textures
+    // Load HYPERDRIVE 2026 Field + Authentic Competition Textures & Glass Silos
     gltfLoader.load('assets/hyperdrive-field.glb', (gltf) => {
       const field = gltf.scene;
       scene.add(field);
@@ -3307,18 +3509,15 @@
         minZ: box.min.z + 0.44, maxZ: box.max.z - 0.44
       };
 
-      // Center precision keyLight & shadow frustum onto actual field
       keyLight.position.set(c.x + 2.8, box.min.y + 7.2, c.z + 3.6);
       keyLight.target.position.copy(c);
       keyLight.target.updateMatrixWorld();
 
-      // Raycast baseline floor Y near open floor
       const ray = new THREE.Raycaster(new THREE.Vector3(c.x + 0.7, box.max.y + 1, c.z + 0.6), new THREE.Vector3(0, -1, 0));
       const hits = ray.intersectObject(field, true);
       floorY = hits.length ? hits[0].point.y : box.min.y + 0.05;
       if (floorY > box.min.y + 0.32) floorY = box.min.y + 0.05;
 
-      // Apply PBR micro-grain to field tiles/ramps & classify walkable geometry
       field.traverse(child => {
         if (!child.isMesh) return;
         child.receiveShadow = true;
@@ -3329,21 +3528,43 @@
 
         if (child.material) {
           const mats = Array.isArray(child.material) ? child.material : [child.material];
-          mats.forEach(mat => {
+          child.material = mats.map(mat => {
+            const mn = (mat.name || '').toLowerCase();
             if (mat.map) mat.map.anisotropy = maxAniso;
-            mat.envMapIntensity = 0.95;
-            if (!isObst && h < 0.46) {
-              // EVA foam competition mat sheen + tactile bump grain
+            // Clear polycarbonate silos
+            if (mn.includes('polycarbonate')) {
+              return new THREE.MeshPhysicalMaterial({
+                color: 0xdff2ff, transparent: true, opacity: 0.30, roughness: 0.08, clearcoat: 1.0,
+                reflectivity: 0.9, depthWrite: false, side: THREE.DoubleSide
+              });
+            }
+            // Perimeter graphite charcoal walls for strong visual contrast
+            if (nm.includes('wall') || mn.includes('dark grey') || mn.includes('black low gloss') || mn.includes('color.013')) {
+              mat.color.setHex(0x282b38);
+              mat.roughness = 0.65;
+              mat.metalness = 0.15;
+            } else if (mn.includes('brushed aluminum')) {
+              mat.roughness = 0.25; mat.metalness = 0.78; mat.envMapIntensity = 1.4;
+            } else if (!isObst && h < 0.46) {
+              // Textured EVA competition tiles (never flat/blocky white!)
+              if (!mat.map && (mn.includes('color.014') || mn === 'color' || mn.includes('light grey'))) {
+                mat.map = courtTileTex;
+              }
               mat.bumpMap = foamBumpTex;
               mat.bumpScale = 0.0045;
-              mat.roughness = Math.max(0.55, Math.min(0.82, mat.roughness ?? 0.68));
+              mat.roughness = 0.66;
               mat.metalness = 0.06;
             } else {
-              mat.roughness = Math.max(0.28, Math.min(0.55, mat.roughness ?? 0.38));
-              mat.metalness = Math.max(0.18, mat.metalness ?? 0.22);
+              // Rich vivid red/blue/yellow zone poles & markers
+              mat.roughness = Math.min(0.45, mat.roughness ?? 0.35);
+              mat.metalness = Math.max(0.18, mat.metalness ?? 0.2);
               child.castShadow = true;
             }
+            mat.envMapIntensity = 1.05;
+            return mat;
           });
+          if (!Array.isArray(child.material) && Array.isArray(mats) && mats.length === 1) child.material = child.material[0];
+          else if (child.material.length === 1) child.material = child.material[0];
         }
 
         if (!isObst && h < 0.46) walkableMeshes.push(child);
@@ -3361,11 +3582,12 @@
         { x: c.x - 0.6, z: c.z + 1.1 }, { x: c.x + 0.6, z: c.z - 1.1 }
       ];
       targetCoords.forEach(pt => {
-        const pRing = new THREE.Mesh(new THREE.RingGeometry(0.18, 0.25, 28), poleBeaconMat);
+        const pRing = new THREE.Mesh(new THREE.RingGeometry(0.13, 0.16, 28), poleBeaconMat);
         pRing.rotation.x = -Math.PI / 2;
-        pRing.position.set(pt.x, floorY + 0.015, pt.z);
+        pRing.position.set(pt.x, floorY + 0.008, pt.z);
         poleBeaconGroup.add(pRing);
       });
+      poleBeaconGroup.visible = false;
 
       bot.x = c.x;
       bot.y = floorY;
@@ -3373,7 +3595,7 @@
       bot.yaw = Math.PI;
       if (robotPivot) robotPivot.position.set(bot.x, bot.y, bot.z);
 
-      dropZoneRing.position.set(c.x - s.x * 0.24, floorY + 0.015, c.z - s.z * 0.22);
+      dropZoneGroup.position.set(c.x - s.x * 0.24, floorY + 0.008, c.z - s.z * 0.22);
       spawnCores();
 
       camera.position.set(bot.x, floorY + 1.35, bot.z + 2.15);
@@ -3381,83 +3603,70 @@
       markLoaded();
     }, undefined, () => markLoaded());
 
-    // Load ARGUS Robot #298 — Realistic PBR Sheen, Refined Creases, HEXA Hub LEDs & Headlights
+    // Load ARGUS Robot #298 — Crystal Transparent Acrylic, Vivid Red/Blue Drive Pods, Brass & Cream Wheels!
     gltfLoader.load('assets/argus-robot.glb', (gltf) => {
       const { pivot } = normalizeRobotModel(gltf.scene, 0.46);
+      styleArgusRobotMaterials(pivot, true);
       pivot.traverse(obj => {
         if (!obj.isMesh) return;
         obj.castShadow = true;
         obj.receiveShadow = true;
-        if (obj.material) {
-          obj.material.roughness = Math.min(0.45, Math.max(0.18, obj.material.roughness ?? 0.32));
-          obj.material.metalness = Math.min(0.55, Math.max(0.2, obj.material.metalness ?? 0.25));
-          obj.material.envMapIntensity = 1.35;
-        }
-        if (obj.geometry) {
-          const line = new THREE.LineSegments(
-            new THREE.EdgesGeometry(obj.geometry, 24),
-            new THREE.LineBasicMaterial({ color: 0x0a0a10, transparent: true, opacity: 0.42 })
-          );
-          obj.add(line);
-        }
       });
+      applyCadEdges(pivot, 0x0a0a10, 24);
       // Rotate CAD so two-servo arm & claw face +Z local forward
       pivot.rotation.y = Math.PI;
 
       robotVisual = new THREE.Group();
       robotVisual.add(pivot);
 
-      // Authentic HEXA PCB Telemetry OLED & Dual LED Status Beacon on chassis deck
-      const oledGlow = new THREE.Mesh(
-        new THREE.BoxGeometry(0.065, 0.008, 0.042),
-        new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
-      );
-      oledGlow.position.set(0, 0.175, -0.02);
+      // Authentic HEXA PCB Telemetry OLED & Dual LED Status Beacon on top deck
+      const oledGlow = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.007, 0.04), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
+      oledGlow.position.set(-0.02, 0.145, -0.02);
       robotVisual.add(oledGlow);
 
       statusLedMat = new THREE.MeshBasicMaterial({ color: 0x7D39EB });
-      const statusLed = new THREE.Mesh(new THREE.SphereGeometry(0.016, 12, 12), statusLedMat);
-      statusLed.position.set(0.055, 0.185, -0.05);
+      const statusLed = new THREE.Mesh(new THREE.SphereGeometry(0.015, 12, 12), statusLedMat);
+      statusLed.position.set(0.048, 0.155, -0.045);
       robotVisual.add(statusLed);
 
-      // Dynamic 3D Arm Elevation Target Indicator Ring
+      // Dynamic 3D Arm Elevation Target Indicator Ring (only visible/focused cleanly around claw)
       armLevelRing = new THREE.Mesh(
-        new THREE.RingGeometry(0.045, 0.062, 24),
-        new THREE.MeshBasicMaterial({ color: 0xC6FF33, transparent: true, opacity: 0.75, side: THREE.DoubleSide })
+        new THREE.RingGeometry(0.042, 0.056, 24),
+        new THREE.MeshBasicMaterial({ color: 0xC6FF33, transparent: true, opacity: 0.72, side: THREE.DoubleSide })
       );
       armLevelRing.rotation.x = -Math.PI / 2;
       armLevelRing.position.set(0, armCurY, 0.22);
       robotVisual.add(armLevelRing);
 
-      // Subtle Headlight Ground Beams ahead of claw (+Z forward)
+      // Subtle LED Headlamp Beam ahead of claw (+Z forward)
       const beamMat = new THREE.MeshBasicMaterial({
-        color: 0xe6ffd1, transparent: true, opacity: 0.14, side: THREE.DoubleSide, depthWrite: false
+        color: 0xe6ffd1, transparent: true, opacity: 0.12, side: THREE.DoubleSide, depthWrite: false
       });
       [-0.08, 0.08].forEach(hx => {
-        const cone = new THREE.Mesh(new THREE.ConeGeometry(0.11, 0.38, 16, 1, true), beamMat);
+        const cone = new THREE.Mesh(new THREE.ConeGeometry(0.095, 0.34, 16, 1, true), beamMat);
         cone.rotation.x = -Math.PI / 2;
-        cone.position.set(hx, 0.04, 0.41);
+        cone.position.set(hx, 0.04, 0.39);
         robotVisual.add(cone);
       });
 
       const carrier = new THREE.Group();
       carrier.add(robotVisual);
 
-      // Ground Underglow Ring + Forward Directional Chevron
+      // Tight Chassis Underglow & Crisp Forward Arrow
       underglowRing = new THREE.Mesh(
-        new THREE.RingGeometry(0.24, 0.275, 36),
-        new THREE.MeshBasicMaterial({ color: 0xC6FF33, transparent: true, opacity: 0.72, side: THREE.DoubleSide })
+        new THREE.RingGeometry(0.245, 0.265, 36),
+        new THREE.MeshBasicMaterial({ color: 0xC6FF33, transparent: true, opacity: 0.55, side: THREE.DoubleSide })
       );
       underglowRing.rotation.x = -Math.PI / 2;
-      underglowRing.position.y = 0.008;
+      underglowRing.position.y = 0.006;
       carrier.add(underglowRing);
 
       const chev = new THREE.Mesh(
-        new THREE.ConeGeometry(0.06, 0.12, 3),
-        new THREE.MeshBasicMaterial({ color: 0xC6FF33, transparent: true, opacity: 0.92, side: THREE.DoubleSide })
+        new THREE.ConeGeometry(0.045, 0.09, 3),
+        new THREE.MeshBasicMaterial({ color: 0xC6FF33, transparent: true, opacity: 0.88, side: THREE.DoubleSide })
       );
       chev.rotation.x = Math.PI / 2;
-      chev.position.set(0, 0.032, 0.34);
+      chev.position.set(0, 0.025, 0.32);
       carrier.add(chev);
 
       carrier.position.set(bot.x, bot.y, bot.z);
@@ -3481,11 +3690,9 @@
       return floorY;
     }
 
-    // Arm Up/Down Stepping
     function stepArm(delta) {
       armIndex = Math.max(0, Math.min(armPoses.length - 1, armIndex + delta));
-      const pose = armPoses[armIndex];
-      document.getElementById('hudArmPose').textContent = pose;
+      document.getElementById('hudArmPose').textContent = armPoses[armIndex];
     }
 
     // Fullscreen Toggle (Reliable Edge-to-Edge Body Portal + Optional Native Fullscreen)
@@ -3493,21 +3700,15 @@
     shell.parentNode.insertBefore(fsAnchor, shell);
 
     function enterFullscreen() {
-      if (shell.parentNode !== document.body) {
-        document.body.appendChild(shell);
-      }
+      if (shell.parentNode !== document.body) document.body.appendChild(shell);
       shell.classList.add('is-pseudo-fs');
       document.body.style.overflow = 'hidden';
-      if (shell.requestFullscreen) {
-        shell.requestFullscreen().catch(() => {});
-      }
+      if (shell.requestFullscreen) shell.requestFullscreen().catch(() => {});
       syncFullscreenUI();
     }
 
     function exitFullscreen() {
-      if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {});
-      }
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
       shell.classList.remove('is-pseudo-fs');
       document.body.style.overflow = '';
       if (fsAnchor.parentNode && shell.parentNode === document.body) {
@@ -3532,44 +3733,58 @@
 
     let hadNativeFs = false;
     document.addEventListener('fullscreenchange', () => {
-      if (document.fullscreenElement === shell) {
-        hadNativeFs = true;
-      } else if (hadNativeFs) {
-        hadNativeFs = false;
-        exitFullscreen();
-        return;
-      }
+      if (document.fullscreenElement === shell) hadNativeFs = true;
+      else if (hadNativeFs) { hadNativeFs = false; exitFullscreen(); return; }
       syncFullscreenUI();
     });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && shell.classList.contains('is-pseudo-fs')) exitFullscreen();
-    });
-    if (fsHudBtn) fsHudBtn.addEventListener('click', toggleFullscreen);
-    if (fsConsoleBtn) fsConsoleBtn.addEventListener('click', toggleFullscreen);
+    if (fsHudBtn) fsHudBtn.addEventListener('click', (e) => { e.currentTarget.blur(); toggleFullscreen(); });
+    if (fsConsoleBtn) fsConsoleBtn.addEventListener('click', (e) => { e.currentTarget.blur(); toggleFullscreen(); });
 
-    // Keyboard & Touch Input Handling
+    // Immediate Global Window Keyboard Controls (works without clicking canvas whenever Arena is in view OR Fullscreen!)
     const keyMap = { KeyW: 'f', ArrowUp: 'f', KeyS: 'b', ArrowDown: 'b', KeyA: 'l', ArrowLeft: 'l', KeyD: 'r', ArrowRight: 'r' };
-    wrap.addEventListener('keydown', (e) => {
-      if (keyMap[e.code]) { e.preventDefault(); keys[keyMap[e.code]] = true; }
+    const hintKeyEls = {
+      f: document.querySelector('#arenaKeyHint kbd[data-k="f"]'),
+      b: document.querySelector('#arenaKeyHint kbd[data-k="b"]'),
+      l: document.querySelector('#arenaKeyHint kbd[data-k="l"]'),
+      r: document.querySelector('#arenaKeyHint kbd[data-k="r"]')
+    };
+
+    function syncKeyHints() {
+      Object.entries(hintKeyEls).forEach(([dir, el]) => { if (el) el.classList.toggle('lit', Boolean(keys[dir])); });
+    }
+
+    function canDriveWithKeyboard() {
+      if (window.innerWidth <= 920) return false;
+      const ae = document.activeElement;
+      if (ae && /^(INPUT|TEXTAREA|SELECT)$/i.test(ae.tagName)) return false;
+      return isVisible || shell.classList.contains('is-pseudo-fs') || document.fullscreenElement === shell;
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && shell.classList.contains('is-pseudo-fs')) { exitFullscreen(); return; }
+      if (!canDriveWithKeyboard()) return;
+      if (keyMap[e.code]) { e.preventDefault(); keys[keyMap[e.code]] = true; syncKeyHints(); }
       else if (e.code === 'KeyQ') { e.preventDefault(); snapTurn(Math.PI / 2); }
       else if (e.code === 'KeyE') { e.preventDefault(); snapTurn(-Math.PI / 2); }
       else if (e.code === 'KeyR') { e.preventDefault(); stepArm(1); }
       else if (e.code === 'KeyG') { e.preventDefault(); stepArm(-1); }
-      else if (e.code === 'KeyC') { e.preventDefault(); handleCoreAction(); }
+      else if (e.code === 'KeyC' || e.code === 'Enter') { e.preventDefault(); handleCoreAction(); }
       else if (e.code === 'KeyF') { e.preventDefault(); toggleFullscreen(); }
       else if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') { toggleSpeed(); }
       else if (e.code === 'KeyV') { toggleCam(); }
       else if (e.code === 'Space') { e.preventDefault(); bot.v = 0; bot.w = 0; }
     });
+
     window.addEventListener('keyup', (e) => {
-      if (keyMap[e.code]) keys[keyMap[e.code]] = false;
+      if (keyMap[e.code]) { keys[keyMap[e.code]] = false; syncKeyHints(); }
     });
+    window.addEventListener('blur', () => { keys.f = keys.b = keys.l = keys.r = false; syncKeyHints(); });
 
     function bindHoldButton(id, dir) {
       const el = document.getElementById(id);
       if (!el) return;
-      const down = (e) => { e.preventDefault(); keys[dir] = true; el.classList.add('pressed'); };
-      const up = () => { keys[dir] = false; el.classList.remove('pressed'); };
+      const down = (e) => { e.preventDefault(); keys[dir] = true; el.classList.add('pressed'); syncKeyHints(); el.blur(); };
+      const up = () => { keys[dir] = false; el.classList.remove('pressed'); syncKeyHints(); };
       el.addEventListener('mousedown', down);
       el.addEventListener('touchstart', down, { passive: false });
       window.addEventListener('mouseup', up);
@@ -3596,14 +3811,16 @@
         }
         if (best) {
           best.active = false;
-          best.beam.visible = false;
+          best.subRing.visible = false;
           carriedCore = best;
           robotVisual.add(best.holder);
           best.holder.position.set(0, armCurY, 0.23);
           clawEl.textContent = 'GRIP (105°)';
           if (statusLedMat) statusLedMat.color.setHex(0xC6FF33);
-          triggerScorePop('CORE GRABBED!');
-          showToast('CORE gripped (105°)! Raise arm [R] & deliver to Violet Pole (+30) or Lime Zone (+15).');
+          dropZoneGroup.visible = true;
+          poleBeaconGroup.visible = true;
+          triggerScorePop(best.isPayload ? 'PAYLOAD GRABBED!' : 'CORE GRABBED!');
+          showToast('Gripped (105°)! Raise arm [R] & deliver to a High Pole (+30) or Lime Drop Zone (+15).');
         } else {
           clawEl.textContent = 'CLAW TEST (105°)';
           setTimeout(() => { if (!carriedCore) clawEl.textContent = 'OPEN (0°)'; }, 650);
@@ -3613,21 +3830,23 @@
         for (const pt of poleBeaconGroup.children) {
           nearestPole = Math.min(nearestPole, Math.hypot(bot.x - pt.position.x, bot.z - pt.position.z));
         }
-        const distDrop = Math.hypot(bot.x - dropZoneRing.position.x, bot.z - dropZoneRing.position.z);
+        const distDrop = Math.hypot(bot.x - dropZoneGroup.position.x, bot.z - dropZoneGroup.position.z);
         let pts = 10;
         let zoneLabel = '+10 PTS // FIELD DROP';
         if (nearestPole < 0.72) {
           pts = (armIndex >= 2) ? 30 : 25;
           zoneLabel = `+${pts} PTS // HIGH POLE!`;
         } else if (distDrop < 0.75) {
-          pts = 15;
-          zoneLabel = '+15 PTS // DROP ZONE!';
+          pts = carriedCore.isPayload ? 20 : 15;
+          zoneLabel = `+${pts} PTS // ${carriedCore.isPayload ? 'PAYLOAD SCORED!' : 'DROP ZONE!'}`;
         }
         score += pts;
         document.getElementById('hudScore').textContent = `SCORE: ${score}`;
         scene.add(carriedCore.holder);
-        carriedCore.holder.position.set(bot.x + Math.sin(bot.yaw) * 0.34, bot.y + 0.02, bot.z + Math.cos(bot.yaw) * 0.34);
+        carriedCore.holder.position.set(bot.x + Math.sin(bot.yaw) * 0.34, bot.y + 0.01, bot.z + Math.cos(bot.yaw) * 0.34);
         carriedCore = null;
+        dropZoneGroup.visible = false;
+        poleBeaconGroup.visible = false;
         clawEl.textContent = 'OPEN (0°)';
         if (statusLedMat) statusLedMat.color.setHex(0x7D39EB);
         triggerScorePop(zoneLabel);
@@ -3656,20 +3875,22 @@
       }
     }
 
-    document.getElementById('btnSnapLeft').addEventListener('click', () => snapTurn(Math.PI / 2));
-    document.getElementById('btnSnapRight').addEventListener('click', () => snapTurn(-Math.PI / 2));
-    document.getElementById('btnArmUp').addEventListener('click', () => stepArm(1));
-    document.getElementById('btnArmDown').addEventListener('click', () => stepArm(-1));
-    document.getElementById('btnCoreAction').addEventListener('click', handleCoreAction);
-    document.getElementById('btnSpeedToggle').addEventListener('click', toggleSpeed);
-    document.getElementById('btnCamToggle').addEventListener('click', toggleCam);
-    document.getElementById('btnArenaReset').addEventListener('click', () => {
+    document.getElementById('btnSnapLeft').addEventListener('click', (e) => { e.currentTarget.blur(); snapTurn(Math.PI / 2); });
+    document.getElementById('btnSnapRight').addEventListener('click', (e) => { e.currentTarget.blur(); snapTurn(-Math.PI / 2); });
+    document.getElementById('btnArmUp').addEventListener('click', (e) => { e.currentTarget.blur(); stepArm(1); });
+    document.getElementById('btnArmDown').addEventListener('click', (e) => { e.currentTarget.blur(); stepArm(-1); });
+    document.getElementById('btnCoreAction').addEventListener('click', (e) => { e.currentTarget.blur(); handleCoreAction(); });
+    document.getElementById('btnSpeedToggle').addEventListener('click', (e) => { e.currentTarget.blur(); toggleSpeed(); });
+    document.getElementById('btnCamToggle').addEventListener('click', (e) => { e.currentTarget.blur(); toggleCam(); });
+    document.getElementById('btnArenaReset').addEventListener('click', (e) => {
+      e.currentTarget.blur();
       bot.x = fieldCenter.x;
       bot.z = fieldCenter.z + 1.15;
       bot.y = floorY;
       bot.yaw = Math.PI;
       bot.v = 0; bot.w = 0; bot.snapTargetYaw = null;
       score = 0; carriedCore = null; levelUpAwarded = false;
+      dropZoneGroup.visible = false; poleBeaconGroup.visible = false;
       armIndex = 1;
       document.getElementById('hudArmPose').textContent = 'CARRY';
       document.getElementById('hudScore').textContent = 'SCORE: 0';
@@ -3698,30 +3919,29 @@
 
     function tick(now) {
       requestAnimationFrame(tick);
-      if (!isVisible) { lastTime = now; return; }
+      if (!isVisible && !shell.classList.contains('is-pseudo-fs')) { lastTime = now; return; }
       const dt = Math.min(0.05, (now - lastTime) / 1000);
       lastTime = now;
 
-      const maxV = fastMode ? 2.05 : 0.9;
-      const maxW = fastMode ? 3.25 : 1.75;
+      const maxV = fastMode ? 2.15 : 0.92;
+      const maxW = fastMode ? 3.35 : 1.75;
       const targetV = (keys.f ? 1 : 0) - (keys.b ? 1 : 0);
       const targetW = (keys.l ? 1 : 0) - (keys.r ? 1 : 0);
 
       bot.prevV = bot.v;
-      bot.v += (targetV * maxV - bot.v) * Math.min(1, dt * 10);
+      bot.v += (targetV * maxV - bot.v) * Math.min(1, dt * 12);
       if (bot.snapTargetYaw !== null) {
         const diff = bot.snapTargetYaw - bot.yaw;
         if (Math.abs(diff) < 0.04) { bot.yaw = bot.snapTargetYaw; bot.snapTargetYaw = null; }
-        else bot.yaw += diff * Math.min(1, dt * 9);
+        else bot.yaw += diff * Math.min(1, dt * 10);
       } else {
-        bot.w += (targetW * maxW - bot.w) * Math.min(1, dt * 12);
+        bot.w += (targetW * maxW - bot.w) * Math.min(1, dt * 14);
         bot.yaw += bot.w * dt;
       }
 
       bot.x = Math.max(fieldBounds.minX, Math.min(fieldBounds.maxX, bot.x + Math.sin(bot.yaw) * bot.v * dt));
       bot.z = Math.max(fieldBounds.minZ, Math.min(fieldBounds.maxZ, bot.z + Math.cos(bot.yaw) * bot.v * dt));
 
-      // Live Terrain / LEVEL UP Ramp Elevation & Slope Pitch
       const gY = sampleGroundY(bot.x, bot.z);
       const fY = sampleGroundY(bot.x + Math.sin(bot.yaw) * 0.16, bot.z + Math.cos(bot.yaw) * 0.16);
       const bY = sampleGroundY(bot.x - Math.sin(bot.yaw) * 0.16, bot.z - Math.cos(bot.yaw) * 0.16);
@@ -3729,7 +3949,6 @@
       const rawSlope = Math.atan2(fY - bY, 0.32);
       bot.slopePitch += (rawSlope - bot.slopePitch) * Math.min(1, dt * 10);
 
-      // Chassis acceleration/braking pitch + cornering roll + Arm Elevation Lerp
       const accel = (bot.v - bot.prevV) / Math.max(dt, 0.008);
       bot.pitch += (Math.max(-0.08, Math.min(0.08, accel * 0.008)) - bot.pitch) * Math.min(1, dt * 10);
       bot.roll += (Math.max(-0.06, Math.min(0.06, -bot.w * bot.v * 0.015)) - bot.roll) * Math.min(1, dt * 10);
@@ -3758,18 +3977,18 @@
       let minCoreDist = 99;
       for (const c of cores) {
         if (!c.active) continue;
-        c.ring.position.y = 0.03 + Math.sin(now * 0.004 + c.phase) * 0.014;
-        c.beam.material.opacity = 0.14 + Math.sin(now * 0.005 + c.phase) * 0.08;
-        minCoreDist = Math.min(minCoreDist, Math.hypot(c.holder.position.x - bot.x, c.holder.position.z - bot.z));
+        const d = Math.hypot(c.holder.position.x - bot.x, c.holder.position.z - bot.z);
+        c.subRing.material.opacity = d < 0.65 ? (0.55 + Math.sin(now * 0.008) * 0.25) : 0.28;
+        minCoreDist = Math.min(minCoreDist, d);
       }
 
       if (objBanner) {
         if (carriedCore) {
-          objBanner.innerHTML = 'CORE GRIPPED: <b>DRIVE TO VIOLET POLE (+25/+30) OR LIME ZONE (+15)</b> &amp; PRESS <b>[C]</b>';
+          objBanner.innerHTML = 'CORE GRIPPED: <b>DRIVE TO VIOLET POLE (+30) OR LIME CORNER DROP (+15)</b> &amp; PRESS <b>[C]</b>';
         } else if (minCoreDist < 0.65) {
-          objBanner.innerHTML = 'IN RANGE! PRESS <b>[C]</b> OR <b>PICK / SCORE CORE</b> TO GRAB';
+          objBanner.innerHTML = 'IN RANGE! PRESS <b>[C]</b> OR <b>[ENTER]</b> TO GRAB';
         } else {
-          objBanner.innerHTML = 'OBJECTIVE: <b>WASD TO DRIVE • [R/G] ARM UP/DN • [F] FULLSCREEN</b>';
+          objBanner.innerHTML = 'READY: <b>WASD / ARROWS TO DRIVE • [R/G] ARM UP/DN • [F] FULLSCREEN</b>';
         }
       }
 
@@ -3777,7 +3996,7 @@
       if (spdEl) spdEl.textContent = `${Math.abs(bot.v).toFixed(1)} m/s`;
       if (elevEl) elevEl.textContent = `${elevCm} cm`;
 
-      dropPadMat.opacity = 0.40 + Math.sin(now * 0.005) * 0.22;
+      dropPadMat.opacity = 0.50 + Math.sin(now * 0.006) * 0.25;
       poleBeaconMat.opacity = carriedCore ? (0.48 + Math.sin(now * 0.008) * 0.28) : 0.22;
 
       if (camMode === 0 && robotPivot) {
@@ -3786,15 +4005,16 @@
           bot.y + 1.28,
           bot.z - Math.cos(bot.yaw) * 2.05
         );
-        camera.position.lerp(desiredCam, Math.min(1, dt * 5.2));
-        orbit.target.lerp(new THREE.Vector3(bot.x + Math.sin(bot.yaw) * 0.45, bot.y + 0.18, bot.z + Math.cos(bot.yaw) * 0.45), Math.min(1, dt * 8.5));
+        camera.position.lerp(desiredCam, Math.min(1, dt * 5.5));
+        orbit.target.lerp(new THREE.Vector3(bot.x + Math.sin(bot.yaw) * 0.45, bot.y + 0.18, bot.z + Math.cos(bot.yaw) * 0.45), Math.min(1, dt * 9));
       }
 
       orbit.update();
       renderer.render(scene, camera);
     }
     requestAnimationFrame(tick);
-  })();
+  }
+  initArenaSimulator();
 </script>
 
 </body>
