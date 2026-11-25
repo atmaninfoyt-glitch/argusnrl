@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ARGUS × NRL 2026 — Engineering ideas into intelligent machines</title>
   <meta name="description" content="ARGUS (Team 012 / Regional #298) is a school robotics team from Delhi competing in the National Robotics League 2026. Delhi Regional Champions heading to National Finals in Mumbai.">
   <meta name="theme-color" content="#000000">
@@ -27,9 +27,8 @@
 
   <style>
     /* ========================================================
-       00 // BRAND SYSTEM & CSS RESET
+       00 // BRAND SYSTEM & FLUID RESPONSIVE TOKENS
        Palette: Black #000000, Violet #7D39EB, Lime #C6FF33, White #FFFFFF
-       Fonts: Big Shoulders Stencil Display, Archivo, JetBrains Mono
        ======================================================== */
     :root {
       --black: #000000;
@@ -42,18 +41,14 @@
       --gray-100: #f5f5f5;
       --violet-light: #B592F7;
       --violet-dark: #5818bb;
-      --border: 2px solid var(--black);
-      --border-white: 2px solid var(--white);
-      --border-lime: 2px solid var(--lime);
-      --shadow-brutal: 4px 4px 0px var(--black);
-      --shadow-lime: 4px 4px 0px var(--lime);
-      --shadow-violet: 4px 4px 0px var(--violet);
       --font-display: 'Big Shoulders Stencil Display', 'Impact', sans-serif;
       --font-body: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
+      --pad-x: clamp(16px, 4vw, 48px);
+      --pad-y: clamp(48px, 6.5vw, 88px);
     }
 
-    * {
+    *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
@@ -61,28 +56,35 @@
 
     html {
       scroll-behavior: smooth;
-      scroll-padding-top: 74px;
+      scroll-padding-top: 72px;
       background: var(--black);
       color: var(--black);
       font-family: var(--font-body);
       -webkit-font-smoothing: antialiased;
+      overflow-x: clip;
     }
 
     body {
-      background: #ffffff;
+      background: var(--black);
       color: var(--black);
-      overflow-x: hidden;
+      overflow-x: clip;
       line-height: 1.5;
+      width: 100%;
+    }
+
+    img, svg, canvas, model-viewer {
+      max-width: 100%;
     }
 
     .pg {
       width: 100%;
-      max-width: 1540px;
+      max-width: 1440px;
       margin: 0 auto;
-      background: #ffffff;
+      background: var(--white);
       border-left: 2px solid var(--black);
       border-right: 2px solid var(--black);
       position: relative;
+      overflow-x: clip;
     }
 
     /* Typography */
@@ -90,35 +92,33 @@
       font-family: var(--font-display);
       font-weight: 900;
       text-transform: uppercase;
-      line-height: 0.88;
+      line-height: 0.9;
       letter-spacing: 0.01em;
     }
 
     .m {
       font-family: var(--font-mono);
-      font-size: 12px;
-      letter-spacing: 0.08em;
+      font-size: clamp(10.5px, 1vw, 12px);
+      letter-spacing: 0.07em;
       text-transform: uppercase;
     }
 
-    .h1 {
-      font-size: clamp(52px, 8.5vw, 118px);
-    }
-
     .h2 {
-      font-size: clamp(42px, 6.2vw, 86px);
-      margin-bottom: 24px;
+      font-size: clamp(36px, 5.5vw, 80px);
+      margin-bottom: 12px;
     }
 
     .h3 {
-      font-size: clamp(28px, 3.8vw, 44px);
+      font-size: clamp(26px, 3.4vw, 42px);
     }
 
     /* Sections */
     .sec {
-      padding: 88px 48px;
+      padding: var(--pad-y) var(--pad-x);
       border-top: 2px solid var(--black);
       position: relative;
+      background: var(--white);
+      color: var(--black);
     }
 
     .sec-dark {
@@ -142,8 +142,8 @@
     .sec-hdr {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      margin-bottom: 48px;
+      gap: 10px;
+      margin-bottom: clamp(28px, 4vw, 44px);
     }
 
     .sec-tag {
@@ -160,14 +160,34 @@
       font-weight: 700;
     }
 
-    .sec-dark .sec-tag {
+    .sec-dark .sec-tag,
+    .sec-vio .sec-tag {
       color: var(--lime);
       border-color: var(--lime);
     }
 
-    .sec-vio .sec-tag {
-      color: var(--lime);
-      border-color: var(--lime);
+    /* Smooth Scroll-Reveal Animations */
+    .reveal {
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.38s cubic-bezier(0.22, 1, 0.36, 1), transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .reveal.in-view {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+      }
+      * {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
     }
 
     /* Buttons */
@@ -175,24 +195,24 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      padding: 14px 26px;
+      gap: 8px;
+      padding: 13px 22px;
       font-family: var(--font-mono);
-      font-size: 13px;
+      font-size: clamp(11.5px, 1.1vw, 13px);
       font-weight: 700;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.07em;
       text-transform: uppercase;
       text-decoration: none;
       border: 2px solid var(--black);
       cursor: pointer;
-      transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
-      min-height: 48px;
-      position: relative;
+      transition: transform 0.16s ease, background 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
+      min-height: 46px;
+      white-space: nowrap;
     }
 
     .btn:hover {
       transform: translate(-3px, -3px);
-      box-shadow: 6px 6px 0px var(--black);
+      box-shadow: 5px 5px 0px var(--black);
     }
 
     .btn:active {
@@ -208,7 +228,7 @@
       background: var(--black);
       color: var(--lime);
       border-color: var(--black);
-      box-shadow: 6px 6px 0px var(--violet);
+      box-shadow: 5px 5px 0px var(--violet);
     }
 
     .btn-white {
@@ -221,15 +241,6 @@
       border-color: var(--black);
     }
 
-    .btn-vio {
-      background: var(--violet);
-      color: var(--white);
-    }
-    .btn-vio:hover {
-      background: var(--lime);
-      color: var(--black);
-    }
-
     .btn-dark {
       background: var(--black);
       color: var(--white);
@@ -239,10 +250,23 @@
       background: var(--lime);
       color: var(--black);
       border-color: var(--black);
-      box-shadow: 6px 6px 0px var(--lime);
+      box-shadow: 5px 5px 0px var(--lime);
     }
 
-    /* Navigation */
+    .btn-dark-solid {
+      background: var(--black);
+      color: var(--white);
+      border-color: var(--black);
+    }
+    .btn-dark-solid:hover {
+      background: var(--violet);
+      color: var(--white);
+      border-color: var(--black);
+    }
+
+    /* ========================================================
+       NAVIGATION (Clean, Non-Wrapping at All Zooms)
+       ======================================================== */
     nav.top-nav {
       position: sticky;
       top: 0;
@@ -252,21 +276,23 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 48px;
-      gap: 16px;
+      padding: 10px var(--pad-x);
+      gap: 12px;
+      min-height: 64px;
     }
 
     .brand-mark {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       text-decoration: none;
       color: var(--black);
+      flex-shrink: 0;
     }
 
     .brand-logo-img {
-      height: 38px;
-      width: 38px;
+      height: 36px;
+      width: 36px;
       object-fit: contain;
       border: 1.5px solid var(--black);
       padding: 2px;
@@ -281,15 +307,16 @@
     .brand-title {
       font-family: var(--font-display);
       font-weight: 900;
-      font-size: 28px;
+      font-size: 26px;
       line-height: 0.9;
       letter-spacing: 0.04em;
+      color: var(--black);
     }
 
     .brand-sub {
       font-family: var(--font-mono);
-      font-size: 10px;
-      letter-spacing: 0.1em;
+      font-size: 9.5px;
+      letter-spacing: 0.08em;
       color: var(--violet);
       font-weight: 700;
     }
@@ -297,7 +324,8 @@
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
+      flex-wrap: nowrap;
     }
 
     .nav-links a {
@@ -306,37 +334,52 @@
       font-family: var(--font-mono);
       font-size: 11px;
       font-weight: 700;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
-      padding: 8px 10px;
-      transition: color 0.15s, background 0.15s;
-      border: 1px solid transparent;
+      padding: 7px 9px;
+      transition: color 0.15s, background 0.15s, border-color 0.15s;
+      border: 1.5px solid transparent;
+      white-space: nowrap;
     }
 
     .nav-links a:hover {
-      color: var(--violet);
+      color: var(--black);
       border-color: var(--black);
       background: var(--lime);
+    }
+
+    .nav-links a.nav-cta-pill {
+      background: var(--violet);
+      color: var(--white);
+      border-color: var(--black);
+    }
+
+    .nav-links a.nav-cta-pill:hover {
+      background: var(--lime);
+      color: var(--black);
     }
 
     .nav-live-badge {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
       background: var(--black);
       color: var(--lime);
-      padding: 6px 12px;
+      padding: 6px 11px;
       border: 1.5px solid var(--black);
       font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .pulsing-dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       background: var(--lime);
       border-radius: 50%;
+      flex-shrink: 0;
       animation: pulse-dot 1.6s infinite;
     }
 
@@ -348,13 +391,68 @@
 
     .mobile-menu-btn {
       display: none;
-      background: var(--white);
+      background: var(--lime);
+      color: var(--black);
       border: 2px solid var(--black);
-      padding: 8px 12px;
+      padding: 8px 14px;
       font-family: var(--font-mono);
       font-size: 12px;
       cursor: pointer;
       font-weight: 700;
+      min-height: 40px;
+    }
+
+    /* Mobile Drawer */
+    .mobile-drawer {
+      position: fixed;
+      inset: 0;
+      background: var(--white);
+      color: var(--black);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      overflow-y: auto;
+      transform: translateX(100%);
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+      pointer-events: none;
+    }
+
+    .mobile-drawer.open {
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+
+    .drawer-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--black);
+    }
+
+    .drawer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .drawer-links a {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 900;
+      text-decoration: none;
+      color: var(--black);
+      text-transform: uppercase;
+      border-bottom: 1.5px solid #ddd;
+      padding: 6px 0;
+      transition: color 0.15s, padding-left 0.15s;
+    }
+
+    .drawer-links a:hover {
+      color: var(--violet);
+      padding-left: 8px;
     }
 
     /* ========================================================
@@ -363,9 +461,9 @@
     .hero {
       position: relative;
       overflow: hidden;
-      padding: 64px 48px 72px;
+      padding: clamp(32px, 5vw, 68px) var(--pad-x);
       background: var(--white);
-      min-height: 86vh;
+      color: var(--black);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -378,53 +476,57 @@
       height: 100%;
       z-index: 0;
       pointer-events: none;
-      opacity: 0.85;
+      opacity: 0.75;
     }
 
     .hero-content {
       position: relative;
       z-index: 2;
       display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 40px;
+      grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+      gap: clamp(24px, 4vw, 44px);
       align-items: center;
     }
 
     .hero-meta-badges {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 20px;
+      gap: 8px;
+      margin-bottom: 18px;
     }
 
     .badge-champion {
       background: var(--lime);
       color: var(--black);
-      padding: 6px 14px;
+      padding: 6px 12px;
       font-family: var(--font-mono);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       border: 2px solid var(--black);
       box-shadow: 3px 3px 0px var(--black);
+      display: inline-block;
     }
 
     .badge-meta {
       background: var(--black);
       color: var(--white);
-      padding: 6px 12px;
+      padding: 6px 10px;
       font-family: var(--font-mono);
-      font-size: 11px;
-      font-weight: 500;
+      font-size: 10.5px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
     }
 
     .hero-title {
       font-family: var(--font-display);
       font-weight: 900;
-      font-size: clamp(52px, 7.8vw, 108px);
+      font-size: clamp(44px, 7vw, 100px);
       line-height: 0.88;
       text-transform: uppercase;
       letter-spacing: 0.01em;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
+      color: var(--black);
     }
 
     .hero-title span.accent-vio {
@@ -432,20 +534,48 @@
     }
 
     .hero-sub {
-      font-size: clamp(17px, 1.8vw, 21px);
-      max-width: 680px;
-      line-height: 1.45;
+      font-size: clamp(15px, 1.5vw, 19px);
+      max-width: 620px;
+      line-height: 1.5;
       color: #222;
-      margin-bottom: 32px;
+      margin-bottom: 26px;
       font-weight: 500;
     }
 
     .hero-ctas {
       display: flex;
       flex-wrap: wrap;
-      gap: 16px;
+      gap: 12px;
       align-items: center;
-      margin-bottom: 32px;
+    }
+
+    .hero-bootcamp-pill {
+      margin-top: 22px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #f6f1ff;
+      border: 2px solid var(--violet);
+      padding: 10px 14px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--black);
+      text-decoration: none;
+      transition: background 0.15s, transform 0.15s;
+    }
+
+    .hero-bootcamp-pill:hover {
+      background: var(--lime);
+      border-color: var(--black);
+      transform: translateY(-2px);
+    }
+
+    .hero-bootcamp-pill .free-chip {
+      background: var(--violet);
+      color: var(--white);
+      padding: 3px 7px;
+      font-size: 10px;
     }
 
     /* Countdown Widget */
@@ -453,9 +583,8 @@
       background: var(--black);
       color: var(--white);
       border: 2px solid var(--black);
-      padding: 24px;
-      box-shadow: 8px 8px 0px var(--violet);
-      position: relative;
+      padding: clamp(16px, 2.2vw, 24px);
+      box-shadow: 6px 6px 0px var(--violet);
     }
 
     .countdown-header {
@@ -463,8 +592,10 @@
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid #333;
-      padding-bottom: 12px;
-      margin-bottom: 18px;
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     .countdown-header .m {
@@ -474,20 +605,20 @@
 
     .countdown-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
       text-align: center;
     }
 
     .cd-box {
       background: #161616;
       border: 1px solid #333;
-      padding: 12px 6px;
+      padding: 10px 4px;
     }
 
     .cd-val {
       font-family: var(--font-display);
-      font-size: clamp(38px, 4.5vw, 56px);
+      font-size: clamp(32px, 4vw, 52px);
       font-weight: 900;
       line-height: 0.9;
       color: var(--white);
@@ -495,44 +626,45 @@
 
     .cd-lbl {
       font-family: var(--font-mono);
-      font-size: 10px;
-      letter-spacing: 0.1em;
+      font-size: 9.5px;
+      letter-spacing: 0.08em;
       color: var(--lime);
       margin-top: 4px;
     }
 
     .countdown-location {
-      margin-top: 16px;
+      margin-top: 12px;
       font-family: var(--font-mono);
       font-size: 11px;
-      color: #aaa;
+      color: #bbb;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
 
     .countdown-location span.dot {
       width: 6px;
       height: 6px;
       background: var(--violet-light);
-      display: inline-block;
+      flex-shrink: 0;
     }
 
-    /* Hero side card with winning flatlay */
+    /* Hero side card */
     .hero-side-card {
       border: 2px solid var(--black);
       background: var(--white);
-      box-shadow: 8px 8px 0px var(--black);
+      color: var(--black);
+      box-shadow: 6px 6px 0px var(--black);
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      margin-top: 20px;
     }
 
     .hero-img-box {
       width: 100%;
-      aspect-ratio: 4/3;
+      aspect-ratio: 16/10;
       overflow: hidden;
-      position: relative;
       background: var(--gray-900);
     }
 
@@ -540,7 +672,9 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.4s ease;
+      object-position: center 42%;
+      display: block;
+      transition: transform 0.45s ease;
     }
 
     .hero-side-card:hover .hero-img-box img {
@@ -548,12 +682,14 @@
     }
 
     .hero-card-foot {
-      padding: 18px 20px;
+      padding: 12px 16px;
       background: var(--white);
       border-top: 2px solid var(--black);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     /* ========================================================
@@ -564,17 +700,16 @@
       color: var(--white);
       border-top: 2px solid var(--black);
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 0;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
     }
 
     .stat-cell {
-      padding: 32px 24px;
-      border-right: 2px solid #282828;
+      padding: clamp(20px, 2.5vw, 30px) clamp(14px, 2vw, 22px);
+      border-right: 1px solid #2b2b2b;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      min-height: 160px;
+      min-height: 136px;
       transition: background 0.2s;
     }
 
@@ -583,26 +718,25 @@
     }
 
     .stat-cell:hover {
-      background: #181818;
+      background: #171717;
     }
 
     .stat-num {
       font-family: var(--font-display);
-      font-size: clamp(48px, 5.2vw, 76px);
+      font-size: clamp(42px, 4.6vw, 68px);
       font-weight: 900;
       line-height: 0.85;
       color: var(--lime);
-      letter-spacing: 0.02em;
     }
 
     .stat-label {
       font-family: var(--font-mono);
-      font-size: 11px;
-      letter-spacing: 0.08em;
+      font-size: 10.5px;
+      letter-spacing: 0.07em;
       text-transform: uppercase;
-      color: #bbb;
-      margin-top: 12px;
-      line-height: 1.35;
+      color: #ccc;
+      margin-top: 10px;
+      line-height: 1.4;
     }
 
     /* ========================================================
@@ -615,7 +749,7 @@
       white-space: nowrap;
       border-top: 2px solid var(--black);
       border-bottom: 2px solid var(--black);
-      padding: 16px 0;
+      padding: 14px 0;
       display: flex;
     }
 
@@ -626,19 +760,19 @@
 
     .marquee-item {
       font-family: var(--font-display);
-      font-size: 38px;
+      font-size: clamp(28px, 3vw, 36px);
       font-weight: 900;
       letter-spacing: 0.04em;
       text-transform: uppercase;
       display: flex;
       align-items: center;
-      padding-right: 32px;
+      padding-right: 28px;
     }
 
     .marquee-item span.sep {
-      color: var(--violet);
-      margin: 0 24px;
-      font-size: 26px;
+      color: var(--violet-light);
+      margin: 0 20px;
+      font-size: 20px;
     }
 
     @keyframes marquee-anim {
@@ -651,38 +785,39 @@
        ======================================================== */
     .about-grid {
       display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 48px;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+      gap: clamp(24px, 4vw, 44px);
       align-items: start;
     }
 
     .about-manifesto {
-      font-size: clamp(20px, 2.2vw, 26px);
-      line-height: 1.45;
+      font-size: clamp(17px, 1.9vw, 23px);
+      line-height: 1.48;
       font-weight: 500;
       color: var(--black);
-      padding-left: 20px;
+      padding-left: 18px;
       border-left: 4px solid var(--violet);
-      margin-bottom: 32px;
+      margin-bottom: 24px;
     }
 
     .pillars-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       border: 2px solid var(--black);
-      margin-top: 32px;
+      margin-top: 28px;
     }
 
     .pillar-card {
-      padding: 32px 24px;
+      padding: 24px 20px;
       border-right: 2px solid var(--black);
       background: var(--white);
-      transition: background 0.2s, color 0.2s;
-      min-height: 220px;
+      color: var(--black);
+      transition: background 0.2s;
+      min-height: 180px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      gap: 12px;
     }
 
     .pillar-card:last-child {
@@ -695,30 +830,36 @@
 
     .pillar-name {
       font-family: var(--font-display);
-      font-size: 36px;
+      font-size: 32px;
       font-weight: 900;
       line-height: 0.95;
-      margin-bottom: 12px;
       text-transform: uppercase;
+      color: var(--black);
     }
 
     .pillar-desc {
       font-size: 14px;
       line-height: 1.45;
-      color: #333;
+      color: #222;
     }
 
     .about-identity-showcase {
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 20px;
     }
 
     .identity-card {
       border: 2px solid var(--black);
-      padding: 24px;
+      padding: 22px;
       background: var(--gray-100);
+      color: var(--black);
       box-shadow: 6px 6px 0px var(--black);
+    }
+
+    .identity-card.dark-box {
+      background: var(--black);
+      color: var(--white);
     }
 
     .identity-logo-wrap {
@@ -726,117 +867,170 @@
       align-items: center;
       justify-content: center;
       background: var(--black);
-      padding: 36px;
+      padding: 28px;
       border: 2px solid var(--black);
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     .identity-logo-wrap img {
-      max-height: 120px;
-      max-width: 100%;
+      max-height: 110px;
       object-fit: contain;
     }
 
     /* ========================================================
-       02 // THE TEAM
+       02 // THE TEAM (CONTRAST BUG FIXED!)
        ======================================================== */
     .team-grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 20px;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 18px;
     }
 
     .team-card {
-      border: 2px solid var(--black);
+      border: 2px solid var(--white);
       background: var(--white);
+      color: var(--black); /* CRITICAL FIX: Overrides .sec-dark white text */
       display: flex;
       flex-direction: column;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      position: relative;
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+      min-width: 0;
     }
 
     .team-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 8px 8px 0px var(--violet);
-      border-color: var(--violet);
+      transform: translateY(-5px);
+      box-shadow: 6px 6px 0px var(--lime);
+      border-color: var(--lime);
     }
 
     .team-banner-art {
-      height: 120px;
-      position: relative;
+      height: 100px;
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
-      padding: 12px 16px;
-      overflow: hidden;
+      padding: 12px 14px;
       border-bottom: 2px solid var(--black);
-      background: linear-gradient(135deg, var(--black), var(--violet));
+      background: linear-gradient(135deg, #0c0c0c 0%, var(--violet) 100%);
+    }
+
+    .team-banner-art.highlight {
+      background: linear-gradient(135deg, var(--violet-dark) 0%, #2a0a66 100%);
     }
 
     .team-num {
       font-family: var(--font-display);
-      font-size: 64px;
+      font-size: clamp(44px, 4.5vw, 58px);
       font-weight: 900;
       line-height: 0.8;
       color: var(--lime);
     }
 
+    .team-tag-pill {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 3px 7px;
+      text-transform: uppercase;
+      background: var(--black);
+      color: var(--white);
+      border: 1px solid var(--white);
+    }
+
+    .team-tag-pill.lime {
+      background: var(--lime);
+      color: var(--black);
+      border-color: var(--black);
+    }
+
     .team-details {
-      padding: 18px 16px 22px;
+      padding: 16px 14px 18px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       flex: 1;
+      background: var(--white);
+      color: var(--black);
     }
 
     .team-name {
       font-family: var(--font-display);
-      font-size: 26px;
+      font-size: clamp(22px, 2.2vw, 27px);
       font-weight: 900;
       line-height: 1;
       text-transform: uppercase;
-      letter-spacing: 0.02em;
+      color: var(--black); /* Explicit high-contrast black */
+      word-break: break-word;
     }
 
     .team-role {
       font-family: var(--font-mono);
       font-size: 11px;
       font-weight: 700;
-      color: var(--violet);
-      letter-spacing: 0.08em;
+      color: var(--violet-dark);
+      letter-spacing: 0.06em;
       text-transform: uppercase;
     }
 
     .team-badge-sub {
       font-family: var(--font-mono);
       font-size: 10px;
-      color: #666;
+      color: #555555;
+      margin-top: auto;
+    }
+
+    .team-lab-feature {
+      margin-top: 36px;
+      border: 2px solid var(--white);
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+      background: #0d0d0d;
+      color: var(--white);
+    }
+
+    .team-lab-photo {
+      aspect-ratio: 16/10;
+      overflow: hidden;
+    }
+
+    .team-lab-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 25%;
+      display: block;
+    }
+
+    .team-lab-copy {
+      padding: clamp(20px, 3vw, 32px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 12px;
     }
 
     /* ========================================================
-       03 // THE ROBOT TOUR (CENTERPIECE)
+       03 // THE ROBOT TOUR (3D FIXED!)
        ======================================================== */
     .tour-container {
       display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 36px;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: clamp(20px, 3vw, 32px);
       align-items: start;
     }
 
     .tour-stage-wrap {
       position: sticky;
-      top: 96px;
+      top: 84px;
       border: 2px solid var(--white);
       background: #000;
-      box-shadow: 8px 8px 0px var(--lime);
+      box-shadow: 6px 6px 0px var(--lime);
       display: flex;
       flex-direction: column;
     }
 
     .model-viewport {
       width: 100%;
-      height: 520px;
-      background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
+      height: clamp(320px, 48vh, 500px);
+      background: radial-gradient(circle at center, #1d1d1d 0%, #050505 100%);
       position: relative;
     }
 
@@ -845,53 +1039,73 @@
       height: 100%;
       background: transparent;
       outline: none;
+      --poster-color: transparent;
     }
 
-    /* 3D Loading overlay */
-    .model-loading-screen {
+    /* Non-blocking floating 3D status badge */
+    .mv-status-pill {
       position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.85);
+      top: 12px;
+      left: 12px;
+      background: rgba(0, 0, 0, 0.88);
       color: var(--lime);
+      border: 1.5px solid var(--lime);
+      padding: 6px 12px;
       font-family: var(--font-mono);
-      font-size: 13px;
-      display: flex;
-      flex-direction: column;
+      font-size: 11px;
+      font-weight: 700;
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
-      gap: 16px;
-      z-index: 10;
-      transition: opacity 0.4s ease;
+      gap: 8px;
+      z-index: 5;
       pointer-events: none;
+      transition: opacity 0.35s ease;
     }
 
-    .model-loading-screen.loaded {
+    .mv-status-pill.hidden {
       opacity: 0;
-      visibility: hidden;
     }
 
-    .model-spinner {
-      width: 38px;
-      height: 38px;
-      border: 3px solid #333;
+    .mv-mini-spin {
+      width: 12px;
+      height: 12px;
+      border: 2px solid #444;
       border-top-color: var(--lime);
       border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      animation: spin 0.75s linear infinite;
     }
 
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
 
+    .mv-progress-bar {
+      display: block;
+      width: 100%;
+      height: 4px;
+      background: rgba(255,255,255,0.12);
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 6;
+    }
+
+    .mv-progress-fill {
+      height: 100%;
+      background: var(--lime);
+      width: 0%;
+      transition: width 0.2s ease;
+    }
+
     .model-controls-bar {
       background: #111;
       border-top: 2px solid #333;
-      padding: 12px 18px;
+      padding: 12px 14px;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 10px;
     }
 
     .model-presets-group {
@@ -911,6 +1125,7 @@
       text-transform: uppercase;
       font-weight: 700;
       transition: background 0.15s, color 0.15s, border-color 0.15s;
+      min-height: 32px;
     }
 
     .preset-btn:hover, .preset-btn.active {
@@ -920,15 +1135,17 @@
     }
 
     .cad-link-bar {
-      background: var(--gray-900);
-      padding: 12px 18px;
-      border-top: 1px solid #222;
+      background: #0d0d0d;
+      padding: 11px 14px;
+      border-top: 1px solid #282828;
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
+      gap: 8px;
       font-family: var(--font-mono);
-      font-size: 11px;
-      color: #aaa;
+      font-size: 10.5px;
+      color: #bbb;
     }
 
     .cad-link-bar a {
@@ -944,51 +1161,54 @@
     .spec-stops-stream {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 16px;
     }
 
     .spec-stop-card {
       border: 2px solid #333;
       background: #111;
-      padding: 24px;
+      color: var(--white);
+      padding: 20px;
       cursor: pointer;
-      transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
-      position: relative;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s, transform 0.2s;
     }
 
     .spec-stop-card:hover, .spec-stop-card.active {
       border-color: var(--lime);
-      background: #161616;
-      box-shadow: 6px 6px 0px var(--lime);
+      background: #181818;
+      box-shadow: 5px 5px 0px var(--lime);
+      transform: translateX(-2px);
     }
 
     .spec-card-head {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
+      gap: 8px;
     }
 
     .spec-stop-num {
       font-family: var(--font-mono);
-      font-size: 12px;
+      font-size: 11px;
       color: var(--lime);
       font-weight: 700;
     }
 
     .spec-stop-title {
       font-family: var(--font-display);
-      font-size: 34px;
+      font-size: 30px;
       font-weight: 900;
       color: var(--white);
       line-height: 0.95;
       text-transform: uppercase;
+      margin-bottom: 8px;
     }
 
     .spec-stop-body {
-      font-size: 14.5px;
+      font-size: 14px;
       line-height: 1.5;
-      color: #ccc;
+      color: #d0d0d0;
     }
 
     /* ========================================================
@@ -997,149 +1217,135 @@
     .scoreboard-wrap {
       border: 2px solid var(--black);
       background: var(--white);
+      color: var(--black);
       box-shadow: 8px 8px 0px var(--black);
-      margin-bottom: 48px;
+      margin-bottom: 36px;
     }
 
     .scoreboard-header {
       background: var(--black);
       color: var(--white);
-      padding: 16px 28px;
+      padding: 14px 24px;
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       border-bottom: 2px solid var(--black);
     }
 
     .scoreboard-main {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       border-bottom: 2px solid var(--black);
     }
 
     .score-squad-box {
-      padding: 36px 32px;
+      padding: clamp(22px, 3vw, 36px);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      position: relative;
     }
 
     .squad-blue {
-      background: #000000;
-      color: #ffffff;
+      background: var(--black);
+      color: var(--white);
       border-right: 2px solid var(--black);
     }
 
     .squad-red {
-      background: #fafafa;
+      background: #f8f8f8;
       color: var(--black);
     }
 
     .squad-tag {
       font-family: var(--font-mono);
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 700;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
 
-    .squad-blue .squad-tag {
-      color: var(--lime);
-    }
-
-    .squad-red .squad-tag {
-      color: #d62828;
-    }
+    .squad-blue .squad-tag { color: var(--lime); }
+    .squad-red .squad-tag { color: #c1121f; }
 
     .score-big {
       font-family: var(--font-display);
-      font-size: clamp(84px, 12vw, 150px);
+      font-size: clamp(72px, 11vw, 136px);
       font-weight: 900;
-      line-height: 0.8;
-      letter-spacing: 0.02em;
-      margin-bottom: 16px;
+      line-height: 0.82;
+      margin-bottom: 14px;
     }
 
-    .squad-blue .score-big {
-      color: var(--lime);
-      text-shadow: 0 0 16px rgba(198, 255, 51, 0.25);
-    }
-
-    .squad-red .score-big {
-      color: #444;
-    }
+    .squad-blue .score-big { color: var(--lime); }
+    .squad-red .score-big { color: #333; }
 
     .squad-alliance {
       font-family: var(--font-mono);
-      font-size: 13px;
-      line-height: 1.5;
+      font-size: 12px;
+      line-height: 1.55;
     }
 
-    .squad-blue .squad-alliance {
-      color: #ddd;
-    }
-
-    .squad-alliance b {
-      color: var(--lime);
-    }
-
-    .squad-red .squad-alliance b {
-      color: var(--black);
-    }
+    .squad-blue .squad-alliance b { color: var(--lime); }
+    .squad-red .squad-alliance b { color: var(--black); }
 
     .scoreboard-strip {
       background: var(--lime);
       color: var(--black);
-      padding: 16px 28px;
+      padding: 14px 24px;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      gap: 12px;
       font-family: var(--font-mono);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
-      letter-spacing: 0.06em;
+    }
+
+    .camaraderie-note {
+      border-left: 4px solid var(--violet);
+      padding: 16px 20px;
+      background: var(--gray-100);
+      color: var(--black);
+      margin-bottom: 36px;
+      font-size: 15px;
+      line-height: 1.55;
     }
 
     /* Win Photos Grid */
     .win-gallery-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
     }
 
     .win-photo-card {
       border: 2px solid var(--black);
       background: var(--white);
+      color: var(--black);
       overflow: hidden;
       display: flex;
       flex-direction: column;
       cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
     }
 
     .win-photo-card:hover {
       transform: translateY(-4px);
-      box-shadow: 6px 6px 0px var(--violet);
+      box-shadow: 5px 5px 0px var(--violet);
       border-color: var(--violet);
-    }
-
-    .win-photo-card.span-2 {
-      grid-column: span 2;
     }
 
     .win-photo-img {
       width: 100%;
       aspect-ratio: 16/10;
       object-fit: cover;
+      object-position: center 22%;
       display: block;
       transition: transform 0.4s ease;
     }
@@ -1148,21 +1354,19 @@
       transform: scale(1.03);
     }
 
-    .win-photo-card.vertical .win-photo-img {
-      aspect-ratio: 3/4;
-    }
-
     .win-photo-cap {
-      padding: 12px 14px;
+      padding: 10px 12px;
       background: var(--white);
-      border-top: 1px solid var(--black);
+      color: var(--black);
+      border-top: 2px solid var(--black);
       font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 700;
       text-transform: uppercase;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 6px;
     }
 
     /* ========================================================
@@ -1170,25 +1374,21 @@
        ======================================================== */
     .news-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 28px;
-      margin-bottom: 32px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+      margin-bottom: 24px;
     }
 
     .news-card {
       border: 2px solid var(--black);
       background: var(--white);
-      padding: 32px;
+      color: var(--black);
+      padding: clamp(20px, 3vw, 30px);
       box-shadow: 6px 6px 0px var(--black);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: 20px;
-    }
-
-    .news-card:hover {
-      box-shadow: 8px 8px 0px var(--violet);
-      border-color: var(--violet);
+      gap: 18px;
     }
 
     .news-source-line {
@@ -1196,38 +1396,40 @@
       align-items: center;
       justify-content: space-between;
       border-bottom: 2px solid var(--black);
-      padding-bottom: 12px;
+      padding-bottom: 10px;
     }
 
     .news-headline {
       font-family: var(--font-display);
-      font-size: 32px;
+      font-size: clamp(26px, 2.8vw, 32px);
       font-weight: 900;
       line-height: 1;
       text-transform: uppercase;
+      color: var(--black);
     }
 
     .news-snippet {
-      font-size: 15px;
-      color: #333;
+      font-size: 14.5px;
+      color: #222;
       line-height: 1.5;
     }
 
     .minister-banner {
       border: 2px solid var(--black);
-      background: var(--lime);
-      padding: 24px 32px;
+      background: var(--white);
+      color: var(--black);
+      padding: 20px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 24px;
+      gap: 20px;
       box-shadow: 6px 6px 0px var(--black);
     }
 
-    .minister-text {
-      font-family: var(--font-body);
-      font-size: 16px;
-      font-weight: 600;
+    .minister-inner {
+      display: flex;
+      align-items: center;
+      gap: 14px;
     }
 
     /* ========================================================
@@ -1235,72 +1437,67 @@
        ======================================================== */
     .process-strip {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 0;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
       border: 2px solid var(--white);
-      margin-bottom: 48px;
+      margin-bottom: 36px;
     }
 
     .process-step {
-      padding: 24px 16px;
+      padding: 20px 12px;
       border-right: 2px solid var(--white);
       background: #111;
+      color: var(--white);
       text-align: center;
       transition: background 0.2s, color 0.2s;
     }
 
-    .process-step:last-child {
-      border-right: none;
-    }
+    .process-step:last-child { border-right: none; }
 
     .process-step:hover {
       background: var(--lime);
       color: var(--black);
     }
 
-    .process-step:hover .process-step-num {
-      color: var(--black);
-    }
+    .process-step:hover .process-step-num { color: var(--black); }
 
     .process-step-num {
       font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 10.5px;
       color: var(--lime);
       font-weight: 700;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
     .process-step-name {
       font-family: var(--font-display);
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 900;
       text-transform: uppercase;
     }
 
     .timeline-stream {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
-      margin-bottom: 48px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 36px;
     }
 
     .timeline-node {
       border: 2px solid #333;
       background: #141414;
-      padding: 22px;
+      color: var(--white);
+      padding: 20px;
       display: flex;
       flex-direction: column;
       gap: 8px;
       transition: border-color 0.2s;
     }
 
-    .timeline-node:hover {
-      border-color: var(--lime);
-    }
+    .timeline-node:hover { border-color: var(--lime); }
 
     .timeline-date {
       font-family: var(--font-mono);
-      font-size: 12px;
+      font-size: 11px;
       color: var(--lime);
       font-weight: 700;
     }
@@ -1315,37 +1512,37 @@
 
     .timeline-desc {
       font-size: 13.5px;
-      color: #aaa;
+      color: #c5c5c5;
       line-height: 1.45;
     }
 
-    /* Engineering Deep Dive Grid */
     .eng-deepdive-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 28px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
     }
 
     .eng-box {
       border: 2px solid #333;
       background: #121212;
-      padding: 32px;
+      color: var(--white);
+      padding: clamp(20px, 3vw, 30px);
     }
 
     .eng-box-title {
       font-family: var(--font-display);
-      font-size: 32px;
+      font-size: 30px;
       font-weight: 900;
       color: var(--lime);
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       text-transform: uppercase;
     }
 
     .eng-box p {
-      font-size: 14.5px;
+      font-size: 14px;
       line-height: 1.55;
-      color: #bbb;
-      margin-bottom: 14px;
+      color: #cccccc;
+      margin-bottom: 12px;
     }
 
     /* ========================================================
@@ -1357,30 +1554,32 @@
       box-shadow: 8px 8px 0px var(--violet);
       position: relative;
       overflow: hidden;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
-    .field-viewport-wrap model-viewer {
+    .field-mv {
       width: 100%;
       aspect-ratio: 21/9;
-      min-height: 440px;
+      min-height: 360px;
+      background: #0a0a0a;
+      display: block;
     }
 
-    /* Model-viewer Hotspots */
     .field-hotspot {
       background: var(--black);
       border: 2px solid var(--lime);
       border-radius: 50%;
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: transform 0.2s, background 0.2s;
+      position: relative;
     }
 
-    .field-hotspot:hover {
+    .field-hotspot:hover, .field-hotspot.active {
       transform: scale(1.2);
       background: var(--lime);
     }
@@ -1392,7 +1591,7 @@
       border-radius: 50%;
     }
 
-    .field-hotspot:hover span.dot {
+    .field-hotspot:hover span.dot, .field-hotspot.active span.dot {
       background: var(--black);
     }
 
@@ -1403,35 +1602,37 @@
       transform: translateX(-50%);
       background: var(--black);
       color: var(--white);
-      border: 1px solid var(--lime);
-      padding: 6px 12px;
+      border: 1.5px solid var(--lime);
+      padding: 6px 10px;
       font-family: var(--font-mono);
       font-size: 11px;
       white-space: nowrap;
       pointer-events: none;
       display: none;
-      box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+      z-index: 20;
     }
 
-    .field-hotspot:hover .hotspot-annotation {
+    .field-hotspot:hover .hotspot-annotation,
+    .field-hotspot.active .hotspot-annotation {
       display: block;
     }
 
     .field-meta-bar {
       border: 2px solid var(--black);
       background: var(--white);
-      padding: 16px 24px;
+      color: var(--black);
+      padding: 16px 20px;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      gap: 14px;
     }
 
     .hotspot-legend {
       display: flex;
       flex-wrap: wrap;
-      gap: 16px;
+      gap: 12px;
       font-family: var(--font-mono);
       font-size: 11px;
     }
@@ -1443,61 +1644,115 @@
     }
 
     .legend-item span.box {
-      width: 12px;
-      height: 12px;
+      width: 11px;
+      height: 11px;
       border: 1px solid var(--black);
     }
 
     /* ========================================================
-       08 // SESSIONS SECTION
+       08 // FREE VIRTUAL BOOTCAMP / SESSIONS (CONTRAST FIXED!)
        ======================================================== */
+    .bootcamp-top-banner {
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      background: var(--lime);
+      color: var(--black);
+      border: 2px solid var(--black);
+      padding: 8px 16px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: 4px 4px 0px var(--black);
+      margin-bottom: 20px;
+    }
+
+    .bootcamp-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      gap: clamp(24px, 3.5vw, 40px);
+      align-items: start;
+    }
+
     .sessions-card-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-      margin: 32px 0 40px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
     }
 
     .session-fact-card {
       border: 2px solid var(--black);
       background: var(--white);
-      padding: 24px;
-      box-shadow: 6px 6px 0px var(--black);
+      color: var(--black); /* CRITICAL FIX: Overrides .sec-vio white text */
+      padding: 20px;
+      box-shadow: 5px 5px 0px var(--black);
       transition: transform 0.15s, box-shadow 0.15s;
     }
 
     .session-fact-card:hover {
-      transform: translate(-3px, -3px);
-      box-shadow: 8px 8px 0px var(--lime);
+      transform: translate(-2px, -2px);
+      box-shadow: 7px 7px 0px var(--lime);
+    }
+
+    .session-fact-card.free-highlight {
+      background: var(--lime);
+      color: var(--black);
     }
 
     .session-fact-label {
       font-family: var(--font-mono);
-      font-size: 11px;
-      letter-spacing: 0.1em;
+      font-size: 10.5px;
+      letter-spacing: 0.09em;
       text-transform: uppercase;
-      color: var(--violet);
-      margin-bottom: 8px;
+      color: var(--violet-dark);
+      margin-bottom: 6px;
       font-weight: 700;
+    }
+
+    .session-fact-card.free-highlight .session-fact-label {
+      color: var(--black);
     }
 
     .session-fact-val {
       font-family: var(--font-display);
-      font-size: 32px;
+      font-size: clamp(24px, 2.5vw, 30px);
       font-weight: 900;
-      line-height: 1;
+      line-height: 1.02;
       text-transform: uppercase;
+      color: var(--black); /* Explicit high-contrast black */
     }
 
-    .sessions-cta-box {
+    .session-fact-sub {
+      font-size: 12.5px;
+      color: #444;
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    .bootcamp-form-box {
       border: 2px solid var(--black);
-      background: var(--lime);
-      padding: 36px 40px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
+      background: var(--white);
+      color: var(--black);
+      padding: clamp(20px, 3vw, 32px);
       box-shadow: 8px 8px 0px var(--black);
+    }
+
+    .bootcamp-form-head {
+      border-bottom: 2px solid var(--black);
+      padding-bottom: 14px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .form-row-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
     }
 
     /* ========================================================
@@ -1505,39 +1760,44 @@
        ======================================================== */
     .comm-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 28px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
     }
 
     .comm-card {
       border: 2px solid var(--black);
       background: var(--white);
-      padding: 36px;
+      color: var(--black);
+      padding: clamp(22px, 3vw, 34px);
       box-shadow: 6px 6px 0px var(--black);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
     }
 
-    .comm-card:hover {
-      box-shadow: 8px 8px 0px var(--violet);
-      border-color: var(--violet);
+    .comm-card.dark {
+      background: var(--black);
+      color: var(--white);
     }
 
     .comm-title {
       font-family: var(--font-display);
-      font-size: 36px;
+      font-size: clamp(28px, 3vw, 36px);
       font-weight: 900;
       line-height: 0.95;
-      margin-bottom: 16px;
+      margin: 8px 0 14px;
       text-transform: uppercase;
     }
 
     .comm-desc {
-      font-size: 15px;
+      font-size: 14.5px;
       line-height: 1.55;
       color: #333;
-      margin-bottom: 24px;
+      margin-bottom: 22px;
+    }
+
+    .comm-card.dark .comm-desc {
+      color: #ccc;
     }
 
     /* ========================================================
@@ -1547,14 +1807,14 @@
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-bottom: 28px;
+      margin-bottom: 24px;
     }
 
     .filter-btn {
       background: var(--white);
       color: var(--black);
       border: 2px solid var(--black);
-      padding: 8px 18px;
+      padding: 8px 16px;
       font-family: var(--font-mono);
       font-size: 11px;
       font-weight: 700;
@@ -1570,23 +1830,24 @@
 
     .gallery-masonry {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
     }
 
     .gallery-item {
       border: 2px solid var(--black);
       background: var(--white);
+      color: var(--black);
       overflow: hidden;
       display: flex;
       flex-direction: column;
       cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
     }
 
     .gallery-item:hover {
       transform: translateY(-4px);
-      box-shadow: 6px 6px 0px var(--violet);
+      box-shadow: 5px 5px 0px var(--violet);
       border-color: var(--violet);
     }
 
@@ -1596,14 +1857,11 @@
 
     .gallery-item-img {
       width: 100%;
-      aspect-ratio: 16/10;
+      height: 220px;
       object-fit: cover;
+      object-position: center 22%;
       display: block;
       transition: transform 0.4s ease;
-    }
-
-    .gallery-item.vertical .gallery-item-img {
-      aspect-ratio: 3/4;
     }
 
     .gallery-item:hover .gallery-item-img {
@@ -1611,16 +1869,18 @@
     }
 
     .gallery-item-cap {
-      padding: 12px 14px;
+      padding: 10px 12px;
       background: var(--white);
-      border-top: 1px solid var(--black);
+      color: var(--black);
+      border-top: 2px solid var(--black);
       font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 700;
       text-transform: uppercase;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 6px;
     }
 
     /* Lightbox Modal */
@@ -1632,55 +1892,53 @@
       display: none;
       align-items: center;
       justify-content: center;
-      padding: 32px;
+      padding: 20px;
       backdrop-filter: blur(4px);
     }
 
-    .lightbox-modal.active {
-      display: flex;
-    }
+    .lightbox-modal.active { display: flex; }
 
     .lightbox-card {
-      max-width: 90vw;
+      max-width: 92vw;
       max-height: 90vh;
       background: var(--black);
       border: 2px solid var(--lime);
-      box-shadow: 0 0 32px rgba(198, 255, 51, 0.2);
       display: flex;
       flex-direction: column;
       position: relative;
     }
 
     .lightbox-img {
-      max-width: 85vw;
-      max-height: 75vh;
+      max-width: 88vw;
+      max-height: 76vh;
       object-fit: contain;
       display: block;
     }
 
     .lightbox-bar {
-      padding: 14px 20px;
+      padding: 12px 16px;
       background: #111;
       border-top: 1px solid #333;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 12px;
       color: var(--white);
       font-family: var(--font-mono);
-      font-size: 12px;
+      font-size: 11px;
     }
 
     .lightbox-close {
       position: absolute;
-      top: -18px;
-      right: -18px;
+      top: -16px;
+      right: -16px;
       background: var(--lime);
       color: var(--black);
       border: 2px solid var(--black);
-      width: 36px;
-      height: 36px;
+      width: 34px;
+      height: 34px;
       font-family: var(--font-mono);
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 900;
       display: flex;
       align-items: center;
@@ -1693,66 +1951,77 @@
        ======================================================== */
     .contact-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 48px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: clamp(24px, 4vw, 44px);
     }
 
     .contact-form-box {
       border: 2px solid var(--black);
       background: var(--white);
-      padding: 36px;
-      box-shadow: 8px 8px 0px var(--black);
+      color: var(--black);
+      padding: clamp(20px, 3vw, 34px);
+      box-shadow: 8px 8px 0px var(--lime);
     }
 
     .form-group {
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
     .form-group label {
       display: block;
       font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      margin-bottom: 6px;
+      margin-bottom: 5px;
       color: var(--black);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .form-group input,
     .form-group select,
     .form-group textarea {
       width: 100%;
-      padding: 12px 14px;
+      padding: 11px 12px;
       border: 2px solid var(--black);
       font-family: var(--font-body);
-      font-size: 15px;
+      font-size: 14.5px;
       background: var(--white);
       color: var(--black);
       outline: none;
       transition: border-color 0.15s, box-shadow 0.15s;
+      border-radius: 0;
+    }
+
+    .form-group select {
+      height: 46px;
     }
 
     .form-group input:focus,
     .form-group select:focus,
     .form-group textarea:focus {
       border-color: var(--violet);
-      box-shadow: 4px 4px 0px var(--violet);
+      box-shadow: 3px 3px 0px var(--violet);
     }
 
     .form-status-msg {
-      margin-top: 16px;
+      margin-top: 14px;
       font-family: var(--font-mono);
       font-size: 12px;
-      padding: 10px;
+      padding: 12px;
       display: none;
+      line-height: 1.45;
     }
 
     .form-status-msg.success {
       display: block;
       background: var(--lime);
       color: var(--black);
-      border: 1px solid var(--black);
+      border: 2px solid var(--black);
+      font-weight: 700;
     }
 
     /* Footer */
@@ -1760,7 +2029,7 @@
       background: var(--black);
       color: var(--white);
       border-top: 2px solid var(--black);
-      padding: 48px;
+      padding: clamp(32px, 4vw, 48px) var(--pad-x);
     }
 
     .foot-top {
@@ -1768,29 +2037,27 @@
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      gap: 24px;
+      gap: 20px;
       border-bottom: 1px solid #333;
-      padding-bottom: 32px;
-      margin-bottom: 32px;
+      padding-bottom: 24px;
+      margin-bottom: 24px;
     }
 
     .foot-brand-title {
       font-family: var(--font-display);
-      font-size: 44px;
+      font-size: clamp(32px, 4vw, 44px);
       font-weight: 900;
       letter-spacing: 0.04em;
       line-height: 0.9;
     }
 
-    .foot-brand-title span.accent {
-      color: var(--lime);
-    }
+    .foot-brand-title span.accent { color: var(--lime); }
 
     .foot-meta-text {
       font-family: var(--font-mono);
-      font-size: 12px;
-      color: #999;
-      line-height: 1.6;
+      font-size: 11.5px;
+      color: #aaa;
+      line-height: 1.55;
     }
 
     .foot-btm {
@@ -1798,27 +2065,29 @@
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
       font-family: var(--font-mono);
       font-size: 11px;
-      color: #777;
+      color: #999;
     }
 
-    /* Toast Notification */
+    /* Toast */
     .toast-popup {
       position: fixed;
-      bottom: 24px;
-      right: 24px;
+      bottom: 20px;
+      right: 20px;
+      left: auto;
+      max-width: calc(100vw - 40px);
       background: var(--black);
       color: var(--lime);
       border: 2px solid var(--lime);
-      padding: 14px 20px;
+      padding: 12px 18px;
       font-family: var(--font-mono);
       font-size: 12px;
       font-weight: 700;
-      box-shadow: 6px 6px 0px rgba(0,0,0,0.4);
+      box-shadow: 6px 6px 0px rgba(0,0,0,0.45);
       z-index: 10000;
-      transform: translateY(100px);
+      transform: translateY(120px);
       opacity: 0;
       transition: transform 0.3s ease, opacity 0.3s ease;
       pointer-events: none;
@@ -1830,95 +2099,69 @@
       pointer-events: auto;
     }
 
-    /* Mobile Drawer */
-    .mobile-drawer {
-      position: fixed;
-      inset: 0;
-      background: var(--white);
-      z-index: 999;
-      display: none;
-      flex-direction: column;
-      padding: 24px;
-      border-bottom: 2px solid var(--black);
-    }
-
-    .mobile-drawer.open {
-      display: flex;
-    }
-
-    .drawer-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 32px;
-    }
-
-    .drawer-links {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .drawer-links a {
-      font-family: var(--font-display);
-      font-size: 38px;
-      font-weight: 900;
-      text-decoration: none;
-      color: var(--black);
-      text-transform: uppercase;
-      border-bottom: 1px solid var(--black);
-      padding-bottom: 8px;
-    }
-
-    /* Responsive Queries */
-    @media (max-width: 1200px) {
-      .team-grid { grid-template-columns: repeat(3, 1fr); }
-      .stats-strip { grid-template-columns: repeat(3, 1fr); }
-      .stat-cell { border-bottom: 2px solid #282828; }
-      .stat-cell:nth-child(3) { border-right: none; }
-      .process-strip { grid-template-columns: repeat(3, 1fr); }
-      .process-step:nth-child(3) { border-right: none; }
-      .process-step { border-bottom: 2px solid var(--white); }
-      .timeline-stream { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    @media (max-width: 992px) {
+    /* ========================================================
+       RESPONSIVE BREAKPOINTS (Desktop, Zoom-in, Tablet, Mobile)
+       ======================================================== */
+    @media (max-width: 1180px) {
       .nav-links, .nav-live-badge { display: none !important; }
-      .mobile-menu-btn { display: block; }
-      nav.top-nav { padding: 12px 20px; }
-      .sec { padding: 64px 20px; }
-      .hero { padding: 48px 20px; }
+      .mobile-menu-btn { display: inline-flex; align-items: center; }
+      .team-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .stats-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .stat-cell { border-bottom: 1px solid #2b2b2b; }
+      .stat-cell:nth-child(3n) { border-right: none; }
+      .process-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .process-step:nth-child(3n) { border-right: none; }
+      .process-step { border-bottom: 2px solid var(--white); }
+      .timeline-stream { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .bootcamp-layout { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 920px) {
       .hero-content { grid-template-columns: 1fr; }
       .tour-container { grid-template-columns: 1fr; }
       .tour-stage-wrap { position: static; }
       .about-grid { grid-template-columns: 1fr; }
       .pillars-grid { grid-template-columns: 1fr; }
-      .pillar-card { border-right: none; border-bottom: 2px solid var(--black); }
+      .pillar-card { border-right: none; border-bottom: 2px solid var(--black); min-height: auto; }
       .pillar-card:last-child { border-bottom: none; }
+      .team-lab-feature { grid-template-columns: 1fr; }
       .scoreboard-main { grid-template-columns: 1fr; }
       .squad-blue { border-right: none; border-bottom: 2px solid var(--black); }
-      .win-gallery-grid { grid-template-columns: repeat(2, 1fr); }
-      .win-photo-card.span-2 { grid-column: span 1; }
+      .win-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .news-grid { grid-template-columns: 1fr; }
       .eng-deepdive-grid { grid-template-columns: 1fr; }
-      .sessions-card-grid { grid-template-columns: 1fr; }
       .comm-grid { grid-template-columns: 1fr; }
       .contact-grid { grid-template-columns: 1fr; }
-      .gallery-masonry { grid-template-columns: repeat(2, 1fr); }
-      .gallery-item.col-span-2 { grid-column: span 1; }
+      .gallery-masonry { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .gallery-item.col-span-2 { grid-column: span 2; }
+      .field-mv { aspect-ratio: 16/10; min-height: 300px; }
     }
 
-    @media (max-width: 640px) {
-      .team-grid { grid-template-columns: 1fr; }
-      .stats-strip { grid-template-columns: 1fr 1fr; }
-      .stat-cell:nth-child(even) { border-right: none; }
+    @media (max-width: 600px) {
+      .pg { border-left: none; border-right: none; }
+      .team-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+      .team-banner-art { height: 76px; padding: 10px; }
+      .team-details { padding: 12px 10px 14px; }
+      .team-name { font-size: 20px; }
+      .stats-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .stat-cell { min-height: 112px; padding: 16px 14px; }
+      .stat-cell:nth-child(3n) { border-right: 1px solid #2b2b2b; }
+      .stat-cell:nth-child(2n) { border-right: none; }
       .win-gallery-grid { grid-template-columns: 1fr; }
       .gallery-masonry { grid-template-columns: 1fr; }
-      .process-strip { grid-template-columns: 1fr; }
-      .process-step { border-right: none; }
+      .gallery-item.col-span-2 { grid-column: span 1; }
+      .gallery-item-img { height: auto; aspect-ratio: 16/10; }
+      .process-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .process-step:nth-child(3n) { border-right: 2px solid var(--white); }
+      .process-step:nth-child(2n) { border-right: none; }
       .timeline-stream { grid-template-columns: 1fr; }
+      .sessions-card-grid { grid-template-columns: 1fr; }
+      .form-row-2 { grid-template-columns: 1fr; }
       .minister-banner { flex-direction: column; align-items: flex-start; }
-      .sessions-cta-box { flex-direction: column; align-items: flex-start; }
+      .hero-ctas .btn { width: 100%; }
+      .field-mv { aspect-ratio: 4/3; min-height: 260px; }
+      .model-viewport { height: 300px; }
+      .toast-popup { left: 16px; right: 16px; bottom: 16px; }
     }
   </style>
 </head>
@@ -1934,26 +2177,24 @@
       <img src="assets/images/argus_favicon.png" alt="ARGUS Emblem" class="brand-logo-img">
       <div class="brand-name-group">
         <span class="brand-title">ARGUS</span>
-        <span class="brand-sub">TEAM 012 // REGIONAL #298</span>
+        <span class="brand-sub">TEAM 012 // #298</span>
       </div>
     </a>
 
     <div class="nav-links">
-      <a href="#about">01 // About</a>
-      <a href="#team">02 // Team</a>
-      <a href="#robot-tour">03 // Robot Tour</a>
-      <a href="#champions">04 // Finals 106</a>
-      <a href="#news">05 // News</a>
-      <a href="#journey">06 // Journey</a>
-      <a href="#field">07 // Field</a>
-      <a href="#sessions">08 // Sessions</a>
-      <a href="#gallery">09 // Gallery</a>
-      <a href="#contact">10 // Contact</a>
+      <a href="#about">About</a>
+      <a href="#team">Team</a>
+      <a href="#robot-tour">Robot Tour</a>
+      <a href="#champions">Finals 106</a>
+      <a href="#field">Field</a>
+      <a href="#sessions" class="nav-cta-pill">Free Bootcamp</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#contact">Contact</a>
     </div>
 
     <div class="nav-live-badge">
       <span class="pulsing-dot"></span>
-      <span>NRL DELHI CHAMPIONS</span>
+      <span>DELHI CHAMPIONS</span>
     </div>
 
     <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle navigation menu">
@@ -1962,22 +2203,23 @@
   </nav>
 
   <!-- Mobile Drawer -->
-  <div class="mobile-drawer" id="mobileDrawer">
+  <div class="mobile-drawer" id="mobileDrawer" aria-hidden="true">
     <div class="drawer-head">
       <div class="brand-title">ARGUS // NRL 2026</div>
-      <button class="btn btn-dark" id="closeDrawerBtn">CLOSE ✕</button>
+      <button class="btn btn-dark-solid" id="closeDrawerBtn" style="min-height:40px;padding:8px 14px;">CLOSE ✕</button>
     </div>
     <div class="drawer-links">
       <a href="#about" class="drawer-link">01 // Who We Are</a>
       <a href="#team" class="drawer-link">02 // The Team</a>
-      <a href="#robot-tour" class="drawer-link">03 // The Robot Tour</a>
+      <a href="#robot-tour" class="drawer-link">03 // 3D Robot Tour</a>
       <a href="#champions" class="drawer-link">04 // Regional Champions</a>
       <a href="#news" class="drawer-link">05 // In The News</a>
       <a href="#journey" class="drawer-link">06 // Engineering Journey</a>
-      <a href="#field" class="drawer-link">07 // The Field</a>
-      <a href="#sessions" class="drawer-link">08 // Sessions</a>
-      <a href="#gallery" class="drawer-link">09 // Gallery</a>
-      <a href="#contact" class="drawer-link">10 // Contact</a>
+      <a href="#field" class="drawer-link">07 // The 3D Field</a>
+      <a href="#sessions" class="drawer-link" style="color:var(--violet);">08 // Free Virtual Bootcamp</a>
+      <a href="#community" class="drawer-link">09 // Community &amp; Support</a>
+      <a href="#gallery" class="drawer-link">10 // Gallery</a>
+      <a href="#contact" class="drawer-link">11 // Contact</a>
     </div>
   </div>
 
@@ -1991,8 +2233,7 @@
       <div class="hero-text-col">
         <div class="hero-meta-badges">
           <span class="badge-champion">★ REGIONAL CHAMPIONS — DELHI 2026</span>
-          <span class="badge-meta">NATIONAL ROBOTICS LEAGUE 2026</span>
-          <span class="badge-meta">TEAM 012 // DR. B.R. AMBEDKAR SOSE</span>
+          <span class="badge-meta">TEAM 012 // #298</span>
         </div>
 
         <h1 class="hero-title">
@@ -2006,15 +2247,13 @@
 
         <div class="hero-ctas">
           <a href="#robot-tour" class="btn btn-lime">Take the robot tour ➔</a>
-          <a href="#sessions" class="btn btn-white">Join a session ➔</a>
+          <a href="#sessions" class="btn btn-white">Join Free Bootcamp ➔</a>
         </div>
 
-        <div class="m" style="color: #555; display: flex; gap: 16px; flex-wrap: wrap;">
-          <span>• TANK DRIVE</span>
-          <span>• 2-SERVO LADDER ARM</span>
-          <span>• 105° MAX CLAW</span>
-          <span>• ESP-NOW TELEMETRY</span>
-        </div>
+        <a href="#sessions" class="hero-bootcamp-pill">
+          <span class="free-chip">FREE VIRTUAL COURSE</span>
+          <span>4–9 DEC 2026 • 8–9 PM DAILY (UP TO 2 HRS) • ₹0 COST ➔</span>
+        </a>
       </div>
 
       <div class="hero-widget-col">
@@ -2036,28 +2275,28 @@
             </div>
             <div class="cd-box">
               <div class="cd-val" id="cdMins">00</div>
-              <div class="cd-lbl">MINUTES</div>
+              <div class="cd-lbl">MINS</div>
             </div>
             <div class="cd-box">
               <div class="cd-val" id="cdSecs">00</div>
-              <div class="cd-lbl">SECONDS</div>
+              <div class="cd-lbl">SECS</div>
             </div>
           </div>
 
           <div class="countdown-location">
             <span class="dot"></span>
-            <span>Target: 12 December 2026 — VJTI, Mumbai (National Finals)</span>
+            <span>Target: 12 December 2026 — VJTI, Mumbai</span>
           </div>
         </div>
 
         <!-- Winning Machine Visual Preview -->
-        <div class="hero-side-card" style="margin-top: 24px;">
+        <div class="hero-side-card">
           <div class="hero-img-box">
             <img src="assets/images/regional-win/win_photo_14.jpeg" alt="ARGUS Robot #298 with Regional Championship Trophy and Medals">
           </div>
           <div class="hero-card-foot">
-            <span class="m" style="font-weight: 700;">CHAMPIONSHIP ROBOT // #298</span>
-            <span class="m" style="color: var(--violet); font-weight: 700;">THYAGARAJ STADIUM WIN</span>
+            <span class="m" style="font-weight: 700;">ROBOT #298 // WINNING HARDWARE</span>
+            <span class="m" style="color: var(--violet-dark); font-weight: 700;">THYAGARAJ WIN</span>
           </div>
         </div>
       </div>
@@ -2065,12 +2304,12 @@
   </header>
 
   <!-- ========================================================
-       STATS STRIP (STRICT REAL DATA ONLY)
+       STATS STRIP (REAL DATA ONLY)
        ======================================================== -->
   <div class="stats-strip" aria-label="Championship Statistics">
     <div class="stat-cell">
       <div class="stat-num">106</div>
-      <div class="stat-label">Our squad's finals score<br><span style="color:var(--lime);font-weight:700;">Event high score</span></div>
+      <div class="stat-label">Squad finals score<br><span style="color:var(--lime);font-weight:700;">Event high score</span></div>
     </div>
     <div class="stat-cell">
       <div class="stat-num">2-0</div>
@@ -2078,26 +2317,25 @@
     </div>
     <div class="stat-cell">
       <div class="stat-num">27</div>
-      <div class="stat-label">Rank after qualifiers<br>Before the comeback</div>
+      <div class="stat-label">Rank after qualifiers<br>Before comeback</div>
     </div>
     <div class="stat-cell">
       <div class="stat-num">10</div>
-      <div class="stat-label">Team members<br>One engineering unit</div>
+      <div class="stat-label">Team members<br>One unit</div>
     </div>
     <div class="stat-cell">
       <div class="stat-num">5</div>
-      <div class="stat-label">Claw tuning iterations<br>Iterative optimization</div>
+      <div class="stat-label">Claw tuning<br>Iterations</div>
     </div>
     <div class="stat-cell">
       <div class="stat-num">105°</div>
-      <div class="stat-label">Measured max claw grip<br>Calibrated on robot</div>
+      <div class="stat-label">Measured max<br>Claw grip</div>
     </div>
   </div>
 
   <!-- ========================================================
        FEATURE MARQUEE
-       ======================================================== */
-  -->
+       ======================================================== -->
   <div class="marquee-wrap" aria-hidden="true">
     <div class="marquee-track">
       <div class="marquee-item">TWO-SERVO ARM <span class="sep">✦</span> PRESET ARM LADDER <span class="sep">✦</span> GYRO SNAP TURNS <span class="sep">✦</span> ESP-NOW LINK <span class="sep">✦</span> LIVE TELEMETRY <span class="sep">✦</span> FDM PAYLOAD <span class="sep">✦</span> TANK DRIVE <span class="sep">✦</span> OBSERVE — ENGINEER — ADAPT — EXECUTE <span class="sep">✦</span></div>
@@ -2108,7 +2346,7 @@
   <!-- ========================================================
        01 // WHO WE ARE
        ======================================================== -->
-  <section class="sec" id="about">
+  <section class="sec reveal" id="about">
     <div class="sec-hdr">
       <span class="sec-tag">01 // Who We Are</span>
       <h2 class="d h2">More than a robot.<br><span style="color:var(--violet);">A system of thinking.</span></h2>
@@ -2120,29 +2358,28 @@
           "ARGUS brings together people who want to understand how things work, and then build something better. We approach robotics as a complete engineering discipline, combining mechanical systems, electronics, programming, strategy, testing, and collaboration. Our objective is not simply to produce a working machine. It is to understand every decision behind it, learn from every iteration, and continuously improve our approach."
         </p>
 
-        <p style="font-size: 16px; color: #444; line-height: 1.6; margin-bottom: 24px;">
-          Representing Dr. B.R. Ambedkar School of Specialized Excellence (CM SHRI School, Sector 11, Rohini, Delhi), Team 012 entered the National Robotics League 2026 to push beyond textbook engineering. From rapid prototyping and raw acrylic chassis fabrication to custom ESP-NOW telemetry firmware, every component is rigorously documented, tested, and iterated upon evidence.
+        <p style="font-size: 15.5px; color: #333; line-height: 1.6;">
+          Representing Dr. B.R. Ambedkar School of Specialized Excellence (CM SHRI School, Sector 11, Rohini, Delhi), Team 012 turns classroom physics and software engineering into competition-ready hardware.
         </p>
 
-        <!-- Three Pillars -->
         <div class="pillars-grid">
           <div class="pillar-card">
             <div>
-              <span class="m" style="color:var(--violet); font-weight:700;">PILLAR 01</span>
+              <span class="m" style="color:var(--violet-dark); font-weight:700;">PILLAR 01</span>
               <div class="pillar-name">Design</div>
             </div>
             <p class="pillar-desc">Translate a problem into a structured engineering concept.</p>
           </div>
           <div class="pillar-card">
             <div>
-              <span class="m" style="color:var(--violet); font-weight:700;">PILLAR 02</span>
+              <span class="m" style="color:var(--violet-dark); font-weight:700;">PILLAR 02</span>
               <div class="pillar-name">Build</div>
             </div>
             <p class="pillar-desc">Turn ideas into functional mechanical, electrical, and software systems.</p>
           </div>
           <div class="pillar-card">
             <div>
-              <span class="m" style="color:var(--violet); font-weight:700;">PILLAR 03</span>
+              <span class="m" style="color:var(--violet-dark); font-weight:700;">PILLAR 03</span>
               <div class="pillar-name">Iterate</div>
             </div>
             <p class="pillar-desc">Test, analyse, troubleshoot, and improve through evidence.</p>
@@ -2153,23 +2390,22 @@
       <div class="about-identity-showcase">
         <div class="identity-card">
           <div class="identity-logo-wrap">
-            <img src="assets/images/argus_emblem.jpg" alt="ARGUS Emblem">
+            <img src="assets/images/argus_emblem.jpg" alt="ARGUS Emblem" loading="lazy" decoding="async">
           </div>
           <div class="m" style="font-weight: 700; margin-bottom: 6px;">ARGUS EMBLEM // SYSTEM IDENTITY</div>
-          <p style="font-size: 13.5px; color: #555; line-height: 1.45;">
-            The hexagonal eye motif reflects our core doctrine: Observe, Engineer, Adapt, Execute. Sharp 2px brutalist architecture, bold stencil typography, and stark contrasts embody our technical rigor.
+          <p style="font-size: 13.5px; color: #444; line-height: 1.45;">
+            The hexagonal eye motif reflects our doctrine: Observe, Engineer, Adapt, Execute.
           </p>
         </div>
 
-        <div class="identity-card" style="background: var(--black); color: var(--white); border-color: var(--black);">
+        <div class="identity-card dark-box">
           <span class="m" style="color: var(--lime); font-weight: 700;">TEAM IDENTIFIERS</span>
-          <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px; font-family: var(--font-mono); font-size: 12px;">
+          <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 7px; font-family: var(--font-mono); font-size: 11.5px;">
             <div>NAME: <span style="color:var(--lime);">ARGUS</span></div>
-            <div>COMPETITION: <span>National Robotics League (NRL) 2026</span></div>
-            <div>LEAGUE ID: <span>Team 012</span></div>
-            <div>DELHI REGIONAL SQUAD: <span>#298 Team 12 CM SHRI (Rohini)</span></div>
-            <div>SCHOOL: <span>Dr. B.R. Ambedkar SOSE, Sector 11 Rohini</span></div>
-            <div>STATUS: <span style="color:var(--lime);">DELHI REGIONAL CHAMPIONS 2026</span></div>
+            <div>LEAGUE: <span>National Robotics League (NRL) 2026</span></div>
+            <div>TEAM ID: <span>Team 012 // Regional #298</span></div>
+            <div>SCHOOL: <span>Dr. B.R. Ambedkar SOSE, Rohini Sec 11</span></div>
+            <div>STATUS: <span style="color:var(--lime);">DELHI REGIONAL CHAMPIONS</span></div>
           </div>
         </div>
       </div>
@@ -2177,21 +2413,20 @@
   </section>
 
   <!-- ========================================================
-       02 // THE TEAM
+       02 // THE TEAM (HIGH-CONTRAST BLACK TEXT ON WHITE CARDS)
        ======================================================== -->
-  <section class="sec sec-dark" id="team">
+  <section class="sec sec-dark reveal" id="team">
     <div class="sec-hdr">
       <span class="sec-tag">02 // The Team</span>
       <h2 class="d h2">Ten people.<br><span style="color:var(--lime);">One machine.</span></h2>
-      <p class="m" style="color:#aaa;">Numbered roster // Delhi Regional Champions</p>
+      <p class="m" style="color:#bbb;">Numbered roster // Delhi Regional Champions</p>
     </div>
 
     <div class="team-grid">
-      <!-- 01 Dhruv Jha -->
       <div class="team-card">
-        <div class="team-banner-art">
+        <div class="team-banner-art highlight">
           <span class="team-num">01</span>
-          <span class="m" style="color:#fff;background:#000;padding:2px 6px;">CAPTAIN</span>
+          <span class="team-tag-pill lime">CAPTAIN</span>
         </div>
         <div class="team-details">
           <div class="team-name">Dhruv Jha</div>
@@ -2200,11 +2435,10 @@
         </div>
       </div>
 
-      <!-- 02 Alok Mishra -->
       <div class="team-card">
-        <div class="team-banner-art" style="background: linear-gradient(135deg, var(--violet-dark), var(--lime));">
+        <div class="team-banner-art highlight">
           <span class="team-num">02</span>
-          <span class="m" style="color:#000;background:var(--lime);padding:2px 6px;">SPONSORSHIP</span>
+          <span class="team-tag-pill lime">PARTNERSHIPS</span>
         </div>
         <div class="team-details">
           <div class="team-name">Alok Mishra</div>
@@ -2213,11 +2447,10 @@
         </div>
       </div>
 
-      <!-- 03 Aayush Kumar -->
       <div class="team-card">
         <div class="team-banner-art">
           <span class="team-num">03</span>
-          <span class="m" style="color:#fff;background:#000;padding:2px 6px;">MEMBER</span>
+          <span class="team-tag-pill">MEMBER</span>
         </div>
         <div class="team-details">
           <div class="team-name">Aayush Kumar</div>
@@ -2226,11 +2459,10 @@
         </div>
       </div>
 
-      <!-- 04 Dipanshu -->
       <div class="team-card">
         <div class="team-banner-art">
           <span class="team-num">04</span>
-          <span class="m" style="color:#fff;background:#000;padding:2px 6px;">MEMBER</span>
+          <span class="team-tag-pill">MEMBER</span>
         </div>
         <div class="team-details">
           <div class="team-name">Dipanshu</div>
@@ -2239,11 +2471,10 @@
         </div>
       </div>
 
-      <!-- 05 Abhinav Jha -->
       <div class="team-card">
         <div class="team-banner-art">
           <span class="team-num">05</span>
-          <span class="m" style="color:#fff;background:#000;padding:2px 6px;">MEMBER</span>
+          <span class="team-tag-pill">MEMBER</span>
         </div>
         <div class="team-details">
           <div class="team-name">Abhinav Jha</div>
@@ -2252,11 +2483,10 @@
         </div>
       </div>
 
-      <!-- 06 Naitik -->
       <div class="team-card">
         <div class="team-banner-art">
           <span class="team-num">06</span>
-          <span class="m" style="color:#fff;background:#000;padding:2px 6px;">MEMBER</span>
+          <span class="team-tag-pill">MEMBER</span>
         </div>
         <div class="team-details">
           <div class="team-name">Naitik</div>
@@ -2265,11 +2495,10 @@
         </div>
       </div>
 
-      <!-- 07 Dipesh Yadav -->
       <div class="team-card">
         <div class="team-banner-art">
           <span class="team-num">07</span>
-          <span class="m" style="color:#fff;background:#000;padding:2px 6px;">MEMBER</span>
+          <span class="team-tag-pill">MEMBER</span>
         </div>
         <div class="team-details">
           <div class="team-name">Dipesh Yadav</div>
@@ -2278,11 +2507,10 @@
         </div>
       </div>
 
-      <!-- 08 Soumil Katariya -->
       <div class="team-card">
         <div class="team-banner-art">
           <span class="team-num">08</span>
-          <span class="m" style="color:#fff;background:#000;padding:2px 6px;">MEMBER</span>
+          <span class="team-tag-pill">MEMBER</span>
         </div>
         <div class="team-details">
           <div class="team-name">Soumil Katariya</div>
@@ -2291,11 +2519,10 @@
         </div>
       </div>
 
-      <!-- 09 Devansh Upadhyay -->
       <div class="team-card">
         <div class="team-banner-art">
           <span class="team-num">09</span>
-          <span class="m" style="color:#fff;background:#000;padding:2px 6px;">MEMBER</span>
+          <span class="team-tag-pill">MEMBER</span>
         </div>
         <div class="team-details">
           <div class="team-name">Devansh Upadhyay</div>
@@ -2304,11 +2531,10 @@
         </div>
       </div>
 
-      <!-- 10 Komal -->
       <div class="team-card">
         <div class="team-banner-art">
           <span class="team-num">10</span>
-          <span class="m" style="color:#fff;background:#000;padding:2px 6px;">MEMBER</span>
+          <span class="team-tag-pill">MEMBER</span>
         </div>
         <div class="team-details">
           <div class="team-name">Komal</div>
@@ -2318,38 +2544,37 @@
       </div>
     </div>
 
-    <!-- Team Photo Strip -->
-    <div style="margin-top: 48px; border: 2px solid var(--white); display: grid; grid-template-columns: 1.2fr 0.8fr; background: var(--black);">
-      <div style="position: relative; overflow: hidden; min-height: 320px;">
-        <img src="assets/images/argus_team_lab.jpg" alt="ARGUS team working on robot in the engineering lab" style="width: 100%; height: 100%; object-fit: cover;">
+    <!-- Responsive Team Lab Feature -->
+    <div class="team-lab-feature">
+      <div class="team-lab-photo">
+        <img src="assets/images/argus_team_lab.jpg" alt="ARGUS team working on robot in the engineering lab" loading="lazy" decoding="async">
       </div>
-      <div style="padding: 32px; display: flex; flex-direction: column; justify-content: center; gap: 14px;">
+      <div class="team-lab-copy">
         <span class="sec-tag">BUILD ROOM SESSIONS</span>
         <h3 class="d h3" style="color:var(--lime);">TEN MINDS. ENDLESS REFINEMENT.</h3>
-        <p style="font-size: 14.5px; color: #ccc; line-height: 1.5;">
-          Our squad members operate across mechanical CAD design, rapid 3D fabrication, ESP32 firmware development, driver training, and strategy analysis.
+        <p style="font-size: 14.5px; color: #d0d0d0; line-height: 1.5;">
+          Our squad operates across mechanical CAD design, FDM fabrication, ESP32 firmware development, driver training, and match strategy.
         </p>
       </div>
     </div>
   </section>
 
   <!-- ========================================================
-       03 // THE ROBOT TOUR (THE CENTERPIECE)
+       03 // THE ROBOT TOUR (FIXED 3D + AUTO REVEAL)
        ======================================================== -->
-  <section class="sec sec-dark" id="robot-tour">
+  <section class="sec sec-dark reveal" id="robot-tour">
     <div class="sec-hdr">
       <span class="sec-tag">03 // The Robot Tour</span>
       <h2 class="d h2">Meet the machine.<br><span style="color:var(--lime);">One scroll, one stop.</span></h2>
-      <p class="m" style="color:#aaa;">Interactive 3D CAD inspection // Team 012 Competition Robot</p>
+      <p class="m" style="color:#bbb;">Interactive 3D CAD Inspection (710 KB Draco WebP) // Drag to Rotate</p>
     </div>
 
     <div class="tour-container">
-      <!-- Pinned 3D Viewport Column -->
       <div class="tour-stage-wrap">
         <div class="model-viewport">
-          <div class="model-loading-screen" id="robotLoadingScreen">
-            <div class="model-spinner"></div>
-            <span>LOADING 3D CAD MODEL...</span>
+          <div class="mv-status-pill" id="robotStatusPill">
+            <span class="mv-mini-spin"></span>
+            <span>LOADING 3D CAD (710 KB)...</span>
           </div>
 
           <model-viewer
@@ -2359,33 +2584,36 @@
             alt="ARGUS robot, interactive 3D model"
             camera-controls
             auto-rotate
-            rotation-per-second="10deg"
+            rotation-per-second="12deg"
             interaction-prompt="auto"
-            camera-orbit="45deg 65deg 1.8m"
-            field-of-view="35deg"
-            exposure="1"
+            camera-orbit="45deg 65deg 108%"
+            camera-target="auto auto auto"
+            field-of-view="34deg"
+            exposure="1.05"
             shadow-intensity="1"
             shadow-softness="0.6"
             environment-image="neutral"
-            loading="lazy"
-            reveal="interaction"
+            loading="eager"
+            reveal="auto"
             ar
             ar-modes="webxr scene-viewer quick-look">
+            <div slot="progress-bar" class="mv-progress-bar">
+              <div class="mv-progress-fill" id="robotProgressFill"></div>
+            </div>
           </model-viewer>
         </div>
 
         <!-- Free-Play Viewpoint Toolbar -->
         <div class="model-controls-bar">
-          <div class="m" style="color:var(--lime);">PRESET VIEWPOINTS:</div>
           <div class="model-presets-group">
-            <button class="preset-btn active" data-orbit="45deg 65deg 1.8m" data-target="auto auto auto" data-stop="0">Overview</button>
-            <button class="preset-btn" data-orbit="0deg 75deg 1.2m" data-target="0m 0.05m 0m" data-stop="1">Drivetrain</button>
-            <button class="preset-btn" data-orbit="45deg 55deg 1.3m" data-target="0m 0.15m 0.1m" data-stop="2">Arm</button>
-            <button class="preset-btn" data-orbit="90deg 60deg 0.9m" data-target="0.15m 0.15m 0.2m" data-stop="3">Claw</button>
-            <button class="preset-btn" data-orbit="-45deg 45deg 1.1m" data-target="0m 0.12m -0.05m" data-stop="4">Electronics</button>
-            <button class="preset-btn" data-orbit="180deg 65deg 1.2m" data-target="0m 0.1m -0.15m" data-stop="5">Payload</button>
+            <button class="preset-btn active" data-stop="0">Overview</button>
+            <button class="preset-btn" data-stop="1">01 Drivetrain</button>
+            <button class="preset-btn" data-stop="2">02 Arm</button>
+            <button class="preset-btn" data-stop="3">03 Claw</button>
+            <button class="preset-btn" data-stop="4">04 Electronics</button>
+            <button class="preset-btn" data-stop="5">05 Payload</button>
           </div>
-          <div style="display: flex; gap: 8px;">
+          <div style="display: flex; gap: 6px;">
             <button class="preset-btn" id="toggleAutoRotateBtn">Rotate: ON</button>
             <button class="preset-btn" id="resetRobotCamBtn">Reset</button>
           </div>
@@ -2394,82 +2622,76 @@
         <div class="cad-link-bar">
           <span>NOW YOU DRIVE — DRAG TO ROTATE // PINCH TO ZOOM</span>
           <a href="https://cad.onshape.com/documents/b9775324604f1e712d8677c5/w/42798f7711b0b207da9310d3/e/2e8391d232133dd053e4cffb?renderMode=0&uiState=6ad1bfc0f559616dac93609f" target="_blank" rel="noopener noreferrer">
-            CAD Model — Open in Onshape ↗
+            Open CAD in Onshape ↗
           </a>
         </div>
       </div>
 
-      <!-- 6 Spec Stops Cards Stream -->
+      <!-- 6 Spec Stops -->
       <div class="spec-stops-stream" id="specStopsStream">
-        <!-- 01 Drivetrain -->
-        <div class="spec-stop-card active" data-stop-idx="1" data-orbit="0deg 75deg 1.2m" data-target="0m 0.05m 0m">
+        <div class="spec-stop-card active" data-stop-idx="1">
           <div class="spec-card-head">
             <span class="spec-stop-num">01 // SUBSYSTEM</span>
             <span class="m" style="color:var(--lime);">PROPULSION</span>
           </div>
           <div class="spec-stop-title">Drivetrain</div>
           <p class="spec-stop-body">
-            Differential tank drive powered by two high-torque DC motors. Features ramp-limited TankDrive firmware control, dual slow/fast driver modes, gyro heading-hold assist, laser-cut clear acrylic chassis plates, and four treaded high-traction wheels.
+            Differential tank drive powered by two DC motors, ramp-limited TankDrive control, slow/fast driver modes, gyro heading-hold assist, clear acrylic chassis plates, and four treaded wheels.
           </p>
         </div>
 
-        <!-- 02 Arm -->
-        <div class="spec-stop-card" data-stop-idx="2" data-orbit="45deg 55deg 1.3m" data-target="0m 0.15m 0.1m">
+        <div class="spec-stop-card" data-stop-idx="2">
           <div class="spec-card-head">
             <span class="spec-stop-num">02 // SUBSYSTEM</span>
             <span class="m" style="color:var(--lime);">MANIPULATION</span>
           </div>
           <div class="spec-stop-title">Two-Servo Arm</div>
           <p class="spec-stop-body">
-            Two-servo arm integrated with a programmed preset ladder: Floor, Carry, Star, High, and Apex. Features one-press rung stepping, RT-gated manual rate control, and an engineered arm lift travel from a 115-degree top stop to a 180-degree floor pickup.
+            Two-servo arm with preset ladder (floor, carry, star, high, apex), one-press rung stepping, and arm lift travel from 115-degree top stop to 180-degree floor.
           </p>
         </div>
 
-        <!-- 03 Claw -->
-        <div class="spec-stop-card" data-stop-idx="3" data-orbit="90deg 60deg 0.9m" data-target="0.15m 0.15m 0.2m">
+        <div class="spec-stop-card" data-stop-idx="3">
           <div class="spec-card-head">
             <span class="spec-stop-num">03 // SUBSYSTEM</span>
             <span class="m" style="color:var(--lime);">END EFFECTOR</span>
           </div>
           <div class="spec-stop-title">Claw Mechanism</div>
           <p class="spec-stop-body">
-            Precision gripper calibrated from 0-degree wide open to 105-degree max-grip close, measured directly on the robot. Iteratively tuned across five distinct testing cycles from 90° to 105° for maximum CORE retention during sudden acceleration.
+            Gripper 0-degree open to 105-degree max-grip close, measured on the robot; tuned across five iterations from 90 to 105 degrees.
           </p>
         </div>
 
-        <!-- 04 Electronics -->
-        <div class="spec-stop-card" data-stop-idx="4" data-orbit="-45deg 45deg 1.1m" data-target="0m 0.12m -0.05m">
+        <div class="spec-stop-card" data-stop-idx="4">
           <div class="spec-card-head">
             <span class="spec-stop-num">04 // SUBSYSTEM</span>
-            <span class="m" style="color:var(--lime);">AVIONICS & CONTROL</span>
+            <span class="m" style="color:var(--lime);">AVIONICS</span>
           </div>
           <div class="spec-stop-title">Electronics & Telemetry</div>
           <p class="spec-stop-body">
-            HEXA Command Hub (ESP32-S3) paired directly to our custom handheld controller over raw ESP-NOW on channel 11 — zero WiFi router required. Features an MCP3008 ADC for live battery/current telemetry, LSM6DSOX 6-DoF gyro, status OLED, and NeoPixel LED indicators.
+            HEXA Command Hub (ESP32-S3) paired to its handheld controller over ESP-NOW, channel 11, no WiFi router needed. MCP3008 ADC live battery/current telemetry, LSM6DSOX gyro, status OLED, NeoPixel LED.
           </p>
         </div>
 
-        <!-- 05 Payload -->
-        <div class="spec-stop-card" data-stop-idx="5" data-orbit="180deg 65deg 1.2m" data-target="0m 0.1m -0.15m">
+        <div class="spec-stop-card" data-stop-idx="5">
           <div class="spec-card-head">
             <span class="spec-stop-num">05 // SUBSYSTEM</span>
             <span class="m" style="color:var(--lime);">MISSION ELEMENT</span>
           </div>
           <div class="spec-stop-title">Payload Bay</div>
           <p class="spec-stop-body">
-            90 mm, approximately 150 g FDM-printed Team 012 custom shell. Secured inside a dedicated cargo bay and delivered to the field Drop Zone via a separate autonomous release mechanism.
+            90 mm, about 150 g FDM-printed Team 012 shell, delivered to the field Drop Zone by a separate claw mechanism.
           </p>
         </div>
 
-        <!-- 06 The Whole Machine -->
-        <div class="spec-stop-card" data-stop-idx="6" data-orbit="45deg 65deg 1.8m" data-target="auto auto auto">
+        <div class="spec-stop-card" data-stop-idx="6">
           <div class="spec-card-head">
             <span class="spec-stop-num">06 // INTEGRATED SYSTEM</span>
             <span class="m" style="color:var(--lime);">THE MACHINE</span>
           </div>
           <div class="spec-stop-title">The Whole Machine</div>
           <p class="spec-stop-body">
-            Built for fast CORE cycling, reliable Payload delivery, and a decisive LEVEL UP endgame climb. Strictly compliant with official NRL specifications: stays within the 18-inch starting volume and 8 kg weight ceiling.
+            Built for fast CORE scoring, reliable Payload delivery, and a strong LEVEL UP endgame. Stays within the 18-inch starting volume and 8 kg limit.
           </p>
         </div>
       </div>
@@ -2477,142 +2699,116 @@
   </section>
 
   <!-- ========================================================
-       04 // REGIONAL CHAMPIONS & RECREATED FINALS SCOREBOARD
+       04 // REGIONAL CHAMPIONS & FINALS SCOREBOARD
        ======================================================== -->
-  <section class="sec" id="champions">
+  <section class="sec reveal" id="champions">
     <div class="sec-hdr">
       <span class="sec-tag">04 // Regional Champions</span>
       <h2 class="d h2">From 27 to champions.<br><span style="color:var(--violet);">The finals scoreboard.</span></h2>
       <p class="m" style="color:#555;">Finals // NRL Delhi Regional // 17 November 2026 // Thyagaraj Stadium</p>
     </div>
 
-    <!-- Recreated Scoreboard Console -->
     <div class="scoreboard-wrap">
       <div class="scoreboard-header">
         <div class="m" style="color:var(--lime);font-weight:700;">NRL DELHI REGIONAL FINALS // 17 NOV 2026</div>
-        <div class="m">THYAGARAJ STADIUM, NEW DELHI</div>
-        <div class="badge-champion" style="padding:4px 10px;font-size:11px;">FINALS RESULT: 2 - 0</div>
+        <div class="m">THYAGARAJ STADIUM, DELHI</div>
+        <div class="badge-champion" style="padding:4px 10px;font-size:10.5px;">FINALS: 2 - 0</div>
       </div>
 
       <div class="scoreboard-main">
-        <!-- Blue Squad Box -->
         <div class="score-squad-box squad-blue">
           <div>
             <div class="squad-tag">
               <span class="pulsing-dot"></span>
-              <span>BLUE SQUAD // CHAMPIONS (EVENT HIGH SCORE)</span>
+              <span>BLUE SQUAD // CHAMPIONS (HIGH SCORE)</span>
             </div>
             <div class="score-big">106</div>
           </div>
 
-          <div>
-            <div class="squad-alliance">
-              ALLIANCE PARTNERS:<br>
-              <b>#263 Overclocked</b> (City Montessori School, Gomti Nagar)<br>
-              <b>#298 Team 12 CM SHRI</b> (ARGUS — Dr. B.R. Ambedkar SOSE Rohini)
-            </div>
+          <div class="squad-alliance">
+            ALLIANCE PARTNERS:<br>
+            <b>#263 Overclocked</b> (City Montessori School)<br>
+            <b>#298 Team 12 CM SHRI</b> (ARGUS — Rohini)
           </div>
         </div>
 
-        <!-- Red Squad Box -->
         <div class="score-squad-box squad-red">
           <div>
-            <div class="squad-tag">
-              <span>RED SQUAD // RUNNER-UP</span>
-            </div>
+            <div class="squad-tag"><span>RED SQUAD // RUNNER-UP</span></div>
             <div class="score-big">25</div>
           </div>
 
-          <div>
-            <div class="squad-alliance">
-              ALLIANCE PARTNERS:<br>
-              <b>#286 Team 2 CM Shri</b> (Dr. B.R. Ambedkar SOSE, Sector 10 Dwarka)<br>
-              <b>#151 RoboNex@DPS45</b> (Delhi Public School, Sector 45 Gurgaon)
-            </div>
+          <div class="squad-alliance">
+            ALLIANCE PARTNERS:<br>
+            <b>#286 Team 2 CM Shri</b> (Dwarka)<br>
+            <b>#151 RoboNex@DPS45</b> (DPS Sector 45 Gurgaon)
           </div>
         </div>
       </div>
 
       <div class="scoreboard-strip">
-        <div>MATCH VERDICT: <b>BLUE SQUAD WINS 2-0</b> (HIGH SCORE: 106)</div>
-        <div>ALLIANCE PARTNER: <b>TEAM 263 OVERCLOCKED</b></div>
-        <div>SPECIAL HONOUR: <b>BRAND BUILDER AWARD WINNER</b></div>
-        <div>NEXT DESTINATION: <b>NRL NATIONAL FINALS, MUMBAI // DEC 2026</b></div>
+        <div>VERDICT: BLUE SQUAD 2-0 (HIGH SCORE: 106)</div>
+        <div>ALLIANCE: TEAM 263 OVERCLOCKED</div>
+        <div>HONOUR: BRAND BUILDER AWARD</div>
+        <div>QUALIFIED: MUMBAI NATIONALS DEC 2026</div>
       </div>
     </div>
 
-    <!-- Friendly Rivalry & Alliance Note -->
-    <div style="border-left: 4px solid var(--violet); padding: 18px 24px; background: var(--gray-100); margin-bottom: 40px; font-size: 15px; line-height: 1.5;">
-      <b>Alliance Camaraderie:</b> Facing tough competition in qualifiers where we stood at rank 27, Team 012 ARGUS engineered our comeback into the playoff bracket. Partnering with Team 263 Overclocked, our combined strategy, flawless autonomous cycling, and clutch LEVEL UP execution delivered an event-high 106 points and a clean 2-0 finals sweep.
+    <div class="camaraderie-note">
+      <b>Alliance Camaraderie:</b> Ranked 27th after qualifiers, ARGUS engineered a relentless comeback into playoffs. Teaming up with <b>#263 Overclocked</b>, we posted an event-high <b>106 points</b> and swept the finals <b>2-0</b>.
     </div>
 
-    <!-- Event Highlights Gallery -->
-    <div class="sec-hdr" style="margin-bottom: 24px;">
+    <div class="sec-hdr" style="margin-bottom: 20px;">
       <span class="sec-tag">EVENT HIGHLIGHTS // THYAGARAJ STADIUM</span>
       <h3 class="d h3">Moments from the win</h3>
     </div>
 
     <div class="win-gallery-grid">
-      <!-- 01 Stage Banner Win -->
-      <div class="win-photo-card span-2" onclick="openLightbox('assets/images/regional-win/win_photo_12.jpeg', 'ARGUS on stage with the Winner Regionals HYPERDRIVE 2026 banner and gold medals')">
-        <img src="assets/images/regional-win/win_photo_12.jpeg" alt="ARGUS on stage with the Winner Regionals HYPERDRIVE 2026 banner and gold medals" class="win-photo-img">
+      <div class="win-photo-card" onclick="openLightbox('assets/images/regional-win/win_photo_12.jpeg', 'ARGUS on stage with the Winner Regionals HYPERDRIVE 2026 banner and gold medals')">
+        <img src="assets/images/regional-win/win_photo_12.jpeg" alt="ARGUS on stage with Winner Regionals banner and gold medals" class="win-photo-img" loading="lazy" decoding="async">
         <div class="win-photo-cap">
-          <span>01 // Regional Champions Presentation</span>
-          <span style="color:var(--violet);">Stage Ceremony</span>
+          <span>01 // Regional Champions Stage</span>
+          <span style="color:var(--violet-dark);">Ceremony</span>
         </div>
       </div>
 
-      <!-- 02 Brand Builder Award Screen -->
-      <div class="win-photo-card" onclick="openLightbox('assets/images/regional-win/win_photo_13.jpeg', 'Team 12 CM Shri winning the prestigious Brand Builder Award')">
-        <img src="assets/images/regional-win/win_photo_13.jpeg" alt="Team 12 CM Shri winning the prestigious Brand Builder Award" class="win-photo-img">
+      <div class="win-photo-card" onclick="openLightbox('assets/images/regional-win/win_photo_13.jpeg', 'Team 12 CM Shri winning the Brand Builder Award under confetti')">
+        <img src="assets/images/regional-win/win_photo_13.jpeg" alt="Brand Builder Award celebration" class="win-photo-img" loading="lazy" decoding="async">
         <div class="win-photo-cap">
-          <span>02 // Brand Builder Award</span>
-          <span style="color:var(--violet);">Special Honor</span>
+          <span>02 // Brand Builder</span>
+          <span style="color:var(--violet-dark);">Award</span>
         </div>
       </div>
 
-      <!-- 03 Team Celebration with Robot in the Air -->
-      <div class="win-photo-card vertical" onclick="openLightbox('assets/images/regional-win/win_photo_00.jpeg', 'Team ARGUS holding the champion robot #298 high in celebration')">
-        <img src="assets/images/regional-win/win_photo_00.jpeg" alt="Team ARGUS holding the champion robot high" class="win-photo-img">
+      <div class="win-photo-card" onclick="openLightbox('assets/images/regional-win/win_photo_00.jpeg', 'Team ARGUS holding the champion robot #298 high in celebration')">
+        <img src="assets/images/regional-win/win_photo_00.jpeg" alt="Team holding champion robot high" class="win-photo-img" loading="lazy" decoding="async">
         <div class="win-photo-cap">
           <span>03 // Victory Lift</span>
-          <span style="color:var(--violet);">Team Joy</span>
+          <span style="color:var(--violet-dark);">Team Joy</span>
         </div>
       </div>
 
-      <!-- 04 Alliance Partners Cheering on Field -->
       <div class="win-photo-card" onclick="openLightbox('assets/images/regional-win/win_photo_05.jpeg', 'Squad alliance 263 Overclocked + 298 ARGUS celebrating on the arena floor')">
-        <img src="assets/images/regional-win/win_photo_05.jpeg" alt="Squad alliance Overclocked + ARGUS" class="win-photo-img">
+        <img src="assets/images/regional-win/win_photo_05.jpeg" alt="Squad alliance Overclocked and ARGUS" class="win-photo-img" loading="lazy" decoding="async">
         <div class="win-photo-cap">
-          <span>04 // Squad Alliance</span>
-          <span style="color:var(--violet);">263 + 298</span>
+          <span>04 // 263 + 298 Alliance</span>
+          <span style="color:var(--violet-dark);">Squad</span>
         </div>
       </div>
 
-      <!-- 05 Arena Match Action -->
       <div class="win-photo-card" onclick="openLightbox('assets/images/regional-win/win_photo_09.jpeg', 'ARGUS Robot #298 scoring CORE on the field target pole')">
-        <img src="assets/images/regional-win/win_photo_09.jpeg" alt="ARGUS Robot #298 scoring CORE on the field target pole" class="win-photo-img">
+        <img src="assets/images/regional-win/win_photo_09.jpeg" alt="ARGUS Robot scoring CORE" class="win-photo-img" loading="lazy" decoding="async">
         <div class="win-photo-cap">
           <span>05 // Arena Scoring</span>
-          <span style="color:var(--violet);">Live Match</span>
+          <span style="color:var(--violet-dark);">Live Match</span>
         </div>
       </div>
 
-      <!-- 06 Drivers Operating Controllers -->
-      <div class="win-photo-card" onclick="openLightbox('assets/images/regional-win/win_photo_04.jpeg', 'ARGUS drivers in intense coordination at the perimeter barrier')">
-        <img src="assets/images/regional-win/win_photo_04.jpeg" alt="ARGUS drivers operating controllers" class="win-photo-img">
+      <div class="win-photo-card" onclick="openLightbox('assets/images/regional-win/win_photo_08.jpeg', 'Thyagaraj Stadium arena floor during playoff match')">
+        <img src="assets/images/regional-win/win_photo_08.jpeg" alt="Thyagaraj Stadium arena floor during playoffs" class="win-photo-img" loading="lazy" decoding="async">
         <div class="win-photo-cap">
-          <span>06 // Driver Coordination</span>
-          <span style="color:var(--violet);">TeleOp Phase</span>
-        </div>
-      </div>
-
-      <!-- 07 Arena Overview & Big Screen -->
-      <div class="win-photo-card span-2" onclick="openLightbox('assets/images/regional-win/win_photo_08.jpeg', 'Thyagaraj Stadium arena floor during playoff match')">
-        <img src="assets/images/regional-win/win_photo_08.jpeg" alt="Thyagaraj Stadium arena floor during playoff match" class="win-photo-img">
-        <div class="win-photo-cap">
-          <span>07 // Arena Overview // 106 High Score Match</span>
-          <span style="color:var(--violet);">Playoffs</span>
+          <span>06 // Arena Overview // Thyagaraj</span>
+          <span style="color:var(--violet-dark);">Playoffs</span>
         </div>
       </div>
     </div>
@@ -2621,59 +2817,56 @@
   <!-- ========================================================
        05 // IN THE NEWS
        ======================================================== -->
-  <section class="sec sec-lime" id="news">
+  <section class="sec sec-lime reveal" id="news">
     <div class="sec-hdr">
       <span class="sec-tag" style="background:#000;color:var(--lime);border-color:#000;">05 // In The News</span>
-      <h2 class="d h2">Delhi's innovators<br>in the national spotlight.</h2>
+      <h2 class="d h2">Delhi's innovators<br>in the spotlight.</h2>
       <p class="m" style="color:#000;">Official Press Coverage // NRL Delhi Regional 2026</p>
     </div>
 
     <div class="news-grid">
-      <!-- Article 1: ThePrint -->
       <div class="news-card">
         <div>
           <div class="news-source-line">
             <span class="m" style="font-weight:700;">THEPRINT (PTI)</span>
-            <span class="m" style="color:#666;">18 NOV 2026</span>
+            <span class="m" style="color:#555;">18 NOV 2026</span>
           </div>
-          <h3 class="news-headline" style="margin: 16px 0;">"Over 43 teams compete in Delhi regional round of National Robotics League 2026"</h3>
+          <h3 class="news-headline" style="margin: 14px 0;">"Over 43 teams compete in Delhi regional round of National Robotics League 2026"</h3>
           <p class="news-snippet">
-            ThePrint reports on the intense regional showdown at Thyagaraj Stadium, officially naming Overclocked and Team 12 CM SHRI (Rohini) as Champions Award winners advancing to the National Championship in Mumbai.
+            Names Overclocked and Team 12 CM SHRI (Rohini) as Champions Award winners advancing to the National Championship in Mumbai.
           </p>
         </div>
         <div>
-          <a href="https://theprint.in/india/over-43-teams-compete-in-delhi-regional-round-of-national-robotics-league-2026/3102507/" target="_blank" rel="noopener noreferrer" class="btn btn-dark">
+          <a href="https://theprint.in/india/over-43-teams-compete-in-delhi-regional-round-of-national-robotics-league-2026/3102507/" target="_blank" rel="noopener noreferrer" class="btn btn-dark-solid">
             Read on ThePrint ↗
           </a>
         </div>
       </div>
 
-      <!-- Article 2: The Statesman -->
       <div class="news-card">
         <div>
           <div class="news-source-line">
             <span class="m" style="font-weight:700;">THE STATESMAN (UNI)</span>
-            <span class="m" style="color:#666;">18 NOV 2026</span>
+            <span class="m" style="color:#555;">18 NOV 2026</span>
           </div>
-          <h3 class="news-headline" style="margin: 16px 0;">"12 CM SHRI teams compete in National Robotics League; Ashish Sood hails young innovators"</h3>
+          <h3 class="news-headline" style="margin: 14px 0;">"12 CM SHRI teams compete in National Robotics League; Ashish Sood hails young innovators"</h3>
           <p class="news-snippet">
-            The Statesman highlights the performance of CM SHRI government school teams at the Delhi Regional round, highlighting their rigorous technical depth, autonomous opmodes, and innovative engineering architectures.
+            Highlights the performance of CM SHRI teams at the Delhi Regional round and their engineering depth.
           </p>
         </div>
         <div>
-          <a href="https://www.thestatesman.com/cities/delhi/12-cm-shri-teams-compete-in-national-robotics-league-ashish-sood-hails-young-innovators-1503664098.html" target="_blank" rel="noopener noreferrer" class="btn btn-dark">
+          <a href="https://www.thestatesman.com/cities/delhi/12-cm-shri-teams-compete-in-national-robotics-league-ashish-sood-hails-young-innovators-1503664098.html" target="_blank" rel="noopener noreferrer" class="btn btn-dark-solid">
             Read on The Statesman ↗
           </a>
         </div>
       </div>
     </div>
 
-    <!-- Minister Commendation Banner -->
     <div class="minister-banner">
-      <div style="display:flex;align-items:center;gap:16px;">
-        <span style="font-size:32px;">★</span>
-        <div class="minister-text">
-          <b>Official Dignitary Commendation:</b> Delhi Education Minister Ashish Sood visited the Regional Finals at Thyagaraj Stadium and personally congratulated our team on qualifying for the National Finals in Mumbai.
+      <div class="minister-inner">
+        <span style="font-size:28px;color:var(--violet-dark);">★</span>
+        <div style="font-size:15px;font-weight:600;">
+          Delhi Education Minister <b>Ashish Sood</b> visited the Regional Final at Thyagaraj Stadium and congratulated the qualifying teams.
         </div>
       </div>
       <div class="m" style="background:#000;color:#fff;padding:8px 14px;white-space:nowrap;">GOVT. OF NCT OF DELHI</div>
@@ -2683,185 +2876,150 @@
   <!-- ========================================================
        06 // ENGINEERING JOURNEY
        ======================================================== -->
-  <section class="sec sec-dark" id="journey">
+  <section class="sec sec-dark reveal" id="journey">
     <div class="sec-hdr">
       <span class="sec-tag">06 // Engineering Journey</span>
       <h2 class="d h2">Milestones & methods.<br><span style="color:var(--lime);">Evidence over guesswork.</span></h2>
-      <p class="m" style="color:#aaa;">Real timeline // Rigorous engineering cycle</p>
     </div>
 
-    <!-- Process Strip -->
     <div class="process-strip">
-      <div class="process-step">
-        <div class="process-step-num">STEP 01</div>
-        <div class="process-step-name">Understand</div>
-      </div>
-      <div class="process-step">
-        <div class="process-step-num">STEP 02</div>
-        <div class="process-step-name">Design</div>
-      </div>
-      <div class="process-step">
-        <div class="process-step-num">STEP 03</div>
-        <div class="process-step-name">Build</div>
-      </div>
-      <div class="process-step">
-        <div class="process-step-num">STEP 04</div>
-        <div class="process-step-name">Program</div>
-      </div>
-      <div class="process-step">
-        <div class="process-step-num">STEP 05</div>
-        <div class="process-step-name">Test</div>
-      </div>
-      <div class="process-step">
-        <div class="process-step-num">STEP 06</div>
-        <div class="process-step-name">Improve</div>
-      </div>
+      <div class="process-step"><div class="process-step-num">01</div><div class="process-step-name">Understand</div></div>
+      <div class="process-step"><div class="process-step-num">02</div><div class="process-step-name">Design</div></div>
+      <div class="process-step"><div class="process-step-num">03</div><div class="process-step-name">Build</div></div>
+      <div class="process-step"><div class="process-step-num">04</div><div class="process-step-name">Program</div></div>
+      <div class="process-step"><div class="process-step-num">05</div><div class="process-step-name">Test</div></div>
+      <div class="process-step"><div class="process-step-num">06</div><div class="process-step-name">Improve</div></div>
     </div>
 
-    <!-- Real Timeline Stream -->
     <div class="timeline-stream">
       <div class="timeline-node">
         <span class="timeline-date">12 OCT 2026</span>
-        <div class="timeline-title">Team Named & Formed</div>
-        <p class="timeline-desc">Team 012 is officially christened ARGUS with ten core students from Dr. B.R. Ambedkar SOSE Rohini.</p>
+        <div class="timeline-title">Team Formed</div>
+        <p class="timeline-desc">Team named ARGUS and formed at Dr. B.R. Ambedkar SOSE Rohini.</p>
       </div>
-
       <div class="timeline-node">
         <span class="timeline-date">13 OCT 2026</span>
-        <div class="timeline-title">Roles & Build Kickoff</div>
-        <p class="timeline-desc">Mechanical, electrical, programming, and strategy sub-teams assigned. CAD modeling begins on Onshape.</p>
+        <div class="timeline-title">Build Kickoff</div>
+        <p class="timeline-desc">Roles assigned across mechanical, electronics, code, and strategy.</p>
       </div>
-
       <div class="timeline-node">
         <span class="timeline-date">14 OCT 2026</span>
-        <div class="timeline-title">Kit Received & Assembled</div>
-        <p class="timeline-desc">NRL official hardware kit unpacked. Acrylic chassis plates laser cut, motors and four treaded wheels mounted.</p>
+        <div class="timeline-title">Kit Assembled</div>
+        <p class="timeline-desc">Official NRL hardware kit received and primary chassis assembled.</p>
       </div>
-
       <div class="timeline-node">
         <span class="timeline-date">15 OCT 2026</span>
-        <div class="timeline-title">Code & Calibration Done</div>
-        <p class="timeline-desc">Opmodes compiled; gyro heading-hold and response curves calibrated. Robot fully controllable in under 48 hours.</p>
+        <div class="timeline-title">Calibrated</div>
+        <p class="timeline-desc">OpModes coded and calibrated; robot fully controllable.</p>
       </div>
-
       <div class="timeline-node">
         <span class="timeline-date">16 OCT 2026</span>
-        <div class="timeline-title">Cargo Bay & Payload</div>
-        <p class="timeline-desc">90 mm, ~150 g FDM custom payload designed and cargo bay mechanism integrated onto chassis.</p>
+        <div class="timeline-title">Cargo & Payload</div>
+        <p class="timeline-desc">Cargo bay built and 90 mm FDM payload shell designed.</p>
       </div>
-
       <div class="timeline-node">
         <span class="timeline-date">17 OCT 2026</span>
-        <div class="timeline-title">First Match & Socials</div>
-        <p class="timeline-desc">Initial arena scrimmage completed. Social media presence launched (@argusnrl). Rapid enhancements begun.</p>
+        <div class="timeline-title">First Match</div>
+        <p class="timeline-desc">First match played well; @argusnrl launched; robot upgraded.</p>
       </div>
-
-      <div class="timeline-node" style="border-color:var(--lime);background:#1a1a1a;">
-        <span class="timeline-date" style="color:var(--lime);">17 NOV 2026</span>
-        <div class="timeline-title" style="color:var(--lime);">Delhi Regional Champions</div>
-        <p class="timeline-desc">Thyagaraj Stadium: 106 high score, 2-0 Finals sweep, Brand Builder Award, and National Championship qualification.</p>
+      <div class="timeline-node" style="border-color:var(--lime);background:#1b1b1b;">
+        <span class="timeline-date">17 NOV 2026</span>
+        <div class="timeline-title" style="color:var(--lime);">Regional Champions</div>
+        <p class="timeline-desc">Thyagaraj Stadium: 106 high score, 2-0 Finals sweep, Brand Builder award.</p>
       </div>
-
       <div class="timeline-node">
         <span class="timeline-date">DECEMBER 2026</span>
-        <div class="timeline-title">National Finals Mumbai</div>
-        <p class="timeline-desc">Heading to VJTI Mumbai to battle the champion teams from across all states for the National Title.</p>
+        <div class="timeline-title">National Finals</div>
+        <p class="timeline-desc">Qualified for the NRL National Finals in Mumbai.</p>
       </div>
     </div>
 
-    <!-- Deep Dive Boxes -->
     <div class="eng-deepdive-grid">
-      <!-- Claw Tuning Iteration Story -->
       <div class="eng-box">
-        <div class="eng-box-title">Claw Grip Iteration Story</div>
+        <div class="eng-box-title">Claw Iteration Story</div>
         <p>
-          Initial testing with standard 90-degree servo travel dropped CORE elements under lateral robot acceleration. Over five successive prototyping and telemetry-tested cycles, the claw geometry and silicone-lined grip pads were remodeled.
+          Claw close was tuned across five documented iterations from <b>90° to 105° measured max grip</b> on the robot, eliminating CORE slippage during rapid 90° snap turns.
         </p>
-        <p>
-          Final calibrated travel: <b>0-degree open to 105-degree max-grip close</b>. This 15-degree mechanical overdrive ensures zero slip even during 90-degree gyro-assisted snap turns.
-        </p>
-        <div style="background:#000;border:1px solid #333;padding:12px;font-family:var(--font-mono);font-size:12px;color:var(--lime);">
-          ITERATION 1: 90° (Baseline) ➔ ITERATION 3: 98° ➔ ITERATION 5: 105° (Measured Max Grip)
+        <div style="background:#000;border:1px solid #333;padding:11px;font-family:var(--font-mono);font-size:11.5px;color:var(--lime);">
+          90° BASELINE ➔ 5 ITERATIONS ➔ 105° MAX GRIP
         </div>
       </div>
 
-      <!-- Programming & Control Architecture -->
       <div class="eng-box">
-        <div class="eng-box-title">Programming & OpModes</div>
+        <div class="eng-box-title">Programming & Rule R8.2</div>
         <p>
-          All autonomous and TeleOp opmodes are executed strictly within the official NRL project environment, maintaining the engine completely untouched in full adherence with <b>Rule R8.2</b>.
+          OpModes only inside the official NRL environment (engine untouched per Rule R8.2): stick driving with deadband &amp; response curves, RT-gated arm rate control, gyro heading-hold, 90° snap turns, instant stop, and automatic drive cutoff on radio-link loss.
         </p>
-        <p>
-          Control features: Joystick stick driving with deadband filtration and exponential response curves, RT-gated manual arm rate stepping, LSM6DSOX gyro heading-hold, instant stop braking, and an automatic motor cutoff safety if the ESP-NOW radio link is lost.
-        </p>
-        <div style="background:#000;border:1px solid #333;padding:12px;font-family:var(--font-mono);font-size:12px;color:var(--lime);">
-          Autonomous Skill Challenge: 2:30 TeleOp / 60 s Auto // Channel 11 ESP-NOW
+        <div style="background:#000;border:1px solid #333;padding:11px;font-family:var(--font-mono);font-size:11.5px;color:var(--lime);">
+          2:30 TELEOP / 60 S AUTONOMOUS SKILL CHALLENGE
         </div>
       </div>
     </div>
   </section>
 
   <!-- ========================================================
-       07 // THE FIELD (HYPERDRIVE 2026 ARENA)
+       07 // THE FIELD (HYPERDRIVE 2026 ARENA — FIXED 3D!)
        ======================================================== -->
-  <section class="sec" id="field">
+  <section class="sec reveal" id="field">
     <div class="sec-hdr">
       <span class="sec-tag">07 // The Field</span>
       <h2 class="d h2">Know the arena.<br><span style="color:var(--violet);">HYPERDRIVE 2026 field.</span></h2>
-      <p class="m" style="color:#555;">Interactive 3D Field Explorer // Scene "Field Assembly Final" // Web-optimized</p>
+      <p class="m" style="color:#555;">Interactive 3D Field Explorer (1.02 MB Draco WebP) // Drag to Explore</p>
     </div>
 
     <div class="field-viewport-wrap">
-      <div class="model-loading-screen" id="fieldLoadingScreen">
-        <div class="model-spinner"></div>
-        <span>LOADING 3D FIELD MODEL...</span>
+      <div class="mv-status-pill" id="fieldStatusPill">
+        <span class="mv-mini-spin"></span>
+        <span>LOADING 3D FIELD (1.02 MB)...</span>
       </div>
 
       <model-viewer
         id="fieldViewer"
+        class="field-mv"
         src="assets/hyperdrive-field.glb"
         poster="assets/field-poster.jpg"
         alt="NRL 2026 HYPERDRIVE field, interactive 3D model"
         camera-controls
         auto-rotate
-        rotation-per-second="12deg"
+        rotation-per-second="10deg"
         interaction-prompt="auto"
-        camera-orbit="45deg 65deg auto"
-        target="auto auto auto"
-        min-distance="2m"
-        max-distance="15m"
-        exposure="1"
+        camera-orbit="45deg 60deg 108%"
+        camera-target="auto auto auto"
+        exposure="1.05"
         shadow-intensity="1"
         shadow-softness="0.6"
         environment-image="neutral"
-        loading="lazy"
-        reveal="interaction"
+        loading="eager"
+        reveal="auto"
         ar
-        ar-modes="webxr scene-viewer quick-look"
-        style="width: 100%; aspect-ratio: 21/9; background: #000;">
+        ar-modes="webxr scene-viewer quick-look">
 
-        <!-- Hotspots for Real HYPERDRIVE Elements -->
-        <button class="field-hotspot" slot="hotspot-high-poles" data-position="0m 0.6m 0m" data-normal="0m 1m 0m">
+        <div slot="progress-bar" class="mv-progress-bar">
+          <div class="mv-progress-fill" id="fieldProgressFill"></div>
+        </div>
+
+        <!-- Hotspots positioned accurately inside real field bbox (-2.80..2.23, 0..2.39, -1.09..3.94) -->
+        <button class="field-hotspot" slot="hotspot-high-poles" data-position="-0.28m 1.35m 1.42m" data-normal="0m 1m 0m" onclick="toggleHotspot(this)">
           <span class="dot"></span>
-          <div class="hotspot-annotation">High Poles: High-tier CORE scoring targets</div>
+          <div class="hotspot-annotation">High Poles: High-tier CORE scoring</div>
         </button>
 
-        <button class="field-hotspot" slot="hotspot-star-poles" data-position="0.8m 0.3m 0.4m" data-normal="0m 1m 0m">
+        <button class="field-hotspot" slot="hotspot-star-poles" data-position="0.85m 0.75m 1.95m" data-normal="0m 1m 0m" onclick="toggleHotspot(this)">
           <span class="dot"></span>
           <div class="hotspot-annotation">Star Poles: Squad-specific CORE scoring</div>
         </button>
 
-        <button class="field-hotspot" slot="hotspot-drop-zone" data-position="-0.7m 0.1m -0.5m" data-normal="0m 1m 0m">
+        <button class="field-hotspot" slot="hotspot-drop-zone" data-position="-1.65m 0.25m 0.25m" data-normal="0m 1m 0m" onclick="toggleHotspot(this)">
           <span class="dot"></span>
           <div class="hotspot-annotation">Drop Zone: Score COREs here</div>
         </button>
 
-        <button class="field-hotspot" slot="hotspot-payload" data-position="0.4m 0.15m -0.8m" data-normal="0m 1m 0m">
+        <button class="field-hotspot" slot="hotspot-payload" data-position="1.15m 0.35m 0.15m" data-normal="0m 1m 0m" onclick="toggleHotspot(this)">
           <span class="dot"></span>
           <div class="hotspot-annotation">Payload: Delivered by a separate mechanism</div>
         </button>
 
-        <button class="field-hotspot" slot="hotspot-level-up" data-position="-0.9m 0.4m 0.8m" data-normal="0m 1m 0m">
+        <button class="field-hotspot" slot="hotspot-level-up" data-position="-1.50m 0.85m 2.95m" data-normal="0m 1m 0m" onclick="toggleHotspot(this)">
           <span class="dot"></span>
           <div class="hotspot-annotation">LEVEL UP: The endgame climb</div>
         </button>
@@ -2870,8 +3028,8 @@
 
     <div class="field-meta-bar">
       <div>
-        <div class="m" style="font-weight:700;">THE FIELD WE PLAY ON // 21:9 WIDE STAGE</div>
-        <div class="m" style="color:#666;margin-top:4px;">Drag to inspect arena perimeter, ramps, scoring poles, and alliance starting zones.</div>
+        <div class="m" style="font-weight:700;">THE FIELD WE PLAY ON</div>
+        <div class="m" style="color:#555;margin-top:3px;">Tap markers on the 3D field to inspect scoring zones.</div>
       </div>
 
       <div class="hotspot-legend">
@@ -2882,69 +3040,139 @@
         <div class="legend-item"><span class="box" style="background:#ff3366;"></span> LEVEL UP</div>
       </div>
 
-      <div>
-        <a href="https://nrl.theinnovationstory.com/" target="_blank" rel="noopener noreferrer" class="btn btn-lime">
-          Official NRL Website ↗
-        </a>
-      </div>
+      <a href="https://nrl.theinnovationstory.com/" target="_blank" rel="noopener noreferrer" class="btn btn-lime">
+        Official NRL Website ↗
+      </a>
     </div>
   </section>
 
   <!-- ========================================================
-       08 // SESSIONS
+       08 // FREE VIRTUAL ROBOTICS BOOTCAMP (UPDATED & CONTRAST FIXED!)
        ======================================================== -->
-  <section class="sec sec-vio" id="sessions">
+  <section class="sec sec-vio reveal" id="sessions">
     <div class="sec-hdr">
-      <span class="sec-tag">08 // Sessions</span>
-      <h2 class="d h2">Learn robotics.<br><span style="color:var(--lime);">From the team that builds.</span></h2>
+      <span class="sec-tag">08 // Free Virtual Bootcamp</span>
+      <h2 class="d h2">Learn robotics.<br><span style="color:var(--lime);">100% Free. Zero Cost.</span></h2>
     </div>
 
-    <p style="font-size: 20px; line-height: 1.5; max-width: 820px; font-weight: 500; margin-bottom: 32px;">
-      "ARGUS is running a one-week intensive robotics course, taught the way we actually work: two live calls every day, covering how a competition robot is designed, built, wired and programmed."
+    <div class="bootcamp-top-banner">
+      <span>★ FREE LIVE VIRTUAL BOOTCAMP</span>
+      <span>•</span>
+      <span>4 DEC – 9 DEC 2026</span>
+      <span>•</span>
+      <span>8:00 – 9:00 PM DAILY (UP TO 2 HRS)</span>
+      <span>•</span>
+      <span>FEE: ₹0 (COMPLETELY FREE)</span>
+    </div>
+
+    <p style="font-size: clamp(16px, 1.8vw, 19px); line-height: 1.55; max-width: 820px; font-weight: 500; margin-bottom: 32px;">
+      ARGUS is hosting a completely <b>free, fully virtual robotics bootcamp</b> from <b>4 December to 9 December 2026</b>, taught the way we actually build: live daily calls covering how a competition robot is designed, wired, built, and programmed — at <b>zero cost</b>.
     </p>
 
-    <!-- Strict Real Data Fact Cards -->
-    <div class="sessions-card-grid">
-      <div class="session-fact-card">
-        <div class="session-fact-label">COURSE DURATION</div>
-        <div class="session-fact-val">One week, intensive</div>
+    <div class="bootcamp-layout">
+      <!-- Fact Cards Grid -->
+      <div class="sessions-card-grid">
+        <div class="session-fact-card free-highlight">
+          <div class="session-fact-label">COURSE FEE</div>
+          <div class="session-fact-val">FREE — ₹0</div>
+          <div class="session-fact-sub">100% free &amp; no hidden cost for all students.</div>
+        </div>
+
+        <div class="session-fact-card">
+          <div class="session-fact-label">BOOTCAMP DATES</div>
+          <div class="session-fact-val">4 – 9 Dec 2026</div>
+          <div class="session-fact-sub">6 consecutive days of live robotics training.</div>
+        </div>
+
+        <div class="session-fact-card">
+          <div class="session-fact-label">DAILY TIMINGS</div>
+          <div class="session-fact-val">8:00 – 9:00 PM</div>
+          <div class="session-fact-sub">Daily live session (can extend up to 2 hours with Q&amp;A).</div>
+        </div>
+
+        <div class="session-fact-card">
+          <div class="session-fact-label">DELIVERY FORMAT</div>
+          <div class="session-fact-val">100% Virtual</div>
+          <div class="session-fact-sub">Live interactive online video calls — join from anywhere.</div>
+        </div>
+
+        <div class="session-fact-card">
+          <div class="session-fact-label">CURRICULUM</div>
+          <div class="session-fact-val">CAD • Code • Build</div>
+          <div class="session-fact-sub">Mechanical design, wiring, ESP32 telemetry &amp; opmodes.</div>
+        </div>
+
+        <div class="session-fact-card">
+          <div class="session-fact-label">ELIGIBILITY &amp; SEATS</div>
+          <div class="session-fact-val">Open to Students</div>
+          <div class="session-fact-sub">No prior robotics experience required. Register below.</div>
+        </div>
       </div>
 
-      <div class="session-fact-card">
-        <div class="session-fact-label">DELIVERY FORMAT</div>
-        <div class="session-fact-val">Two live calls, every day</div>
-      </div>
+      <!-- Full Bootcamp Registration Form -->
+      <div class="bootcamp-form-box">
+        <div class="bootcamp-form-head">
+          <div>
+            <span class="m" style="color:var(--violet-dark);font-weight:700;">BOOTCAMP REGISTRATION</span>
+            <h3 class="d h3" style="color:var(--black);margin-top:4px;">Reserve Your Free Spot</h3>
+          </div>
+          <span class="badge-champion">₹0 / FREE</span>
+        </div>
 
-      <div class="session-fact-card">
-        <div class="session-fact-label">SCHEDULED DATES</div>
-        <div class="session-fact-val" style="color:#666;">To be announced</div>
-      </div>
+        <form id="bootcampForm" onsubmit="handleBootcampSubmit(event)">
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="bcName">Full Name *</label>
+              <input type="text" id="bcName" required placeholder="e.g. Aarav Verma">
+            </div>
+            <div class="form-group">
+              <label for="bcPhone">WhatsApp / Phone *</label>
+              <input type="tel" id="bcPhone" required placeholder="+91 98XXXXXXXX">
+            </div>
+          </div>
 
-      <div class="session-fact-card">
-        <div class="session-fact-label">TARGET AUDIENCE</div>
-        <div class="session-fact-val" style="color:#666;">To be announced</div>
-      </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="bcEmail">Email Address *</label>
+              <input type="email" id="bcEmail" required placeholder="student@domain.com">
+            </div>
+            <div class="form-group">
+              <label for="bcSchool">School / Class *</label>
+              <input type="text" id="bcSchool" required placeholder="e.g. SOSE Rohini / Class 10">
+            </div>
+          </div>
 
-      <div class="session-fact-card">
-        <div class="session-fact-label">COURSE FEE</div>
-        <div class="session-fact-val" style="color:#666;">To be announced</div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="bcLevel">Experience Level *</label>
+              <select id="bcLevel" required>
+                <option value="Beginner (New to robotics)">Beginner (New to robotics)</option>
+                <option value="Intermediate (Some coding/circuits)">Intermediate (Some coding/circuits)</option>
+                <option value="Advanced (Built competition bots)">Advanced (Built competition bots)</option>
+              </select>
+            </div>
+      <div class="form-group">
+        <label for="bcInterest">Primary Interest *</label>
+        <select id="bcInterest" required>
+          <option value="All-round Robotics">All-round (CAD, Code &amp; Build)</option>
+          <option value="CAD & Mechanical Design">CAD &amp; Mechanical Design</option>
+          <option value="Electronics & ESP32">Electronics, Sensors &amp; ESP32</option>
+          <option value="Programming & Strategy">Programming &amp; Strategy</option>
+        </select>
       </div>
+          </div>
 
-      <div class="session-fact-card">
-        <div class="session-fact-label">AVAILABLE SEATS</div>
-        <div class="session-fact-val" style="color:#666;">To be announced</div>
-      </div>
-    </div>
+          <div class="form-group">
+            <label for="bcGoal">Questions or what you want to build (Optional)</label>
+            <textarea id="bcGoal" rows="2" placeholder="Tell us what excites you about robotics..."></textarea>
+          </div>
 
-    <div class="sessions-cta-box">
-      <div>
-        <div class="d h3" style="color:var(--black);">WANT EARLY ACCESS NOTIFICATION?</div>
-        <p style="font-size:14.5px;color:#222;margin-top:6px;">Register your interest now to receive curriculum details and seat availability before open enrollment.</p>
-      </div>
-      <div>
-        <button class="btn btn-dark" onclick="showToast('Registration link coming soon! Dates will be announced shortly.')">
-          Register interest (Coming Soon)
-        </button>
+          <button type="submit" class="btn btn-lime" style="width:100%;">
+            Register for Free Bootcamp (4–9 Dec) ➔
+          </button>
+
+          <div class="form-status-msg" id="bootcampStatusMsg"></div>
+        </form>
       </div>
     </div>
   </section>
@@ -2952,41 +3180,38 @@
   <!-- ========================================================
        09 // COMMUNITY & SUPPORT
        ======================================================== -->
-  <section class="sec" id="community">
+  <section class="sec reveal" id="community">
     <div class="sec-hdr">
-      <span class="sec-tag">09 // Community & Support</span>
-      <h2 class="d h2">Beyond the arena.<br><span style="color:var(--violet);">Community & Partners.</span></h2>
-      <p class="m" style="color:#555;">Empowering the next generation of engineers</p>
+      <span class="sec-tag">09 // Community &amp; Support</span>
+      <h2 class="d h2">Beyond the arena.<br><span style="color:var(--violet);">Community &amp; Partners.</span></h2>
     </div>
 
     <div class="comm-grid">
-      <!-- Community Card -->
       <div class="comm-card">
         <div>
-          <span class="m" style="color:var(--violet);font-weight:700;">STEM OUTREACH</span>
+          <span class="m" style="color:var(--violet-dark);font-weight:700;">STEM OUTREACH</span>
           <div class="comm-title">School Workshops</div>
           <p class="comm-desc">
-            ARGUS runs hands-on robotics sessions for school children across Delhi NCR. Our first community workshop was held in Sector 21, Delhi in November 2026, introducing middle schoolers to basic mechanisms, electronics, and logic — with more sessions scheduled ahead of Mumbai Nationals.
+            ARGUS runs robotics sessions for school children (first session held in Sector 21, Delhi, November 2026, with more workshops planned).
           </p>
         </div>
         <div>
-          <span class="badge-champion" style="display:inline-block;">First Session: Sector 21, Delhi (Nov 2026)</span>
+          <span class="badge-champion">First Session: Sector 21, Delhi (Nov 2026)</span>
         </div>
       </div>
 
-      <!-- Support / Collaboration Card -->
-      <div class="comm-card" style="background:var(--black);color:var(--white);border-color:var(--black);">
+      <div class="comm-card dark">
         <div>
           <span class="m" style="color:var(--lime);font-weight:700;">COLLABORATE WITH US</span>
           <div class="comm-title" style="color:var(--white);">Support The Team</div>
-          <p class="comm-desc" style="color:#bbb;">
-            We are actively seeking sponsors, technical mentors, and hardware partners to support our journey to the NRL National Finals at VJTI Mumbai this December 2026.
+          <p class="comm-desc">
+            Sponsorship and collaboration enquiries for our NRL National Finals journey in Mumbai, December 2026.
           </p>
         </div>
-        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <a href="#contact" class="btn btn-lime">Sponsorship Enquiries ➔</a>
           <a href="https://www.instagram.com/argusnrl/" target="_blank" rel="noopener noreferrer" class="btn btn-dark">
-            Instagram @argusnrl ↗
+            @argusnrl ↗
           </a>
         </div>
       </div>
@@ -2996,101 +3221,97 @@
   <!-- ========================================================
        10 // GALLERY (INSIDE THE BUILD)
        ======================================================== -->
-  <section class="sec" id="gallery">
+  <section class="sec reveal" id="gallery">
     <div class="sec-hdr">
       <span class="sec-tag">10 // Inside The Build</span>
       <h2 class="d h2">Inside the build.<br><span style="color:var(--violet);">Real evidence, captured.</span></h2>
-      <p class="m" style="color:#555;">Authentic photos only // Lab sessions, CAD milestones, regional win</p>
     </div>
 
-    <!-- Filter Tabs -->
     <div class="gallery-filter-tabs">
       <button class="filter-btn active" data-filter="all">ALL PHOTOS</button>
       <button class="filter-btn" data-filter="win">REGIONAL WIN</button>
-      <button class="filter-btn" data-filter="cad">ROBOT & CAD</button>
-      <button class="filter-btn" data-filter="lab">TEAM & LAB</button>
+      <button class="filter-btn" data-filter="cad">ROBOT &amp; CAD</button>
+      <button class="filter-btn" data-filter="lab">TEAM &amp; LAB</button>
     </div>
 
-    <!-- Gallery Masonry -->
     <div class="gallery-masonry" id="galleryMasonry">
-      <!-- 01 Flatlay Robot Medals -->
-      <div class="gallery-item vertical" data-cat="win" onclick="openLightbox('assets/images/regional-win/win_photo_14.jpeg', 'ARGUS Robot #298 flatlay with Brand Builder Trophy, 10 gold medals, and handheld controller')">
-        <img src="assets/images/regional-win/win_photo_14.jpeg" alt="ARGUS Robot #298 flatlay with Brand Builder Trophy and medals" class="gallery-item-img">
+      <div class="gallery-item" data-cat="win" onclick="openLightbox('assets/images/regional-win/win_photo_14.jpeg', 'ARGUS Robot #298 flatlay with Brand Builder Trophy, 10 gold medals, and handheld controller')">
+        <img src="assets/images/regional-win/win_photo_14.jpeg" alt="ARGUS Robot #298 flatlay with trophy and medals" class="gallery-item-img" loading="lazy" decoding="async">
         <div class="gallery-item-cap">
           <span>Robot #298 + Medals</span>
-          <span style="color:var(--violet);">Championship</span>
+          <span style="color:var(--violet-dark);">Win</span>
         </div>
       </div>
 
-      <!-- 02 Team on Stage with Banner -->
       <div class="gallery-item col-span-2" data-cat="win" onclick="openLightbox('assets/images/regional-win/win_photo_12.jpeg', 'Team 12 CM Shri ARGUS with Winner Regionals banner on main stage')">
-        <img src="assets/images/regional-win/win_photo_12.jpeg" alt="Team 12 CM Shri ARGUS with Winner Regionals banner" class="gallery-item-img">
+        <img src="assets/images/regional-win/win_photo_12.jpeg" alt="Team ARGUS with Winner Regionals banner" class="gallery-item-img" loading="lazy" decoding="async">
         <div class="gallery-item-cap">
           <span>Regional Champions Award</span>
-          <span style="color:var(--violet);">Thyagaraj Stadium</span>
+          <span style="color:var(--violet-dark);">Thyagaraj Stadium</span>
         </div>
       </div>
 
-      <!-- 03 Team Lab Work -->
       <div class="gallery-item" data-cat="lab" onclick="openLightbox('assets/images/argus_team_lab.jpg', 'Team working on assembly in the engineering lab')">
-        <img src="assets/images/argus_team_lab.jpg" alt="Team working on assembly in the lab" class="gallery-item-img">
+        <img src="assets/images/argus_team_lab.jpg" alt="Team working on assembly in the lab" class="gallery-item-img" loading="lazy" decoding="async">
         <div class="gallery-item-cap">
           <span>Assembly Session</span>
-          <span style="color:var(--violet);">Build Room</span>
+          <span style="color:var(--violet-dark);">Build Room</span>
         </div>
       </div>
 
-      <!-- 04 Robot Isolated View -->
       <div class="gallery-item" data-cat="cad" onclick="openLightbox('assets/images/argus_robot_clean.jpg', 'Competition Robot hardware top view')">
-        <img src="assets/images/argus_robot_clean.jpg" alt="Competition Robot hardware" class="gallery-item-img">
+        <img src="assets/images/argus_robot_clean.jpg" alt="Competition Robot hardware" class="gallery-item-img" loading="lazy" decoding="async">
         <div class="gallery-item-cap">
-          <span>Robot Hardware View</span>
-          <span style="color:var(--violet);">Chassis & Arm</span>
+          <span>Robot Hardware</span>
+          <span style="color:var(--violet-dark);">Chassis &amp; Arm</span>
         </div>
       </div>
 
-      <!-- 05 Onshape CAD Model -->
       <div class="gallery-item" data-cat="cad" onclick="openLightbox('assets/images/argus_robot_cad.jpg', 'Onshape 3D CAD model rendering')">
-        <img src="assets/images/argus_robot_cad.jpg" alt="Onshape 3D CAD model rendering" class="gallery-item-img">
+        <img src="assets/images/argus_robot_cad.jpg" alt="Onshape 3D CAD model rendering" class="gallery-item-img" loading="lazy" decoding="async">
         <div class="gallery-item-cap">
           <span>Onshape CAD Model</span>
-          <span style="color:var(--violet);">Digital Twin</span>
+          <span style="color:var(--violet-dark);">Digital Twin</span>
         </div>
       </div>
 
-      <!-- 06 Programming Session -->
       <div class="gallery-item" data-cat="lab" onclick="openLightbox('assets/images/argus_programming.jpg', 'Firmware compilation and sensor telemetry calibration')">
-        <img src="assets/images/argus_programming.jpg" alt="Firmware compilation and calibration" class="gallery-item-img">
+        <img src="assets/images/argus_programming.jpg" alt="Firmware compilation and calibration" class="gallery-item-img" loading="lazy" decoding="async">
         <div class="gallery-item-cap">
           <span>OpMode Calibration</span>
-          <span style="color:var(--violet);">Firmware</span>
+          <span style="color:var(--violet-dark);">Firmware</span>
         </div>
       </div>
 
-      <!-- 07 Drivers Fieldside -->
       <div class="gallery-item" data-cat="win" onclick="openLightbox('assets/images/regional-win/win_photo_03.jpeg', 'Drivers at arena barrier during finals match')">
-        <img src="assets/images/regional-win/win_photo_03.jpeg" alt="Drivers at arena barrier during finals match" class="gallery-item-img">
+        <img src="assets/images/regional-win/win_photo_03.jpeg" alt="Drivers at arena barrier" class="gallery-item-img" loading="lazy" decoding="async">
         <div class="gallery-item-cap">
           <span>Match Drivers</span>
-          <span style="color:var(--violet);">Finals</span>
+          <span style="color:var(--violet-dark);">Finals</span>
         </div>
       </div>
 
-      <!-- 08 Victory Confetti Shower -->
       <div class="gallery-item col-span-2" data-cat="win" onclick="openLightbox('assets/images/regional-win/win_photo_13.jpeg', 'Confetti celebration on the awards podium')">
-        <img src="assets/images/regional-win/win_photo_13.jpeg" alt="Confetti celebration on the awards podium" class="gallery-item-img">
+        <img src="assets/images/regional-win/win_photo_13.jpeg" alt="Confetti celebration on podium" class="gallery-item-img" loading="lazy" decoding="async">
         <div class="gallery-item-cap">
           <span>Podium Celebration</span>
-          <span style="color:var(--violet);">Brand Builder</span>
+          <span style="color:var(--violet-dark);">Brand Builder</span>
         </div>
       </div>
 
-      <!-- 09 Robot Scoring on Pole -->
       <div class="gallery-item" data-cat="win" onclick="openLightbox('assets/images/regional-win/win_photo_09.jpeg', 'Robot #298 placing CORE on star pole')">
-        <img src="assets/images/regional-win/win_photo_09.jpeg" alt="Robot #298 placing CORE on star pole" class="gallery-item-img">
+        <img src="assets/images/regional-win/win_photo_09.jpeg" alt="Robot #298 scoring on pole" class="gallery-item-img" loading="lazy" decoding="async">
         <div class="gallery-item-cap">
           <span>Scoring TeleOp</span>
-          <span style="color:var(--violet);">Field Action</span>
+          <span style="color:var(--violet-dark);">Field Action</span>
+        </div>
+      </div>
+
+      <div class="gallery-item" data-cat="win" onclick="openLightbox('assets/images/regional-win/win_photo_04.jpeg', 'ARGUS drivers in intense coordination at the perimeter barrier')">
+        <img src="assets/images/regional-win/win_photo_04.jpeg" alt="ARGUS drivers coordinating during match" class="gallery-item-img" loading="lazy" decoding="async">
+        <div class="gallery-item-cap">
+          <span>Driver Coordination</span>
+          <span style="color:var(--violet-dark);">Finals</span>
         </div>
       </div>
     </div>
@@ -3099,45 +3320,41 @@
   <!-- ========================================================
        11 // CONTACT
        ======================================================== -->
-  <section class="sec sec-dark" id="contact">
+  <section class="sec sec-dark reveal" id="contact">
     <div class="sec-hdr">
       <span class="sec-tag">11 // Contact Us</span>
       <h2 class="d h2">Build something<br><span style="color:var(--lime);">that matters.</span></h2>
-      <p class="m" style="color:#aaa;">Connect with Team 012 ARGUS</p>
     </div>
 
     <div class="contact-grid">
-      <!-- Contact Info -->
       <div>
-        <p style="font-size: 18px; color: #ccc; line-height: 1.6; margin-bottom: 24px;">
-          Whether you are looking to sponsor our National Finals campaign in Mumbai, invite us for a STEM workshop, or collaborate on technical robotics research, we would love to hear from you.
+        <p style="font-size: 16.5px; color: #d0d0d0; line-height: 1.6; margin-bottom: 24px;">
+          Sponsorship enquiries, technical collaborations, mentorship, or school workshop invitations — reach out to Team 012 ARGUS directly.
         </p>
 
-        <div style="display: flex; flex-direction: column; gap: 16px; font-family: var(--font-mono); font-size: 13px;">
+        <div style="display: flex; flex-direction: column; gap: 16px; font-family: var(--font-mono); font-size: 12.5px;">
           <div style="border-left: 3px solid var(--lime); padding-left: 14px;">
-            <div style="color: #888;">TEAM CONTACT</div>
-            <div style="color: var(--white); font-weight: 700; margin-top: 2px;">Alok Mishra — Sponsorship & Collaboration</div>
+            <div style="color: #999;">KEY CONTACTS</div>
+            <div style="color: var(--white); font-weight: 700; margin-top: 3px;">Alok Mishra — Sponsorship &amp; Collaboration</div>
             <div style="color: var(--white); font-weight: 700;">Dhruv Jha — Captain</div>
           </div>
 
-          <div style="border-left: 3px solid var(--violet); padding-left: 14px;">
-            <div style="color: #888;">BASE OF OPERATIONS</div>
-            <div style="color: var(--white);">Dr. B.R. Ambedkar School of Specialized Excellence</div>
-            <div style="color: var(--white);">Sector 11, Rohini, Delhi 110085</div>
+          <div style="border-left: 3px solid var(--violet-light); padding-left: 14px;">
+            <div style="color: #999;">SCHOOL</div>
+            <div style="color: var(--white);">Dr. B.R. Ambedkar SOSE, Sector 11, Rohini, Delhi</div>
           </div>
 
           <div style="border-left: 3px solid var(--lime); padding-left: 14px;">
-            <div style="color: #888;">FOLLOW OUR EXPEDITION</div>
-            <div style="margin-top: 4px;">
+            <div style="color: #999;">INSTAGRAM</div>
+            <div style="margin-top: 3px;">
               <a href="https://www.instagram.com/argusnrl/" target="_blank" rel="noopener noreferrer" style="color: var(--lime); text-decoration: none; font-weight: 700;">
-                Instagram: @argusnrl ↗
+                @argusnrl ↗
               </a>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Contact Form -->
       <div class="contact-form-box">
         <form id="contactForm" onsubmit="handleFormSubmit(event)">
           <div class="form-group">
@@ -3153,17 +3370,17 @@
           <div class="form-group">
             <label for="contactType">Enquiry Type *</label>
             <select id="contactType" name="type" required>
-              <option value="Sponsorship">Sponsorship & Partnership</option>
-              <option value="Technical collaboration">Technical Collaboration</option>
+              <option value="Sponsorship">Sponsorship</option>
+              <option value="Technical collaboration">Technical collaboration</option>
               <option value="Mentorship">Mentorship</option>
-              <option value="Community">Community & School Workshops</option>
-              <option value="General">General Enquiry</option>
+              <option value="Community">Community</option>
+              <option value="General">General</option>
             </select>
           </div>
 
           <div class="form-group">
             <label for="contactMsg">Message *</label>
-            <textarea id="contactMsg" name="message" rows="4" required placeholder="Tell us how you would like to collaborate..."></textarea>
+            <textarea id="contactMsg" name="message" rows="3" required placeholder="Tell us how you would like to collaborate..."></textarea>
           </div>
 
           <button type="submit" class="btn btn-lime" style="width: 100%;">
@@ -3185,34 +3402,32 @@
     <div class="foot-top">
       <div>
         <div class="foot-brand-title">ARGUS <span class="accent">×</span> NRL 2026</div>
-        <div class="foot-meta-text" style="margin-top: 8px;">
+        <div class="foot-meta-text" style="margin-top: 6px;">
           A robotics team designing, building, testing and refining robotic systems.
         </div>
       </div>
-      <div>
-        <a href="#hero" class="btn btn-dark">Back to top ↑</a>
-      </div>
+      <a href="#hero" class="btn btn-dark">Back to top ↑</a>
     </div>
 
     <div class="foot-btm">
-      <div>National Robotics League 2026 © ARGUS 2026. All rights reserved.</div>
-      <div>Team 012 // Delhi Regional #298 // CM SHRI Rohini</div>
+      <div>National Robotics League 2026 © ARGUS 2026</div>
+      <div>Team 012 // Regional #298 // CM SHRI Rohini</div>
       <div>
         <a href="https://www.instagram.com/argusnrl/" target="_blank" rel="noopener noreferrer" style="color:var(--lime);text-decoration:none;">Instagram</a>
-        <span style="margin: 0 8px;">•</span>
-        <a href="https://cad.onshape.com/documents/b9775324604f1e712d8677c5/w/42798f7711b0b207da9310d3/e/2e8391d232133dd053e4cffb" target="_blank" rel="noopener noreferrer" style="color:var(--lime);text-decoration:none;">Onshape CAD</a>
-        <span style="margin: 0 8px;">•</span>
-        <a href="https://nrl.theinnovationstory.com/" target="_blank" rel="noopener noreferrer" style="color:var(--lime);text-decoration:none;">NRL Portal</a>
+        <span style="margin: 0 6px;">•</span>
+        <a href="https://cad.onshape.com/documents/b9775324604f1e712d8677c5/w/42798f7711b0b207da9310d3/e/2e8391d232133dd053e4cffb" target="_blank" rel="noopener noreferrer" style="color:var(--lime);text-decoration:none;">Onshape</a>
+        <span style="margin: 0 6px;">•</span>
+        <a href="https://nrl.theinnovationstory.com/" target="_blank" rel="noopener noreferrer" style="color:var(--lime);text-decoration:none;">NRL Site</a>
       </div>
     </div>
   </footer>
 
-</div><!-- end .pg -->
+</div>
 
 <!-- Lightbox Modal -->
 <div class="lightbox-modal" id="lightboxModal" onclick="closeLightbox(event)">
   <div class="lightbox-card" onclick="event.stopPropagation()">
-    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close image preview">✕</button>
     <img src="" alt="Enlarged view" class="lightbox-img" id="lightboxImg">
     <div class="lightbox-bar">
       <span id="lightboxCap">Photo caption</span>
@@ -3221,185 +3436,211 @@
   </div>
 </div>
 
-<!-- Toast Popup -->
-<div class="toast-popup" id="toastPopup">Notification message</div>
+<!-- Toast Notification -->
+<div class="toast-popup" id="toastPopup">Notification</div>
 
 <!-- ========================================================
-     SCRIPTS & INTERACTIVITY
+     SCRIPTS
      ======================================================== -->
 <script>
   /* ----------------------------------------------------
-     1. Ambient Glitch & Dither Hero Canvas
+     1. Ambient Hero Canvas
      ---------------------------------------------------- */
   const canvas = document.getElementById('heroCanvas');
   const ctx = canvas.getContext('2d');
-  let width, height;
+  let width = 0, height = 0;
 
   function resizeCanvas() {
+    if (!canvas || !canvas.parentElement) return;
     width = canvas.width = canvas.parentElement.offsetWidth;
     height = canvas.height = canvas.parentElement.offsetHeight;
   }
   window.addEventListener('resize', resizeCanvas);
   resizeCanvas();
 
-  const particles = [];
-  const particleCount = 42;
-  const colors = ['#7D39EB', '#C6FF33', '#B592F7', '#e2e2e2'];
-
-  for (let i = 0; i < particleCount; i++) {
-    particles.push({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 0.7,
-      vy: (Math.random() - 0.5) * 0.7,
-      size: Math.random() * 3.5 + 1.5,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      isSquare: Math.random() > 0.5
-    });
-  }
+  const particles = Array.from({ length: 34 }, () => ({
+    x: Math.random() * (width || 800),
+    y: Math.random() * (height || 600),
+    vx: (Math.random() - 0.5) * 0.6,
+    vy: (Math.random() - 0.5) * 0.6,
+    size: Math.random() * 3 + 1.5,
+    color: ['#7D39EB', '#C6FF33', '#B592F7', '#d8d8d8'][Math.floor(Math.random() * 4)],
+    isSquare: Math.random() > 0.5
+  }));
 
   function drawHeroCanvas() {
     ctx.clearRect(0, 0, width, height);
-
-    // Subtle brutalist dither grid
-    ctx.fillStyle = 'rgba(0,0,0,0.025)';
-    const step = 28;
-    for (let x = 0; x < width; x += step) {
-      for (let y = 0; y < height; y += step) {
-        if ((x + y) % (step * 2) === 0) {
-          ctx.fillRect(x, y, 2, 2);
-        }
+    ctx.fillStyle = 'rgba(0,0,0,0.03)';
+    for (let x = 0; x < width; x += 32) {
+      for (let y = 0; y < height; y += 32) {
+        if ((x + y) % 64 === 0) ctx.fillRect(x, y, 2, 2);
       }
     }
-
-    // Dynamic particles
-    for (let p of particles) {
+    for (const p of particles) {
       p.x += p.vx;
       p.y += p.vy;
       if (p.x < 0) p.x = width;
       if (p.x > width) p.x = 0;
       if (p.y < 0) p.y = height;
       if (p.y > height) p.y = 0;
-
       ctx.fillStyle = p.color;
-      if (p.isSquare) {
-        ctx.fillRect(p.x, p.y, p.size, p.size);
-      } else {
+      if (p.isSquare) ctx.fillRect(p.x, p.y, p.size, p.size);
+      else {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2);
         ctx.fill();
       }
     }
-
     requestAnimationFrame(drawHeroCanvas);
   }
   drawHeroCanvas();
 
   /* ----------------------------------------------------
-     2. Live Countdown to National Finals (12 Dec 2026, VJTI)
+     2. Live Countdown (12 Dec 2026, VJTI Mumbai)
      ---------------------------------------------------- */
   const targetDate = new Date('2026-12-12T09:00:00+05:30').getTime();
-
   function updateCountdown() {
-    const now = new Date().getTime();
-    const distance = targetDate - now;
-
-    if (distance <= 0) {
-      document.getElementById('cdDays').textContent = '00';
-      document.getElementById('cdHours').textContent = '00';
-      document.getElementById('cdMins').textContent = '00';
-      document.getElementById('cdSecs').textContent = '00';
-      return;
-    }
-
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-    document.getElementById('cdDays').textContent = String(days).padStart(2, '0');
-    document.getElementById('cdHours').textContent = String(hours).padStart(2, '0');
-    document.getElementById('cdMins').textContent = String(minutes).padStart(2, '0');
-    document.getElementById('cdSecs').textContent = String(seconds).padStart(2, '0');
+    const dist = Math.max(0, targetDate - Date.now());
+    document.getElementById('cdDays').textContent = String(Math.floor(dist / 86400000)).padStart(2, '0');
+    document.getElementById('cdHours').textContent = String(Math.floor((dist % 86400000) / 3600000)).padStart(2, '0');
+    document.getElementById('cdMins').textContent = String(Math.floor((dist % 3600000) / 60000)).padStart(2, '0');
+    document.getElementById('cdSecs').textContent = String(Math.floor((dist % 60000) / 1000)).padStart(2, '0');
   }
   setInterval(updateCountdown, 1000);
   updateCountdown();
 
   /* ----------------------------------------------------
-     3. Model-Viewer 3D Tour & Viewpoint Syncing
+     3. Smooth Scroll-Reveal Animations
+     ---------------------------------------------------- */
+  const revealEls = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    const revObs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          revObs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.02, rootMargin: '0px 0px -10px 0px' });
+    revealEls.forEach(el => revObs.observe(el));
+  } else {
+    revealEls.forEach(el => el.classList.add('in-view'));
+  }
+
+  /* ----------------------------------------------------
+     4. 3D Robot & Field Viewers (Fixed Progress + Dynamic Bounding Box Targets)
      ---------------------------------------------------- */
   const robotViewer = document.getElementById('robotViewer');
-  const robotLoadingScreen = document.getElementById('robotLoadingScreen');
+  const robotStatusPill = document.getElementById('robotStatusPill');
+  const robotProgressFill = document.getElementById('robotProgressFill');
   const specCards = document.querySelectorAll('.spec-stop-card');
-  const presetBtns = document.querySelectorAll('.preset-btn[data-orbit]');
+  const presetBtns = document.querySelectorAll('.preset-btn[data-stop]');
   const toggleRotateBtn = document.getElementById('toggleAutoRotateBtn');
   const resetBtn = document.getElementById('resetRobotCamBtn');
 
-  // Loading state dismiss
-  if (robotViewer) {
-    robotViewer.addEventListener('load', () => {
-      if (robotLoadingScreen) robotLoadingScreen.classList.add('loaded');
-    });
+  let robotBounds = null;
 
-    robotViewer.addEventListener('error', (e) => {
-      console.warn('Robot model load notice:', e);
-      if (robotLoadingScreen) robotLoadingScreen.classList.add('loaded');
+  function wireModelLoading(mv, pill, fill, onLoaded) {
+    if (!mv) return;
+    mv.addEventListener('progress', (e) => {
+      const pct = Math.round((e.detail.totalProgress || 0) * 100);
+      if (fill) fill.style.width = pct + '%';
+      if (pill && pct < 100) {
+        const span = pill.querySelector('span:last-child');
+        if (span) span.textContent = `LOADING 3D (${pct}%)...`;
+      }
     });
+    const hidePill = () => {
+      if (pill) pill.classList.add('hidden');
+      if (fill) fill.style.width = '100%';
+    };
+    mv.addEventListener('load', () => {
+      hidePill();
+      if (onLoaded) onLoaded();
+    });
+    mv.addEventListener('model-visibility', (e) => {
+      if (e.detail.visible) hidePill();
+    });
+    mv.addEventListener('error', () => {
+      if (pill) {
+        const span = pill.querySelector('span:last-child');
+        if (span) span.textContent = '3D FALLBACK POSTER ACTIVE';
+        setTimeout(hidePill, 2200);
+      }
+    });
+    // Safety fallback in case model-viewer already cached or WebGL unavailable
+    setTimeout(() => {
+      if (mv.loaded) hidePill();
+    }, 3000);
   }
 
-  // Field viewer loading
+  wireModelLoading(robotViewer, robotStatusPill, robotProgressFill, () => {
+    try {
+      const center = robotViewer.getBoundingBoxCenter();
+      const size = robotViewer.getDimensions();
+      robotBounds = { center, size };
+    } catch (_) {}
+  });
+
   const fieldViewer = document.getElementById('fieldViewer');
-  const fieldLoadingScreen = document.getElementById('fieldLoadingScreen');
-  if (fieldViewer) {
-    fieldViewer.addEventListener('load', () => {
-      if (fieldLoadingScreen) fieldLoadingScreen.classList.add('loaded');
-    });
+  const fieldStatusPill = document.getElementById('fieldStatusPill');
+  const fieldProgressFill = document.getElementById('fieldProgressFill');
+  wireModelLoading(fieldViewer, fieldStatusPill, fieldProgressFill);
+
+  // Pause auto-rotate when off-screen to preserve mobile GPU performance
+  if ('IntersectionObserver' in window) {
+    const mvObs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const mv = entry.target;
+        if (mv === robotViewer) {
+          if (isRotating) mv.autoRotate = entry.isIntersecting;
+        } else {
+          mv.autoRotate = entry.isIntersecting;
+        }
+      });
+    }, { threshold: 0.1 });
+    if (robotViewer) mvObs.observe(robotViewer);
+    if (fieldViewer) mvObs.observe(fieldViewer);
   }
 
-  // Camera Orbit Transition Helper
-  function tweenRobotCamera(orbit, target) {
+  // Relative subsystem viewpoints computed from actual GLB bounding box
+  const stopOrbits = {
+    '0': { orbit: '45deg 65deg 108%', offset: [0, 0, 0] },       // Overview
+    '1': { orbit: '0deg 78deg 95%',  offset: [0, -0.25, 0] },   // Drivetrain
+    '2': { orbit: '50deg 52deg 95%', offset: [0.1, 0.2, 0.15] },// Arm
+    '3': { orbit: '85deg 58deg 80%', offset: [0.25, 0.1, 0.25] },// Claw
+    '4': { orbit: '-40deg 45deg 90%',offset: [0, 0.1, -0.1] },  // Electronics
+    '5': { orbit: '175deg 62deg 95%',offset: [0, 0.05, -0.2] }, // Payload
+    '6': { orbit: '45deg 65deg 108%', offset: [0, 0, 0] }       // Whole Machine
+  };
+
+  function focusRobotStop(stopIdx) {
     if (!robotViewer) return;
-    if (orbit) robotViewer.cameraOrbit = orbit;
-    if (target) robotViewer.cameraTarget = target;
+    const cfg = stopOrbits[String(stopIdx)] || stopOrbits['0'];
+    robotViewer.cameraOrbit = cfg.orbit;
+
+    if (robotBounds && (cfg.offset[0] || cfg.offset[1] || cfg.offset[2])) {
+      const { center, size } = robotBounds;
+      const tx = (center.x + size.x * cfg.offset[0]).toFixed(4);
+      const ty = (center.y + size.y * cfg.offset[1]).toFixed(4);
+      const tz = (center.z + size.z * cfg.offset[2]).toFixed(4);
+      robotViewer.cameraTarget = `${tx}m ${ty}m ${tz}m`;
+    } else {
+      robotViewer.cameraTarget = 'auto auto auto';
+    }
+
+    specCards.forEach(c => c.classList.toggle('active', c.getAttribute('data-stop-idx') === String(stopIdx)));
+    presetBtns.forEach(b => b.classList.toggle('active', b.getAttribute('data-stop') === String(stopIdx)));
   }
 
-  // Spec Stop click
   specCards.forEach(card => {
-    card.addEventListener('click', () => {
-      specCards.forEach(c => c.classList.remove('active'));
-      card.classList.add('active');
-
-      const orbit = card.getAttribute('data-orbit');
-      const target = card.getAttribute('data-target');
-      tweenRobotCamera(orbit, target);
-
-      // sync preset buttons
-      const stopIdx = card.getAttribute('data-stop-idx');
-      presetBtns.forEach(btn => {
-        btn.classList.toggle('active', btn.getAttribute('data-stop') === stopIdx);
-      });
-    });
+    card.addEventListener('click', () => focusRobotStop(card.getAttribute('data-stop-idx')));
   });
 
-  // Preset buttons click
   presetBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      presetBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      const orbit = btn.getAttribute('data-orbit');
-      const target = btn.getAttribute('data-target');
-      tweenRobotCamera(orbit, target);
-
-      // sync spec card
-      const stopIdx = btn.getAttribute('data-stop');
-      specCards.forEach(card => {
-        card.classList.toggle('active', card.getAttribute('data-stop-idx') === stopIdx);
-      });
-    });
+    btn.addEventListener('click', () => focusRobotStop(btn.getAttribute('data-stop')));
   });
 
-  // Auto-rotate toggle
   let isRotating = true;
   if (toggleRotateBtn && robotViewer) {
     toggleRotateBtn.addEventListener('click', () => {
@@ -3409,19 +3650,19 @@
     });
   }
 
-  // Reset View
   if (resetBtn && robotViewer) {
-    resetBtn.addEventListener('click', () => {
-      robotViewer.cameraOrbit = '45deg 65deg 1.8m';
-      robotViewer.cameraTarget = 'auto auto auto';
-      specCards.forEach(c => c.classList.remove('active'));
-      if (specCards[0]) specCards[0].classList.add('active');
-      presetBtns.forEach((b, idx) => b.classList.toggle('active', idx === 0));
+    resetBtn.addEventListener('click', () => focusRobotStop('0'));
+  }
+
+  function toggleHotspot(btn) {
+    document.querySelectorAll('.field-hotspot').forEach(h => {
+      if (h !== btn) h.classList.remove('active');
     });
+    btn.classList.toggle('active');
   }
 
   /* ----------------------------------------------------
-     4. Gallery Filter Tabs & Lightbox
+     5. Gallery Filter & Lightbox
      ---------------------------------------------------- */
   const filterBtns = document.querySelectorAll('.filter-btn');
   const galleryItems = document.querySelectorAll('.gallery-item');
@@ -3433,14 +3674,9 @@
     btn.addEventListener('click', () => {
       filterBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-
       const cat = btn.getAttribute('data-filter');
       galleryItems.forEach(item => {
-        if (cat === 'all' || item.getAttribute('data-cat') === cat) {
-          item.style.display = 'flex';
-        } else {
-          item.style.display = 'none';
-        }
+        item.style.display = (cat === 'all' || item.getAttribute('data-cat') === cat) ? 'flex' : 'none';
       });
     });
   });
@@ -3453,7 +3689,7 @@
     document.body.style.overflow = 'hidden';
   }
 
-  function closeLightbox(e) {
+  function closeLightbox() {
     if (lightboxModal) {
       lightboxModal.classList.remove('active');
       document.body.style.overflow = '';
@@ -3465,52 +3701,64 @@
   });
 
   /* ----------------------------------------------------
-     5. Mobile Menu Toggle
+     6. Mobile Drawer
      ---------------------------------------------------- */
   const mobileMenuBtn = document.getElementById('mobileMenuBtn');
   const mobileDrawer = document.getElementById('mobileDrawer');
   const closeDrawerBtn = document.getElementById('closeDrawerBtn');
-  const drawerLinks = document.querySelectorAll('.drawer-link');
 
-  if (mobileMenuBtn && mobileDrawer) {
-    mobileMenuBtn.addEventListener('click', () => {
-      mobileDrawer.classList.add('open');
-    });
-
-    if (closeDrawerBtn) {
-      closeDrawerBtn.addEventListener('click', () => {
-        mobileDrawer.classList.remove('open');
-      });
-    }
-
-    drawerLinks.forEach(link => {
-      link.addEventListener('click', () => {
-        mobileDrawer.classList.remove('open');
-      });
-    });
+  function setDrawer(open) {
+    if (!mobileDrawer) return;
+    mobileDrawer.classList.toggle('open', open);
+    mobileDrawer.setAttribute('aria-hidden', String(!open));
+    document.body.style.overflow = open ? 'hidden' : '';
   }
 
+  if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', () => setDrawer(true));
+  if (closeDrawerBtn) closeDrawerBtn.addEventListener('click', () => setDrawer(false));
+  document.querySelectorAll('.drawer-link').forEach(l => l.addEventListener('click', () => setDrawer(false)));
+
   /* ----------------------------------------------------
-     6. Toast Popup Notification
+     7. Toast & Forms (Free Bootcamp + Contact)
      ---------------------------------------------------- */
   function showToast(msg) {
     const toast = document.getElementById('toastPopup');
     if (!toast) return;
     toast.textContent = msg;
     toast.classList.add('show');
-    setTimeout(() => {
-      toast.classList.remove('show');
-    }, 4000);
+    setTimeout(() => toast.classList.remove('show'), 4500);
   }
 
-  /* ----------------------------------------------------
-     7. Contact Form Simulation
-     ---------------------------------------------------- */
+  function handleBootcampSubmit(e) {
+    e.preventDefault();
+    const name = document.getElementById('bcName').value.trim();
+    const phone = document.getElementById('bcPhone').value.trim();
+    const email = document.getElementById('bcEmail').value.trim();
+    const school = document.getElementById('bcSchool').value.trim();
+    const level = document.getElementById('bcLevel').value;
+    const interest = document.getElementById('bcInterest').value;
+
+    const reg = { name, phone, email, school, level, interest, date: new Date().toISOString() };
+    try {
+      const prev = JSON.parse(localStorage.getItem('argus_bootcamp_regs') || '[]');
+      prev.push(reg);
+      localStorage.setItem('argus_bootcamp_regs', JSON.stringify(prev));
+    } catch (_) {}
+
+    const msgEl = document.getElementById('bootcampStatusMsg');
+    if (msgEl) {
+      msgEl.innerHTML = `✅ Seat Confirmed for <b>${name}</b> (${school})!<br>Free Virtual Bootcamp: 4–9 Dec 2026, 8:00–9:00 PM IST (up to 2 hrs). Join link details will be sent to <b>${email}</b> &amp; <b>${phone}</b>.`;
+      msgEl.classList.add('success');
+    }
+    showToast(`Registered ${name} for the FREE 4–9 Dec Bootcamp!`);
+    e.target.reset();
+  }
+
   function handleFormSubmit(e) {
     e.preventDefault();
     const msg = document.getElementById('formStatusMsg');
     if (msg) msg.classList.add('success');
-    showToast('Message sent! Team ARGUS will reply soon.');
+    showToast('Message recorded! Team ARGUS will reply soon.');
     e.target.reset();
   }
 </script>
