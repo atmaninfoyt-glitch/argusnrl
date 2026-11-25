@@ -2803,8 +2803,60 @@
   const gltfLoader = new GLTFLoader();
   gltfLoader.setDRACOLoader(dracoLoader);
 
+  function createRobot298PlateTexture() {
+    const c = document.createElement('canvas');
+    c.width = 256; c.height = 160;
+    const g = c.getContext('2d');
+    g.fillStyle = '#141519';
+    g.fillRect(0, 0, 256, 160);
+    g.strokeStyle = '#d4d8df';
+    g.lineWidth = 4;
+    g.strokeRect(8, 8, 240, 144);
+    g.fillStyle = '#aeb6c4';
+    g.font = '700 22px monospace';
+    g.textAlign = 'center';
+    g.fillText('ROBOT ID', 128, 42);
+    g.fillStyle = '#ffffff';
+    g.font = '900 72px Impact, sans-serif';
+    g.fillText('298', 128, 114);
+    // Green power status bars matching match plate
+    for (let i = 0; i < 4; i++) {
+      g.fillStyle = '#4ade80';
+      g.fillRect(68 + i * 32, 126, 22, 12);
+    }
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }
+  let shared298PlateTex = null;
+
+  function attachRobot298Badge(targetGroup, w, h, d, zSign = 1) {
+    if (!shared298PlateTex) shared298PlateTex = createRobot298PlateTexture();
+    const plate = new THREE.Mesh(
+      new THREE.BoxGeometry(w * 0.34, h * 0.21, d * 0.03),
+      [
+        new THREE.MeshStandardMaterial({ color: 0x18191e, roughness: 0.78 }),
+        new THREE.MeshStandardMaterial({ color: 0x18191e, roughness: 0.78 }),
+        new THREE.MeshStandardMaterial({ color: 0x18191e, roughness: 0.78 }),
+        new THREE.MeshStandardMaterial({ color: 0x18191e, roughness: 0.78 }),
+        new THREE.MeshStandardMaterial({ map: zSign > 0 ? shared298PlateTex : null, color: zSign > 0 ? 0xffffff : 0x18191e, roughness: 0.6 }),
+        new THREE.MeshStandardMaterial({ map: zSign < 0 ? shared298PlateTex : null, color: zSign < 0 ? 0xffffff : 0x18191e, roughness: 0.6 })
+      ]
+    );
+    plate.position.set(0, h * 0.88, zSign * d * 0.19);
+    targetGroup.add(plate);
+  }
+
   function styleArgusRobotMaterials(root, enableClearAcrylic = true) {
     const cache = new Map();
+    const ACRYLIC_NAMES = new Set([
+      'Opaque(229,234,237)', 'Opaque(202,209,238)', 'Opaque(203,210,239)',
+      'Opaque(157,207,236)', 'Opaque(187,197,203)', 'Opaque(187,196,202)', 'polycarbonate'
+    ]);
+    const WHEEL_CREAM_NAMES = new Set([
+      'Opaque(255,255,255)', 'Opaque(230,230,230)', 'Opaque(228,227,207)',
+      'Opaque(210,209,199)', 'Opaque(255,255,192)', 'Opaque(176,169,152)'
+    ]);
     function mapOne(mat) {
       if (!mat) return mat;
       if (cache.has(mat)) return cache.get(mat);
@@ -2814,94 +2866,84 @@
       const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
       let out = mat;
 
-      // 1. Clear Translucent Laser-Cut Acrylic Plates & Arms (see through to motors/standoffs!)
-      if (enableClearAcrylic && (nm === 'polycarbonate' || (luma > 0.68 && (b - r) >= -0.02 && nm !== 'Steel_-_Satin'))) {
+      // 1. Clear Laser-Cut Polycarbonate/Acrylic Plates (subtle natural acrylic, never chrome!)
+      if (enableClearAcrylic && ACRYLIC_NAMES.has(nm)) {
         out = new THREE.MeshPhysicalMaterial({
-          color: new THREE.Color(0xdcf3ff),
+          color: new THREE.Color(0xdcecf5),
           transparent: true,
-          opacity: 0.34,
-          roughness: 0.07,
-          metalness: 0.04,
-          reflectivity: 0.95,
-          clearcoat: 1.0,
-          clearcoatRoughness: 0.05,
-          envMapIntensity: 1.55,
+          opacity: 0.30,
+          roughness: 0.18,
+          metalness: 0.02,
+          reflectivity: 0.62,
+          clearcoat: 0.30,
+          clearcoatRoughness: 0.16,
+          envMapIntensity: 0.50,
           depthWrite: false,
           side: THREE.DoubleSide
         });
         out.userData.isAcrylic = true;
       }
-      // 2. Cream / Ivory 5-Spoke Wheel Rims
-      else if (luma > 0.60 && (r - b) >= 0.035 && (r - g) < 0.16) {
+      // 2. Solid Warm Cream-White 5-Spoke Wheel Rims & Matte Hopper Tray (NEVER transparent!)
+      else if (WHEEL_CREAM_NAMES.has(nm) || (luma > 0.80 && (r - b) >= 0.03)) {
         out = new THREE.MeshStandardMaterial({
-          color: new THREE.Color(0xf3ebd6),
-          roughness: 0.32,
-          metalness: 0.06,
-          envMapIntensity: 1.1
+          color: new THREE.Color(0xf0eadb),
+          roughness: 0.62,
+          metalness: 0.02,
+          envMapIntensity: 0.25
         });
       }
-      // 3. Matte Black Rubber Tires & Dark Servos
-      else if (r < 0.24 && g < 0.24 && b < 0.24) {
+      // 3. Natural Matte Charcoal Rubber Chevron Tires & Black Servo Cases (includes 76,76,76 tires!)
+      else if (nm === 'Opaque(76,76,76)' || (r < 0.30 && g < 0.30 && b < 0.30)) {
         out = new THREE.MeshStandardMaterial({
-          color: c.multiplyScalar(0.72),
-          roughness: 0.86,
-          metalness: 0.04,
-          envMapIntensity: 0.75
+          color: new THREE.Color(0x1b1c20),
+          roughness: 0.94,
+          metalness: 0.0,
+          envMapIntensity: 0.14
         });
       }
-      // 4. Cobalt Blue Motor Pod & Aluminum Servos
+      // 4. Matte Crimson Red Front Drive Shrouds (matches real match photos: both L/R shrouds red!)
+      else if (nm === 'Opaque(255,0,0)' || nm === 'Opaque(0,0,255)' || (r > 0.58 && g < 0.26 && b < 0.28)) {
+        out = new THREE.MeshStandardMaterial({
+          color: new THREE.Color(0xd6282e),
+          roughness: 0.64,
+          metalness: 0.02,
+          envMapIntensity: 0.26
+        });
+      }
+      // 5. Natural Anodized Cobalt Blue Wrist/Arm Servo
       else if (b > 0.50 && r < 0.28) {
         out = new THREE.MeshStandardMaterial({
-          color: new THREE.Color(0x1e56f0),
-          roughness: 0.26,
-          metalness: 0.38,
-          envMapIntensity: 1.35
+          color: new THREE.Color(0x1d58c9),
+          roughness: 0.44,
+          metalness: 0.22,
+          envMapIntensity: 0.45
         });
       }
-      // 5. Flame Red Motor Pod & Accents
-      else if (r > 0.58 && g < 0.26 && b < 0.28) {
-        out = new THREE.MeshStandardMaterial({
-          color: new THREE.Color(0xe62626),
-          roughness: 0.26,
-          metalness: 0.36,
-          envMapIntensity: 1.35
-        });
-      }
-      // 6. Violet ARGUS Accents
-      else if (r > 0.45 && b > 0.75 && g < 0.72) {
-        out = new THREE.MeshStandardMaterial({
-          color: new THREE.Color(0x7D39EB),
-          roughness: 0.28,
-          metalness: 0.3,
-          envMapIntensity: 1.25
-        });
-      }
-      // 7. Brass Standoffs, XT60 & Gold PCB Pads
-      else if (r > 0.70 && g > 0.48 && b < 0.65 && (r - b) > 0.15) {
+      // 6. Yellow/Rubber Band & Brass/Gold Standoffs + XT60
+      else if (r > 0.68 && g > 0.48 && b < 0.65 && (r - b) > 0.15) {
         out = new THREE.MeshStandardMaterial({
           color: c,
-          roughness: 0.22,
-          metalness: 0.82,
-          envMapIntensity: 1.45
+          roughness: 0.36,
+          metalness: 0.62,
+          envMapIntensity: 0.55
         });
       }
-      // 8. HEXA Emerald PCB Solder Mask
+      // 7. HEXA Emerald PCB
       else if (g > r + 0.10 && g > b + 0.04) {
         out = new THREE.MeshStandardMaterial({
-          color: new THREE.Color(0x168049),
-          emissive: new THREE.Color(0x064e2b),
-          emissiveIntensity: 0.35,
-          roughness: 0.34,
-          metalness: 0.22
+          color: new THREE.Color(0x167845),
+          roughness: 0.52,
+          metalness: 0.12,
+          envMapIntensity: 0.3
         });
       }
-      // 9. Satin Brushed Steel / Aluminum Hardware
+      // 8. Brushed Natural Satin Aluminum Metal Side Plates & Shafts
       else {
         out = new THREE.MeshStandardMaterial({
-          color: c,
-          roughness: 0.28,
-          metalness: 0.68,
-          envMapIntensity: 1.3
+          color: nm === 'Steel_-_Satin' ? new THREE.Color(0xb8bec7) : c,
+          roughness: 0.46,
+          metalness: 0.58,
+          envMapIntensity: 0.45
         });
       }
       out.name = nm;
@@ -3044,18 +3086,14 @@
     const anchorWorld = new THREE.Vector3();
 
     gltfLoader.load('assets/argus-robot.glb', (gltf) => {
-      const { pivot } = normalizeRobotModel(gltf.scene, 1.95);
+      const { pivot, scaledWidth, scaledHeight, scaledDepth } = normalizeRobotModel(gltf.scene, 1.95);
       styleArgusRobotMaterials(pivot, true);
       outlineLines = applyCadEdges(pivot, 0x09090b, 22);
-      // Add subtle authentic HEXA OLED & LED beacons visible inside clear acrylic deck
-      const pcbGlow = new THREE.Mesh(
-        new THREE.BoxGeometry(0.18, 0.02, 0.12),
-        new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
-      );
-      pcbGlow.position.set(-0.08, 0.62, 0.04);
-      pivot.add(pcbGlow);
-      robotRoot = pivot;
-      scene.add(pivot);
+      const wrapBot = new THREE.Group();
+      wrapBot.add(pivot);
+      attachRobot298Badge(wrapBot, scaledWidth, scaledHeight, scaledDepth, 1);
+      robotRoot = wrapBot;
+      scene.add(wrapBot);
       if (pill) pill.classList.add('hidden');
       if (poster) poster.classList.add('hidden');
       selectStop(5);
@@ -3213,15 +3251,15 @@
       const c = document.createElement('canvas');
       c.width = 512; c.height = 512;
       const g = c.getContext('2d');
-      g.fillStyle = '#888888';
+      g.fillStyle = '#808080';
       g.fillRect(0, 0, 512, 512);
-      for (let i = 0; i < 18000; i++) {
+      for (let i = 0; i < 20000; i++) {
         const x = Math.random() * 512, y = Math.random() * 512;
-        const v = 110 + Math.floor(Math.random() * 52);
+        const v = 108 + Math.floor(Math.random() * 48);
         g.fillStyle = `rgb(${v},${v},${v})`;
         g.fillRect(x, y, 2, 2);
       }
-      g.strokeStyle = '#3f3f4a';
+      g.strokeStyle = '#48484c';
       g.lineWidth = 4;
       g.strokeRect(2, 2, 508, 508);
       const tex = new THREE.CanvasTexture(c);
@@ -3232,18 +3270,19 @@
     }
 
     function createCourtTileAlbedoTexture() {
+      // Natural warm off-white interlocking EVA puzzle mat grain from real match photos
       const c = document.createElement('canvas');
       c.width = 512; c.height = 512;
       const g = c.getContext('2d');
-      g.fillStyle = '#e7ebf3';
+      g.fillStyle = '#dcddd8';
       g.fillRect(0, 0, 512, 512);
-      for (let i = 0; i < 9000; i++) {
+      for (let i = 0; i < 12000; i++) {
         const x = Math.random() * 512, y = Math.random() * 512;
-        const v = 220 + Math.floor(Math.random() * 24);
-        g.fillStyle = `rgb(${v},${v + 2},${v + 6})`;
+        const v = 208 + Math.floor(Math.random() * 20);
+        g.fillStyle = `rgb(${v},${v},${v - 3})`;
         g.fillRect(x, y, 2, 2);
       }
-      g.strokeStyle = '#bfc7d6';
+      g.strokeStyle = '#b4b7b2';
       g.lineWidth = 3;
       g.strokeRect(1.5, 1.5, 509, 509);
       const tex = new THREE.CanvasTexture(c);
@@ -3255,23 +3294,24 @@
     }
 
     function createStageFloorTexture() {
+      // Natural indoor stadium hall charcoal concrete floor (no shiny neon grids)
       const c = document.createElement('canvas');
       c.width = 512; c.height = 512;
       const g = c.getContext('2d');
-      g.fillStyle = '#0d0a18';
+      g.fillStyle = '#1e2026';
       g.fillRect(0, 0, 512, 512);
-      g.strokeStyle = 'rgba(125, 57, 235, 0.22)';
-      g.lineWidth = 2;
-      g.strokeRect(1, 1, 510, 510);
-      g.strokeStyle = 'rgba(198, 255, 51, 0.08)';
-      g.lineWidth = 1;
-      for (let k = 64; k < 512; k += 64) {
-        g.beginPath(); g.moveTo(k, 0); g.lineTo(k, 512); g.stroke();
-        g.beginPath(); g.moveTo(0, k); g.lineTo(512, k); g.stroke();
+      for (let i = 0; i < 9000; i++) {
+        const x = Math.random() * 512, y = Math.random() * 512;
+        const v = 26 + Math.floor(Math.random() * 14);
+        g.fillStyle = `rgb(${v},${v + 1},${v + 4})`;
+        g.fillRect(x, y, 2, 2);
       }
+      g.strokeStyle = 'rgba(255,255,255,0.03)';
+      g.lineWidth = 1.5;
+      g.strokeRect(1, 1, 510, 510);
       const tex = new THREE.CanvasTexture(c);
       tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-      tex.repeat.set(16, 16);
+      tex.repeat.set(14, 14);
       tex.colorSpace = THREE.SRGBColorSpace;
       tex.anisotropy = maxAniso;
       return tex;
@@ -3282,10 +3322,10 @@
     const stageFloorTex = createStageFloorTexture();
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0c0918);
-    scene.fog = new THREE.FogExp2(0x0c0918, 0.028);
+    scene.background = new THREE.Color(0x23252c);
+    scene.fog = new THREE.FogExp2(0x23252c, 0.018);
     const pmrem = new THREE.PMREMGenerator(renderer);
-    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.035).texture;
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.06).texture;
 
     const camera = new THREE.PerspectiveCamera(44, (wrap.clientWidth || 800) / (wrap.clientHeight || 450), 0.05, 80);
     const orbit = new OrbitControls(camera, renderer.domElement);
@@ -3295,9 +3335,9 @@
     orbit.minDistance = 0.8;
     orbit.maxDistance = 11.5;
 
-    // Centered Stadium 3-Point + Precision Shadow Rig
-    const keyLight = new THREE.DirectionalLight(0xfffaf2, 2.25);
-    keyLight.position.set(3.0, 8.0, 4.8);
+    // Natural Overhead Indoor Competition Hall Lighting (no glossy club lights!)
+    const keyLight = new THREE.DirectionalLight(0xfefdf8, 1.65);
+    keyLight.position.set(3.0, 8.2, 4.6);
     keyLight.castShadow = true;
     keyLight.shadow.mapSize.set(2048, 2048);
     keyLight.shadow.camera.near = 1.0;
@@ -3311,15 +3351,11 @@
     scene.add(keyLight);
     scene.add(keyLight.target);
 
-    const vioRimLight = new THREE.DirectionalLight(0x9d6cff, 1.05);
-    vioRimLight.position.set(-4.5, 4.2, -3.5);
-    scene.add(vioRimLight);
+    const fillLight = new THREE.DirectionalLight(0xeef2fa, 0.55);
+    fillLight.position.set(-4.5, 4.5, -3.5);
+    scene.add(fillLight);
 
-    const limeFillLight = new THREE.DirectionalLight(0xC6FF33, 0.55);
-    limeFillLight.position.set(4.5, 2.8, -3.5);
-    scene.add(limeFillLight);
-
-    scene.add(new THREE.HemisphereLight(0xf2ecff, 0x1a132b, 0.82));
+    scene.add(new THREE.HemisphereLight(0xf6f7fb, 0x353740, 0.95));
 
     // Arena State
     let fieldCenter = new THREE.Vector3(-0.28, 0, 1.42);
@@ -3406,14 +3442,15 @@
           cap.position.y = 0.036;
           coreMesh.add(cap);
         } else {
-          // Authentic Matte TPU HYPERDRIVE CORE ring (Coral Orange / Cobalt Blue)
+          // Authentic Natural Matte TPU HYPERDRIVE CORE ring (Crimson Red / Royal Blue / Gold)
+          const coreCol = idx % 3 === 0 ? 0xd62834 : (idx % 3 === 1 ? 0x2558cc : 0xd4a024);
           coreMesh = new THREE.Mesh(
             new THREE.TorusGeometry(0.046, 0.018, 18, 36),
             new THREE.MeshStandardMaterial({
-              color: isBlue ? 0x2563eb : 0xf97316,
-              roughness: 0.52,
-              metalness: 0.08,
-              envMapIntensity: 1.0
+              color: coreCol,
+              roughness: 0.72,
+              metalness: 0.0,
+              envMapIntensity: 0.22
             })
           );
           coreMesh.rotation.x = Math.PI / 2;
@@ -3422,10 +3459,10 @@
         coreMesh.castShadow = true;
         coreMesh.receiveShadow = true;
 
-        // Subtle flat ground pickup ring directly underneath element (no giant neon tubes!)
+        // Subtle muted ring marker directly on foam mat under uncollected COREs
         const subRing = new THREE.Mesh(
-          new THREE.RingGeometry(0.068, 0.082, 28),
-          new THREE.MeshBasicMaterial({ color: isPayload ? 0xC6FF33 : (isBlue ? 0x60a5fa : 0xfb923c), transparent: true, opacity: 0.42, side: THREE.DoubleSide })
+          new THREE.RingGeometry(0.068, 0.080, 28),
+          new THREE.MeshBasicMaterial({ color: isPayload ? 0xC6FF33 : 0x52525b, transparent: true, opacity: 0.35, side: THREE.DoubleSide })
         );
         subRing.rotation.x = -Math.PI / 2;
         subRing.position.y = 0.004;
@@ -3444,39 +3481,16 @@
     function buildArenaStage(box, center, size, baseFloorY) {
       const riserGeo = new THREE.BoxGeometry(size.x + 1.05, 0.24, size.z + 1.05);
       const riserMat = new THREE.MeshStandardMaterial({
-        color: 0x161224, roughness: 0.58, metalness: 0.22, bumpMap: foamBumpTex, bumpScale: 0.004
+        color: 0x23252b, roughness: 0.92, metalness: 0.0, envMapIntensity: 0.12
       });
       const riser = new THREE.Mesh(riserGeo, riserMat);
       riser.position.set(center.x, baseFloorY - 0.145, center.z);
       riser.receiveShadow = true;
       scene.add(riser);
 
-      const trimGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(size.x + 1.06, 0.045, size.z + 1.06));
-      const trim = new THREE.LineSegments(trimGeo, new THREE.LineBasicMaterial({ color: 0x7D39EB, transparent: true, opacity: 0.9 }));
-      trim.position.set(center.x, baseFloorY - 0.025, center.z);
-      scene.add(trim);
-
-      const corners = [
-        [center.x - (size.x * 0.5 + 0.52), center.z - (size.z * 0.5 + 0.52), 0x7D39EB],
-        [center.x + (size.x * 0.5 + 0.52), center.z - (size.z * 0.5 + 0.52), 0xC6FF33],
-        [center.x - (size.x * 0.5 + 0.52), center.z + (size.z * 0.5 + 0.52), 0xC6FF33],
-        [center.x + (size.x * 0.5 + 0.52), center.z + (size.z * 0.5 + 0.52), 0x7D39EB]
-      ];
-      const postMat = new THREE.MeshStandardMaterial({ color: 0x1c192a, roughness: 0.4, metalness: 0.65 });
-      corners.forEach(([px, pz, neonCol]) => {
-        const post = new THREE.Mesh(new THREE.BoxGeometry(0.09, 1.45, 0.09), postMat);
-        post.position.set(px, baseFloorY + 0.58, pz);
-        post.castShadow = true;
-        scene.add(post);
-
-        const strip = new THREE.Mesh(new THREE.BoxGeometry(0.032, 1.25, 0.032), new THREE.MeshBasicMaterial({ color: neonCol }));
-        strip.position.set(px, baseFloorY + 0.62, pz);
-        scene.add(strip);
-      });
-
       const stadiumFloor = new THREE.Mesh(
         new THREE.PlaneGeometry(40, 40),
-        new THREE.MeshStandardMaterial({ map: stageFloorTex, roughness: 0.52, metalness: 0.25, envMapIntensity: 0.75 })
+        new THREE.MeshStandardMaterial({ map: stageFloorTex, roughness: 0.96, metalness: 0.0, envMapIntensity: 0.08 })
       );
       stadiumFloor.rotation.x = -Math.PI / 2;
       stadiumFloor.position.set(center.x, baseFloorY - 0.27, center.z);
@@ -3531,36 +3545,42 @@
           child.material = mats.map(mat => {
             const mn = (mat.name || '').toLowerCase();
             if (mat.map) mat.map.anisotropy = maxAniso;
-            // Clear polycarbonate silos
+            // Clear polycarbonate silos (subtle natural clear sheet)
             if (mn.includes('polycarbonate')) {
               return new THREE.MeshPhysicalMaterial({
-                color: 0xdff2ff, transparent: true, opacity: 0.30, roughness: 0.08, clearcoat: 1.0,
-                reflectivity: 0.9, depthWrite: false, side: THREE.DoubleSide
+                color: 0xdff0f8, transparent: true, opacity: 0.30, roughness: 0.20, clearcoat: 0.25,
+                reflectivity: 0.55, envMapIntensity: 0.45, depthWrite: false, side: THREE.DoubleSide
               });
             }
-            // Perimeter graphite charcoal walls for strong visual contrast
-            if (nm.includes('wall') || mn.includes('dark grey') || mn.includes('black low gloss') || mn.includes('color.013')) {
-              mat.color.setHex(0x282b38);
-              mat.roughness = 0.65;
-              mat.metalness = 0.15;
+            // Perimeter matte dark charcoal wall boards (do NOT darken floor tiles!)
+            if (nm.includes('wall') || mn.includes('black low gloss') || (h > 0.09 && mn.includes('dark grey'))) {
+              mat.color.setHex(0x262428);
+              mat.roughness = 0.90;
+              mat.metalness = 0.0;
+              mat.envMapIntensity = 0.15;
             } else if (mn.includes('brushed aluminum')) {
-              mat.roughness = 0.25; mat.metalness = 0.78; mat.envMapIntensity = 1.4;
+              mat.roughness = 0.44; mat.metalness = 0.62; mat.envMapIntensity = 0.45;
             } else if (!isObst && h < 0.46) {
-              // Textured EVA competition tiles (never flat/blocky white!)
-              if (!mat.map && (mn.includes('color.014') || mn === 'color' || mn.includes('light grey'))) {
+              // Natural Warm Off-White EVA Foam Competition Tiles & Alliance Mats (NEVER glossy or dark grey!)
+              const cHex = mat.color ? (mat.color.r + mat.color.g + mat.color.b) : 0;
+              const isColoredZone = mat.color && (Math.max(mat.color.r, mat.color.g, mat.color.b) - Math.min(mat.color.r, mat.color.g, mat.color.b)) > 0.22;
+              if (!mat.map && !isColoredZone && !mn.includes('dark')) {
                 mat.map = courtTileTex;
+                mat.color.setHex(0xffffff);
               }
               mat.bumpMap = foamBumpTex;
-              mat.bumpScale = 0.0045;
-              mat.roughness = 0.66;
-              mat.metalness = 0.06;
+              mat.bumpScale = 0.0055;
+              mat.roughness = 0.94;
+              mat.metalness = 0.0;
+              mat.envMapIntensity = 0.16;
+              mat.needsUpdate = true;
             } else {
-              // Rich vivid red/blue/yellow zone poles & markers
-              mat.roughness = Math.min(0.45, mat.roughness ?? 0.35);
-              mat.metalness = Math.max(0.18, mat.metalness ?? 0.2);
+              // Natural Matte 3D-printed PLA poles & accessories (zero glossy mirror plastic!)
+              mat.roughness = 0.70;
+              mat.metalness = 0.04;
+              mat.envMapIntensity = 0.24;
               child.castShadow = true;
             }
-            mat.envMapIntensity = 1.05;
             return mat;
           });
           if (!Array.isArray(child.material) && Array.isArray(mats) && mats.length === 1) child.material = child.material[0];
@@ -3603,9 +3623,9 @@
       markLoaded();
     }, undefined, () => markLoaded());
 
-    // Load ARGUS Robot #298 — Crystal Transparent Acrylic, Vivid Red/Blue Drive Pods, Brass & Cream Wheels!
+    // Load ARGUS Robot #298 — Crystal Acrylic, Cream 5-Spoke Wheels, Matte Black Tires, Red Shrouds & 298 Rear Badge!
     gltfLoader.load('assets/argus-robot.glb', (gltf) => {
-      const { pivot } = normalizeRobotModel(gltf.scene, 0.46);
+      const { pivot, scaledWidth, scaledHeight, scaledDepth } = normalizeRobotModel(gltf.scene, 0.46);
       styleArgusRobotMaterials(pivot, true);
       pivot.traverse(obj => {
         if (!obj.isMesh) return;
@@ -3613,11 +3633,15 @@
         obj.receiveShadow = true;
       });
       applyCadEdges(pivot, 0x0a0a10, 24);
-      // Rotate CAD so two-servo arm & claw face +Z local forward
-      pivot.rotation.y = Math.PI;
+
+      const botWrap = new THREE.Group();
+      botWrap.add(pivot);
+      attachRobot298Badge(botWrap, scaledWidth, scaledHeight, scaledDepth, 1);
+      // Rotate so two-servo arm & claw face +Z local forward (and ROBOT ID 298 faces -Z rear toward camera!)
+      botWrap.rotation.y = Math.PI;
 
       robotVisual = new THREE.Group();
-      robotVisual.add(pivot);
+      robotVisual.add(botWrap);
 
       // Authentic HEXA PCB Telemetry OLED & Dual LED Status Beacon on top deck
       const oledGlow = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.007, 0.04), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
@@ -3629,41 +3653,30 @@
       statusLed.position.set(0.048, 0.155, -0.045);
       robotVisual.add(statusLed);
 
-      // Dynamic 3D Arm Elevation Target Indicator Ring (only visible/focused cleanly around claw)
+      // Dynamic 3D Arm Elevation Target Indicator Ring
       armLevelRing = new THREE.Mesh(
-        new THREE.RingGeometry(0.042, 0.056, 24),
-        new THREE.MeshBasicMaterial({ color: 0xC6FF33, transparent: true, opacity: 0.72, side: THREE.DoubleSide })
+        new THREE.RingGeometry(0.038, 0.050, 24),
+        new THREE.MeshBasicMaterial({ color: 0x7D39EB, transparent: true, opacity: 0.65, side: THREE.DoubleSide })
       );
       armLevelRing.rotation.x = -Math.PI / 2;
       armLevelRing.position.set(0, armCurY, 0.22);
       robotVisual.add(armLevelRing);
 
-      // Subtle LED Headlamp Beam ahead of claw (+Z forward)
-      const beamMat = new THREE.MeshBasicMaterial({
-        color: 0xe6ffd1, transparent: true, opacity: 0.12, side: THREE.DoubleSide, depthWrite: false
-      });
-      [-0.08, 0.08].forEach(hx => {
-        const cone = new THREE.Mesh(new THREE.ConeGeometry(0.095, 0.34, 16, 1, true), beamMat);
-        cone.rotation.x = -Math.PI / 2;
-        cone.position.set(hx, 0.04, 0.39);
-        robotVisual.add(cone);
-      });
-
       const carrier = new THREE.Group();
       carrier.add(robotVisual);
 
-      // Tight Chassis Underglow & Crisp Forward Arrow
+      // Subtle Perimeter Footing Marker & Small Front Direction Marker
       underglowRing = new THREE.Mesh(
-        new THREE.RingGeometry(0.245, 0.265, 36),
-        new THREE.MeshBasicMaterial({ color: 0xC6FF33, transparent: true, opacity: 0.55, side: THREE.DoubleSide })
+        new THREE.RingGeometry(0.248, 0.262, 36),
+        new THREE.MeshBasicMaterial({ color: 0x7D39EB, transparent: true, opacity: 0.28, side: THREE.DoubleSide })
       );
       underglowRing.rotation.x = -Math.PI / 2;
-      underglowRing.position.y = 0.006;
+      underglowRing.position.y = 0.005;
       carrier.add(underglowRing);
 
       const chev = new THREE.Mesh(
-        new THREE.ConeGeometry(0.045, 0.09, 3),
-        new THREE.MeshBasicMaterial({ color: 0xC6FF33, transparent: true, opacity: 0.88, side: THREE.DoubleSide })
+        new THREE.ConeGeometry(0.035, 0.07, 3),
+        new THREE.MeshBasicMaterial({ color: 0x7D39EB, transparent: true, opacity: 0.72, side: THREE.DoubleSide })
       );
       chev.rotation.x = Math.PI / 2;
       chev.position.set(0, 0.025, 0.32);
