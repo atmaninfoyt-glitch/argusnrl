@@ -123,26 +123,81 @@
       padding: var(--pad-y) var(--pad-x);
       border-top: 2px solid var(--black);
       position: relative;
-      background: var(--white);
+      background-color: var(--white);
+      background-image: radial-gradient(rgba(125, 57, 235, 0.085) 1px, transparent 1px);
+      background-size: 24px 24px;
       color: var(--black);
     }
 
     .sec-dark {
-      background: var(--black);
+      background-color: #07060b;
+      background-image: radial-gradient(circle at 82% 14%, rgba(125, 57, 235, 0.18), transparent 52%), radial-gradient(circle at 12% 88%, rgba(198, 255, 51, 0.09), transparent 46%);
+      background-size: 100% 100%;
       color: var(--white);
       border-color: var(--black);
     }
 
     .sec-vio {
-      background: var(--violet);
+      background: linear-gradient(155deg, #6824d9 0%, var(--violet) 52%, #4f16b0 100%);
       color: var(--white);
       border-color: var(--black);
     }
 
     .sec-lime {
-      background: var(--lime);
+      background: linear-gradient(160deg, var(--lime) 0%, #b5f21d 100%);
       color: var(--black);
       border-color: var(--black);
+    }
+
+    /* Scroll Progress Bar */
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 0%;
+      height: 3.5px;
+      background: linear-gradient(90deg, var(--violet) 0%, var(--lime) 100%);
+      z-index: 250;
+      pointer-events: none;
+      box-shadow: 0 0 10px rgba(198, 255, 51, 0.65);
+    }
+
+    /* 21st.dev TiltGlowCard Interactive Surface */
+    .tilt-glow-card {
+      position: relative;
+      isolation: isolate;
+      transform-style: preserve-3d;
+      transform: perspective(950px) rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) scale3d(var(--s, 1), var(--s, 1), 1);
+      will-change: transform;
+    }
+
+    .tg-spot {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      opacity: var(--tg-alpha, 0);
+      transition: opacity 0.35s ease;
+      background: radial-gradient(300px circle at calc(var(--mx, 0) * 1px) calc(var(--my, 0) * 1px), rgba(125, 57, 235, 0.22), rgba(198, 255, 51, 0.11) 46%, transparent 72%);
+    }
+
+    .tg-border-glow {
+      position: absolute;
+      inset: -1.5px;
+      padding: 2px;
+      pointer-events: none;
+      z-index: 3;
+      opacity: var(--tg-alpha, 0);
+      transition: opacity 0.35s ease;
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+      background: radial-gradient(240px circle at calc(var(--mx, 0) * 1px) calc(var(--my, 0) * 1px), rgba(198, 255, 51, 0.95), rgba(125, 57, 235, 0.8) 50%, transparent 75%);
+    }
+
+    .tilt-glow-card > :not(.tg-spot):not(.tg-border-glow) {
+      position: relative;
+      z-index: 2;
     }
 
     .sec-hdr {
@@ -387,14 +442,14 @@
     }
 
     /* ========================================================
-       00 // HERO
+       00 // HERO (21st.dev HolographicBeams + Vibrant Brutalist HUD)
        ======================================================== */
     .hero {
       position: relative;
       overflow: hidden;
-      padding: clamp(28px, 4.5vw, 60px) var(--pad-x);
-      background: var(--white);
-      color: var(--black);
+      padding: clamp(32px, 5vw, 68px) var(--pad-x);
+      background: linear-gradient(155deg, #090514 0%, #170a33 56%, #07050c 100%);
+      color: var(--white);
     }
 
     .hero-canvas {
@@ -404,7 +459,26 @@
       height: 100%;
       z-index: 0;
       pointer-events: none;
-      opacity: 0.72;
+      filter: blur(2.5px);
+      opacity: 0.92;
+    }
+
+    .hero-scanlines {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.24;
+      background-image: linear-gradient(rgba(0,0,0,0) 50%, rgba(0,0,0,0.9) 50%), linear-gradient(90deg, rgba(125,57,235,0.08), rgba(198,255,51,0.03), rgba(125,57,235,0.08));
+      background-size: 100% 4px, 4px 100%;
+    }
+
+    .hero-vignette {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 42%, transparent 25%, rgba(7, 5, 14, 0.72) 100%);
     }
 
     .hero-content {
@@ -426,17 +500,18 @@
       font-size: 11px;
       font-weight: 700;
       border: 2px solid var(--black);
-      box-shadow: 3px 3px 0px var(--black);
+      box-shadow: 3px 3px 0px var(--violet);
       display: inline-block;
     }
 
     .badge-meta {
-      background: var(--black);
+      background: var(--violet);
       color: var(--white);
+      border: 1.5px solid var(--white);
       padding: 5px 10px;
       font-family: var(--font-mono);
       font-size: 10.5px;
-      font-weight: 600;
+      font-weight: 700;
       display: inline-flex;
       align-items: center;
     }
@@ -444,59 +519,63 @@
     .hero-title {
       font-family: var(--font-display);
       font-weight: 900;
-      font-size: clamp(42px, 6.8vw, 96px);
+      font-size: clamp(44px, 7vw, 98px);
       line-height: 0.88;
       text-transform: uppercase;
       margin-bottom: 18px;
-      color: var(--black);
+      color: var(--white);
     }
 
-    .hero-title span.accent-vio { color: var(--violet); }
+    .hero-title span.accent-vio {
+      color: var(--lime);
+      text-shadow: 4px 4px 0px rgba(125, 57, 235, 0.78);
+    }
 
     .hero-sub {
       font-size: clamp(15px, 1.5vw, 18.5px);
       max-width: 600px;
-      line-height: 1.5;
-      color: #222;
-      margin-bottom: 22px;
+      line-height: 1.52;
+      color: #e6dff7;
+      margin-bottom: 24px;
       font-weight: 500;
     }
 
     .hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 
     .hero-bootcamp-pill {
-      margin-top: 18px;
+      margin-top: 20px;
       display: inline-flex;
       flex-wrap: wrap;
       align-items: center;
       gap: 8px;
-      background: #f6f1ff;
-      border: 2px solid var(--violet);
-      padding: 9px 13px;
+      background: rgba(24, 12, 48, 0.92);
+      border: 2px solid var(--lime);
+      padding: 9px 14px;
       font-family: var(--font-mono);
       font-size: 11px;
       font-weight: 700;
-      color: var(--black);
+      color: var(--white);
       text-decoration: none;
-      transition: background 0.15s, transform 0.15s;
+      box-shadow: 4px 4px 0px var(--violet);
+      transition: background 0.15s, color 0.15s, transform 0.15s;
     }
 
-    .hero-bootcamp-pill:hover { background: var(--lime); border-color: var(--black); transform: translateY(-2px); }
-    .hero-bootcamp-pill .free-chip { background: var(--violet); color: var(--white); padding: 2px 7px; font-size: 10px; }
+    .hero-bootcamp-pill:hover { background: var(--lime); color: var(--black); border-color: var(--black); transform: translateY(-2px); }
+    .hero-bootcamp-pill .free-chip { background: var(--violet); color: var(--white); padding: 2px 7px; font-size: 10px; border: 1px solid var(--white); }
 
     .countdown-card {
-      background: var(--black);
+      background: rgba(13, 9, 24, 0.94);
       color: var(--white);
-      border: 2px solid var(--black);
+      border: 2px solid var(--violet-light);
       padding: clamp(14px, 2vw, 22px);
-      box-shadow: 6px 6px 0px var(--violet);
+      box-shadow: 6px 6px 0px var(--lime);
     }
 
     .countdown-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid #333;
+      border-bottom: 1px solid #352954;
       padding-bottom: 8px;
       margin-bottom: 12px;
       gap: 8px;
@@ -505,7 +584,7 @@
 
     .countdown-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; text-align: center; }
 
-    .cd-box { background: #161616; border: 1px solid #333; padding: 10px 4px; }
+    .cd-box { background: #191229; border: 1px solid #3b2c63; padding: 10px 4px; }
 
     .cd-val {
       font-family: var(--font-display);
@@ -521,19 +600,19 @@
       margin-top: 10px;
       font-family: var(--font-mono);
       font-size: 10.5px;
-      color: #bbb;
+      color: #d6ccf0;
       display: flex;
       align-items: center;
       gap: 8px;
     }
 
-    .countdown-location span.dot { width: 6px; height: 6px; background: var(--violet-light); flex-shrink: 0; }
+    .countdown-location span.dot { width: 6px; height: 6px; background: var(--lime); flex-shrink: 0; }
 
     .hero-side-card {
-      border: 2px solid var(--black);
+      border: 2px solid var(--lime);
       background: var(--white);
       color: var(--black);
-      box-shadow: 6px 6px 0px var(--black);
+      box-shadow: 6px 6px 0px var(--violet);
       overflow: hidden;
       margin-top: 16px;
     }
@@ -709,21 +788,26 @@
     .team-lab-copy { padding: clamp(18px, 3vw, 28px); display: flex; flex-direction: column; justify-content: center; gap: 10px; }
 
     /* ========================================================
-       03 // SIMPLIFIED 3D ROBOT TOUR WITH CAD EDGE OUTLINES
+       03 // SIMPLIFIED 3D ROBOT TOUR WITH DIE-CUT STICKER + LIVE 3D CALLOUT
        ======================================================== */
     .robot-stage-shell {
-      border: 2px solid var(--white);
-      background: #0b0b0d;
-      box-shadow: 6px 6px 0px var(--lime);
+      border: 2px solid var(--violet-light);
+      background: #090612;
+      box-shadow: 8px 8px 0px var(--lime);
       max-width: 1120px;
       margin: 0 auto;
     }
 
     .three-viewport {
       width: 100%;
-      height: clamp(320px, 52vh, 520px);
+      height: clamp(360px, 56vh, 560px);
       position: relative;
-      background: radial-gradient(circle at 50% 45%, #23232b 0%, #09090b 100%);
+      background-color: #0b0618;
+      background-image:
+        radial-gradient(circle at 50% 48%, rgba(125, 57, 235, 0.38) 0%, rgba(28, 12, 58, 0.55) 45%, #07050c 100%),
+        linear-gradient(rgba(198, 255, 51, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(198, 255, 51, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 36px 36px, 36px 36px;
       overflow: hidden;
       cursor: grab;
     }
@@ -735,6 +819,69 @@
       height: 100% !important;
       display: block;
       outline: none;
+      transition: filter 0.25s ease;
+    }
+
+    /* Crisp comic/CAD die-cut sticker outline modes inspired by benchmark study */
+    .three-viewport.cad-mode-sticker canvas {
+      filter:
+        drop-shadow(2px 0 0 #ffffff) drop-shadow(-2px 0 0 #ffffff)
+        drop-shadow(0 2px 0 #ffffff) drop-shadow(0 -2px 0 #ffffff)
+        drop-shadow(6px 7px 0 rgba(0, 0, 0, 0.92));
+    }
+
+    .three-viewport.cad-mode-neon canvas {
+      filter:
+        drop-shadow(2px 0 0 #C6FF33) drop-shadow(-2px 0 0 #C6FF33)
+        drop-shadow(0 2px 0 #C6FF33) drop-shadow(0 -2px 0 #C6FF33)
+        drop-shadow(6px 7px 0 #7D39EB);
+    }
+
+    .three-viewport.cad-mode-studio canvas {
+      filter: drop-shadow(0 16px 24px rgba(0, 0, 0, 0.7));
+    }
+
+    .robot-callout-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    .robot-float-chip {
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      z-index: 5;
+      pointer-events: none;
+      background: rgba(11, 7, 20, 0.92);
+      border: 2px solid var(--lime);
+      box-shadow: 3px 3px 0 var(--violet);
+      color: var(--white);
+      padding: 6px 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .robot-drag-hint {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 5;
+      pointer-events: none;
+      background: rgba(11, 7, 20, 0.85);
+      border: 1px solid rgba(181, 146, 247, 0.5);
+      color: var(--lime);
+      padding: 5px 10px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
     }
 
     .three-poster-fallback {
@@ -932,15 +1079,15 @@
        ======================================================== */
     .arena-sim-shell {
       border: 2px solid var(--black);
-      background: #0a0a0c;
+      background: #0c0916;
       color: var(--white);
       box-shadow: 8px 8px 0px var(--violet);
       overflow: hidden;
     }
 
     .arena-hud-bar {
-      background: var(--black);
-      border-bottom: 2px solid #2b2b2b;
+      background: linear-gradient(90deg, #07050c 0%, #160c2e 100%);
+      border-bottom: 2px solid #2b2b3b;
       padding: 10px 16px;
       display: flex;
       flex-wrap: wrap;
@@ -951,19 +1098,70 @@
       font-size: 11px;
     }
 
-    .hud-stats { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-    .hud-chip { background: #17171c; border: 1px solid #333; padding: 4px 10px; color: #ddd; }
+    .hud-stats { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .hud-chip { background: #161322; border: 1px solid #3c3259; padding: 4px 10px; color: #ddd; }
     .hud-chip b { color: var(--lime); }
-    .hud-score-pill { background: var(--lime); color: var(--black); padding: 5px 12px; font-weight: 700; border: 1.5px solid var(--black); }
+    .hud-score-pill { background: var(--lime); color: var(--black); padding: 5px 14px; font-weight: 900; border: 2px solid var(--black); box-shadow: 2px 2px 0 var(--violet); }
 
     .arena-viewport {
       width: 100%;
-      aspect-ratio: 16/8.2;
-      min-height: 360px;
-      max-height: 580px;
+      aspect-ratio: 16/8.4;
+      min-height: 390px;
+      max-height: 600px;
       position: relative;
-      background: #0d0d10;
+      background: radial-gradient(circle at 50% 40%, #1d1533 0%, #090710 100%);
       outline: none;
+      overflow: hidden;
+    }
+
+    .arena-obj-banner {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 5;
+      pointer-events: none;
+      background: rgba(11, 7, 20, 0.88);
+      border: 1.5px solid var(--lime);
+      box-shadow: 3px 3px 0 var(--violet);
+      color: var(--white);
+      padding: 6px 14px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      max-width: calc(100% - 28px);
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .arena-obj-banner b { color: var(--lime); }
+
+    .arena-score-pop {
+      position: absolute;
+      top: 46%;
+      left: 50%;
+      transform: translate(-50%, -20px) scale(0.9);
+      z-index: 6;
+      pointer-events: none;
+      background: var(--lime);
+      color: var(--black);
+      border: 2px solid var(--black);
+      box-shadow: 4px 4px 0 var(--violet);
+      padding: 6px 14px;
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      opacity: 0;
+      transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.55s ease;
+    }
+
+    .arena-score-pop.active {
+      opacity: 1;
+      transform: translate(-50%, -68px) scale(1.06);
     }
 
     .arena-viewport canvas { width: 100% !important; height: 100% !important; display: block; }
@@ -1238,8 +1436,11 @@
       .process-step:nth-child(2n) { border-right: none; }
       .minister-banner { flex-direction: column; align-items: flex-start; }
       .hero-ctas .btn { width: 100%; }
-      .three-viewport { height: 290px; }
-      .arena-viewport { aspect-ratio: 4/3; min-height: 290px; }
+      .three-viewport { height: 320px; }
+      .robot-float-chip { font-size: 9.5px; padding: 4px 8px; bottom: 8px; left: 8px; }
+      .robot-drag-hint { font-size: 9px; padding: 4px 8px; }
+      .arena-viewport { aspect-ratio: 4/3; min-height: 310px; }
+      .arena-obj-banner { font-size: 9px; padding: 4px 9px; top: 8px; }
       .drive-console-bar { justify-content: center; }
       .arena-focus-hint { display: none; }
       .toast-popup { left: 16px; right: 16px; bottom: 16px; }
@@ -1247,6 +1448,8 @@
   </style>
 </head>
 <body>
+
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
 <div class="pg">
 
@@ -1303,6 +1506,8 @@
   <!-- 00 // HERO -->
   <header class="hero" id="hero">
     <canvas id="heroCanvas" class="hero-canvas"></canvas>
+    <div class="hero-scanlines" aria-hidden="true"></div>
+    <div class="hero-vignette" aria-hidden="true"></div>
 
     <div class="hero-content">
       <div>
@@ -1577,36 +1782,45 @@
     </div>
   </section>
 
-  <!-- 03 // SIMPLIFIED 3D ROBOT TOUR WITH CRISP CAD EDGE OUTLINES -->
+  <!-- 03 // SIMPLIFIED 3D ROBOT TOUR WITH DIE-CUT STICKER OUTLINE & LIVE 3D CALLOUT -->
   <section class="sec sec-dark reveal" id="robot-tour">
     <div class="sec-hdr" style="max-width:1120px;margin-left:auto;margin-right:auto;">
       <span class="sec-tag">03 // The Robot</span>
-      <h2 class="d h2">Meet the machine.<br><span style="color:var(--lime);">CAD outline view.</span></h2>
-      <p class="m" style="color:#bbb;">Drag to inspect the robot // Select a subsystem below</p>
+      <h2 class="d h2">Meet the machine.<br><span style="color:var(--lime);">CAD sticker view.</span></h2>
+      <p class="m" style="color:#d0c7e6;">Drag to spin 360° // Select a subsystem pill to lock callout target</p>
     </div>
 
     <div class="robot-stage-shell">
-      <div class="three-viewport" id="robotCanvasWrap">
+      <div class="three-viewport cad-mode-sticker" id="robotCanvasWrap" tabindex="0" role="img" aria-label="Interactive 3D CAD model of ARGUS Robot #298. Drag or click stops to inspect.">
         <img src="assets/robot-poster.jpg" alt="ARGUS Robot poster" class="three-poster-fallback" id="robotPosterFallback">
         <div class="three-status-pill" id="robotCadPill">
           <span class="mv-mini-spin"></span>
           <span>LOADING 3D CAD MODEL...</span>
         </div>
+        <div class="robot-drag-hint">DRAG TO SPIN • SCROLL ZOOM</div>
+        <svg class="robot-callout-svg" id="robotCalloutSvg" aria-hidden="true">
+          <path id="robotArrowShadow" fill="none" stroke="#000000" stroke-width="6.5" stroke-linecap="round"></path>
+          <path id="robotArrowStroke" fill="none" stroke="#C6FF33" stroke-width="3" stroke-linecap="round"></path>
+          <circle id="robotTargetOuter" r="14" fill="none" stroke="#000000" stroke-width="5"></circle>
+          <circle id="robotTargetInner" r="14" fill="none" stroke="#C6FF33" stroke-width="2.5"></circle>
+          <circle id="robotTargetDot" r="4" fill="#7D39EB" stroke="#ffffff" stroke-width="1.5"></circle>
+        </svg>
+        <div class="robot-float-chip" id="robotFloatChip">[06] FULL ROBOT</div>
       </div>
 
       <div class="robot-toolbar">
         <div class="robot-stops-pills">
-          <button class="preset-btn active" data-rstop="0">01 Drivetrain</button>
-          <button class="preset-btn" data-rstop="1">02 Arm</button>
-          <button class="preset-btn" data-rstop="2">03 Claw</button>
-          <button class="preset-btn" data-rstop="3">04 Electronics</button>
-          <button class="preset-btn" data-rstop="4">05 Payload</button>
-          <button class="preset-btn" data-rstop="5">06 Full Bot</button>
+          <button class="preset-btn active" data-rstop="5">01 Overview</button>
+          <button class="preset-btn" data-rstop="0">02 Drivetrain</button>
+          <button class="preset-btn" data-rstop="1">03 Arm</button>
+          <button class="preset-btn" data-rstop="2">04 Claw</button>
+          <button class="preset-btn" data-rstop="3">05 Electronics</button>
+          <button class="preset-btn" data-rstop="4">06 Payload</button>
         </div>
 
         <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          <button class="preset-btn active" id="cadStyleBtn">Outline: Ink</button>
-          <button class="preset-btn" id="cadRotateBtn">Spin: ON</button>
+          <button class="preset-btn active" id="cadStyleBtn">Outline: Sticker</button>
+          <button class="preset-btn active" id="cadRotateBtn">Spin: ON</button>
           <button class="preset-btn" id="cadResetBtn">Reset</button>
         </div>
       </div>
@@ -1614,10 +1828,10 @@
       <!-- Simplified Single Active Spec Bar -->
       <div class="robot-single-spec">
         <div class="robot-spec-text">
-          <div class="m" style="color:#999;" id="robotSpecTag">01 // SUBSYSTEM</div>
-          <div class="robot-spec-title" id="robotSpecTitle">Drivetrain</div>
+          <div class="m" style="color:#b8b0cc;" id="robotSpecTag">06 // INTEGRATED SYSTEM</div>
+          <div class="robot-spec-title" id="robotSpecTitle">The Whole Machine</div>
           <p class="robot-spec-desc" id="robotSpecDesc">
-            Differential tank drive, two DC motors, ramp-limited TankDrive control, slow/fast modes, gyro heading-hold assist, clear acrylic chassis plates, four treaded wheels.
+            Built for fast CORE scoring, reliable Payload delivery and a strong LEVEL UP endgame. Stays within the 18-inch starting volume and 8 kg limit.
           </p>
         </div>
         <a href="https://cad.onshape.com/documents/b9775324604f1e712d8677c5/w/42798f7711b0b207da9310d3/e/2e8391d232133dd053e4cffb?renderMode=0&uiState=6ad1bfc0f559616dac93609f" target="_blank" rel="noopener noreferrer" class="btn btn-lime">
@@ -1794,8 +2008,9 @@
       <div class="arena-hud-bar">
         <div class="hud-stats">
           <div class="hud-chip">LINK: <b>ESP-NOW CH11</b></div>
-          <div class="hud-chip">MODE: <b id="hudSpeedMode">FAST</b></div>
+          <div class="hud-chip">SPD: <b id="hudSpeedVal">0.0 m/s</b> (<span id="hudSpeedMode">FAST</span>)</div>
           <div class="hud-chip">HDG: <b id="hudHeading">000°</b></div>
+          <div class="hud-chip">ELEV: <b id="hudElevVal">0 cm</b></div>
           <div class="hud-chip">ARM: <b id="hudArmPose">CARRY</b></div>
           <div class="hud-chip">CLAW: <b id="hudClawState">OPEN (0°)</b></div>
         </div>
@@ -1811,8 +2026,10 @@
           <span class="mv-mini-spin"></span>
           <span>LOADING 3D ARENA &amp; ROBOT...</span>
         </div>
+        <div class="arena-obj-banner" id="arenaObjBanner">OBJECTIVE: <b>DRIVE TO A GLOWING CORE BEAM</b> &amp; PRESS <b>[C]</b> TO GRAB</div>
+        <div class="arena-score-pop" id="arenaScorePop">+25 PTS // HIGH POLE!</div>
         <div class="arena-focus-hint">
-          CLICK ARENA &amp; USE <b>W A S D</b> / <b>ARROWS</b> TO DRIVE • <b>Q/E</b> 90° SNAP • <b>C</b> PICK/SCORE CORE • <b>SHIFT</b> SLOW/FAST
+          CLICK ARENA &amp; USE <b>W A S D</b> / <b>ARROWS</b> • <b>Q/E</b> 90° SNAP • <b>C</b> PICK/SCORE • <b>V</b> CAM • <b>SHIFT</b> SPEED
         </div>
       </div>
 
@@ -2149,42 +2366,142 @@
 
 <!-- UI & NON-3D SCRIPTS -->
 <script>
-  // 1. Hero Canvas
-  const canvas = document.getElementById('heroCanvas');
-  const ctx = canvas.getContext('2d');
-  let width = 0, height = 0;
-  function resizeCanvas() {
+  // 0. Scroll Progress Bar
+  const scrollProgEl = document.getElementById('scrollProgress');
+  function updateScrollProg() {
+    if (!scrollProgEl) return;
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    scrollProgEl.style.width = h > 0 ? `${Math.min(100, (window.scrollY / h) * 100)}%` : '0%';
+  }
+  window.addEventListener('scroll', updateScrollProg, { passive: true });
+  updateScrollProg();
+
+  // 1. Hero Canvas — Adapted from 21st.dev HolographicBeams (#25483) in ARGUS Violet & Cyber Lime
+  (function initHeroBeams() {
+    const canvas = document.getElementById('heroCanvas');
     if (!canvas || !canvas.parentElement) return;
-    width = canvas.width = canvas.parentElement.offsetWidth;
-    height = canvas.height = canvas.parentElement.offsetHeight;
-  }
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
-  const particles = Array.from({ length: 30 }, () => ({
-    x: Math.random() * (width || 800), y: Math.random() * (height || 600),
-    vx: (Math.random() - 0.5) * 0.55, vy: (Math.random() - 0.5) * 0.55,
-    size: Math.random() * 3 + 1.5, color: ['#7D39EB', '#C6FF33', '#B592F7', '#d8d8d8'][Math.floor(Math.random() * 4)],
-    isSquare: Math.random() > 0.5
-  }));
-  function drawHeroCanvas() {
-    ctx.clearRect(0, 0, width, height);
-    ctx.fillStyle = 'rgba(0,0,0,0.03)';
-    for (let x = 0; x < width; x += 32) {
-      for (let y = 0; y < height; y += 32) {
-        if ((x + y) % 64 === 0) ctx.fillRect(x, y, 2, 2);
+    const ctx = canvas.getContext('2d');
+    let width = 0, height = 0, time = 0, heroVisible = true;
+    const density = 18;
+    const aberration = 3.2;
+
+    function resizeCanvas() {
+      width = canvas.width = canvas.parentElement.offsetWidth || 1200;
+      height = canvas.height = canvas.parentElement.offsetHeight || 640;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function noise(x, t) {
+      return (Math.sin(x * 0.01 + t) + Math.sin(x * 0.03 + t * 2) * 0.5 + Math.sin(x * 0.1 + t * 4) * 0.25) / 1.75;
+    }
+
+    function drawBeam(x, t, color, widthMod) {
+      const n = noise(x, t * 0.5);
+      const beamHeight = height * (0.58 + n * 0.38);
+      const beamWidth = (width / density) * widthMod;
+      const gradient = ctx.createLinearGradient(x, height, x, height - beamHeight);
+      gradient.addColorStop(0, color);
+      gradient.addColorStop(1, 'transparent');
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.moveTo(x - beamWidth / 2, height);
+      ctx.lineTo(x + beamWidth / 2, height);
+      ctx.lineTo(x + beamWidth * 1.15, height - beamHeight);
+      ctx.lineTo(x - beamWidth * 1.15, height - beamHeight);
+      ctx.fill();
+    }
+
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(entries => { heroVisible = entries[0].isIntersecting; }, { threshold: 0.01 }).observe(canvas.parentElement);
+    }
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function drawHeroCanvas() {
+      requestAnimationFrame(drawHeroCanvas);
+      if (!heroVisible) return;
+      ctx.clearRect(0, 0, width, height);
+      ctx.globalCompositeOperation = 'screen';
+      time += reduceMotion ? 0 : 0.014;
+      const stepW = width / density;
+
+      for (let i = 0; i <= density; i++) {
+        const x = i * stepW;
+        // Electric Violet Channel
+        const vAlpha = 0.28 + 0.24 * Math.cos(i * 0.5 + time);
+        drawBeam(x - aberration, time + i * 0.11, `rgba(125, 57, 235, ${vAlpha.toFixed(3)})`, 1.45);
+        // Cyber Lime Accent Channel
+        const lAlpha = 0.14 + 0.14 * Math.sin(i * 0.65 + time * 1.15);
+        drawBeam(x + aberration, time + i * 0.13 + 7, `rgba(198, 255, 51, ${lAlpha.toFixed(3)})`, 1.05);
+        // Core Lilac Beam
+        const cAlpha = 0.12 + 0.10 * Math.sin(i * 0.35 - time);
+        drawBeam(x, time + i * 0.1 + 3, `rgba(210, 190, 255, ${cAlpha.toFixed(3)})`, 0.72);
       }
+      ctx.globalCompositeOperation = 'source-over';
     }
-    for (const p of particles) {
-      p.x += p.vx; p.y += p.vy;
-      if (p.x < 0) p.x = width; if (p.x > width) p.x = 0;
-      if (p.y < 0) p.y = height; if (p.y > height) p.y = 0;
-      ctx.fillStyle = p.color;
-      if (p.isSquare) ctx.fillRect(p.x, p.y, p.size, p.size);
-      else { ctx.beginPath(); ctx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2); ctx.fill(); }
-    }
-    requestAnimationFrame(drawHeroCanvas);
-  }
-  drawHeroCanvas();
+    drawHeroCanvas();
+  })();
+
+  // 1B. Interactive 3D Tilt & Cursor Border Glow — Adapted from 21st.dev TiltGlowCard (#44838)
+  (function initTiltGlowCards() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const cards = document.querySelectorAll('.pillar-card, .team-card, .identity-card, .score-squad-box, .session-fact-card, .timeline-node, .eng-box, .news-card, .countdown-card, .comm-card');
+    const maxTilt = 4.5;
+    cards.forEach(card => {
+      card.classList.add('tilt-glow-card');
+      const spot = document.createElement('span');
+      spot.className = 'tg-spot';
+      spot.setAttribute('aria-hidden', 'true');
+      const edge = document.createElement('span');
+      edge.className = 'tg-border-glow';
+      edge.setAttribute('aria-hidden', 'true');
+      card.prepend(edge);
+      card.prepend(spot);
+
+      const m = { rx: 0, ry: 0, s: 1, mx: 150, my: 100, trx: 0, try: 0, ts: 1, tmx: 150, tmy: 100, hover: false, raf: 0 };
+      function tick() {
+        m.rx += (m.trx - m.rx) * 0.16;
+        m.ry += (m.try - m.ry) * 0.16;
+        m.s += (m.ts - m.s) * 0.16;
+        m.mx += (m.tmx - m.mx) * 0.24;
+        m.my += (m.tmy - m.my) * 0.24;
+        card.style.setProperty('--rx', m.rx.toFixed(3));
+        card.style.setProperty('--ry', m.ry.toFixed(3));
+        card.style.setProperty('--s', m.s.toFixed(4));
+        card.style.setProperty('--mx', m.mx.toFixed(1));
+        card.style.setProperty('--my', m.my.toFixed(1));
+        const done = !m.hover && Math.abs(m.rx) < 0.02 && Math.abs(m.ry) < 0.02 && Math.abs(m.s - 1) < 0.001;
+        m.raf = done ? 0 : requestAnimationFrame(tick);
+      }
+      function start() { if (!m.raf) m.raf = requestAnimationFrame(tick); }
+
+      card.addEventListener('pointerenter', e => {
+        if (e.pointerType === 'touch') return;
+        const r = card.getBoundingClientRect();
+        m.hover = true;
+        m.mx = m.tmx = e.clientX - r.left;
+        m.my = m.tmy = e.clientY - r.top;
+        card.style.setProperty('--tg-alpha', '1');
+        start();
+      });
+      card.addEventListener('pointermove', e => {
+        if (e.pointerType === 'touch') return;
+        const r = card.getBoundingClientRect();
+        if (!r.width || !r.height) return;
+        const x = e.clientX - r.left, y = e.clientY - r.top;
+        m.tmx = x; m.tmy = y;
+        m.try = (x / r.width - 0.5) * 2 * maxTilt;
+        m.trx = -(y / r.height - 0.5) * 2 * maxTilt;
+        m.ts = 1.014;
+        start();
+      });
+      card.addEventListener('pointerleave', () => {
+        m.hover = false; m.trx = 0; m.try = 0; m.ts = 1;
+        card.style.setProperty('--tg-alpha', '0');
+        start();
+      });
+    });
+  })();
 
   // 2. Countdown
   const targetDate = new Date('2026-12-12T09:00:00+05:30').getTime();
@@ -2292,18 +2609,19 @@
   const gltfLoader = new GLTFLoader();
   gltfLoader.setDRACOLoader(dracoLoader);
 
-  function applyCadEdges(root, colorHex = 0x111111, threshold = 20) {
+  function applyCadEdges(root, colorHex = 0x111111, threshold = 22) {
     const list = [];
     root.traverse(obj => {
       if (obj.isMesh && obj.geometry) {
         if (obj.material) {
-          obj.material.roughness = Math.min(0.65, obj.material.roughness ?? 0.45);
-          obj.material.metalness = Math.max(0.25, obj.material.metalness ?? 0.3);
+          obj.material.roughness = Math.min(0.58, Math.max(0.28, obj.material.roughness ?? 0.42));
+          obj.material.metalness = Math.min(0.45, Math.max(0.18, obj.material.metalness ?? 0.25));
+          obj.material.envMapIntensity = 0.85;
         }
         const edges = new THREE.EdgesGeometry(obj.geometry, threshold);
         const line = new THREE.LineSegments(
           edges,
-          new THREE.LineBasicMaterial({ color: colorHex, transparent: true, opacity: 0.92 })
+          new THREE.LineBasicMaterial({ color: colorHex, transparent: true, opacity: 0.88 })
         );
         line.name = 'cadOutline';
         obj.add(line);
@@ -2330,83 +2648,116 @@
   }
 
   /* ============================================================
-     A. SECTION 03 // SIMPLIFIED CAD-OUTLINED ROBOT TOUR
+     A. SECTION 03 // SIMPLIFIED CAD STICKER ROBOT TOUR + LIVE 3D CALLOUTS
      ============================================================ */
   (function initRobotTour() {
     const wrap = document.getElementById('robotCanvasWrap');
     const pill = document.getElementById('robotCadPill');
     const poster = document.getElementById('robotPosterFallback');
+    const svg = document.getElementById('robotCalloutSvg');
+    const arrowShadow = document.getElementById('robotArrowShadow');
+    const arrowStroke = document.getElementById('robotArrowStroke');
+    const targetOuter = document.getElementById('robotTargetOuter');
+    const targetInner = document.getElementById('robotTargetInner');
+    const targetDot = document.getElementById('robotTargetDot');
+    const floatChip = document.getElementById('robotFloatChip');
     if (!wrap) return;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(wrap.clientWidth, wrap.clientHeight);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.15;
-    renderer.shadowMap.enabled = true;
+    renderer.toneMappingExposure = 1.04;
     wrap.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
     const pmrem = new THREE.PMREMGenerator(renderer);
-    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.05).texture;
 
-    const camera = new THREE.PerspectiveCamera(36, wrap.clientWidth / wrap.clientHeight, 0.05, 50);
-    camera.position.set(2.5, 1.75, 2.75);
+    const initAspect = (wrap.clientWidth || 800) / (wrap.clientHeight || 480);
+    const camera = new THREE.PerspectiveCamera(initAspect < 1.25 ? 42 : 32, initAspect, 0.05, 50);
+    camera.position.set(2.95, 1.98, 3.15);
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.07;
     controls.autoRotate = true;
-    controls.autoRotateSpeed = 1.6;
-    controls.minDistance = 1.1;
-    controls.maxDistance = 6.0;
-    controls.maxPolarAngle = Math.PI / 2 - 0.04;
-    controls.target.set(0, 0.55, 0);
+    controls.autoRotateSpeed = 1.35;
+    controls.minDistance = 1.65;
+    controls.maxDistance = 5.6;
+    controls.maxPolarAngle = Math.PI / 2 - 0.03;
+    controls.target.set(0, 0.44, 0);
 
-    // Lighting + Grid Floor
-    const dirLight = new THREE.DirectionalLight(0xffffff, 2.0);
-    dirLight.position.set(4, 7, 5);
-    dirLight.castShadow = true;
-    scene.add(dirLight);
-    scene.add(new THREE.AmbientLight(0xd8d8ff, 0.6));
+    // Pause autoRotate temporarily when user manually drags so they can inspect freely
+    let userPauseUntil = 0;
+    controls.addEventListener('start', () => { userPauseUntil = performance.now() + 3200; });
 
-    const grid = new THREE.GridHelper(6, 18, 0x7D39EB, 0x26262e);
-    scene.add(grid);
+    // Sculpted 3-Point Studio Lighting (Key + Violet Rim + Lime Rim)
+    const keyLight = new THREE.DirectionalLight(0xfffaf0, 1.85);
+    keyLight.position.set(4, 7, 5);
+    scene.add(keyLight);
+
+    const vioRim = new THREE.DirectionalLight(0x7D39EB, 2.8);
+    vioRim.position.set(-4.5, 3.5, -3.5);
+    scene.add(vioRim);
+
+    const limeRim = new THREE.DirectionalLight(0xC6FF33, 1.85);
+    limeRim.position.set(4.5, 2.2, -3.0);
+    scene.add(limeRim);
+
+    scene.add(new THREE.HemisphereLight(0xf0ebff, 0x1a122b, 0.72));
+
+    // Subtle ground glow pedestal disc (clean & uncluttered)
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0x7D39EB, transparent: true, opacity: 0.42, side: THREE.DoubleSide });
+    const baseRing = new THREE.Mesh(new THREE.RingGeometry(1.18, 1.23, 64), ringMat);
+    baseRing.rotation.x = -Math.PI / 2;
+    baseRing.position.y = 0.004;
+    scene.add(baseRing);
 
     const robotSpecs = [
-      { tag: '01 // DRIVETRAIN', title: 'Drivetrain', desc: 'Differential tank drive, two DC motors, ramp-limited TankDrive control, slow/fast modes, gyro heading-hold assist, clear acrylic chassis plates, four treaded wheels.', cam: [0, 1.05, 2.7], target: [0, 0.35, 0] },
-      { tag: '02 // MANIPULATION', title: 'Two-Servo Arm', desc: 'Two-servo arm with preset ladder (floor, carry, star, high, apex), one-press rung stepping, arm lift 115-degree top stop to 180-degree floor.', cam: [2.1, 1.8, 1.8], target: [0.2, 0.85, 0.1] },
-      { tag: '03 // END EFFECTOR', title: 'Claw Mechanism', desc: 'Gripper 0-degree open to 105-degree max-grip close, measured on the robot; tuned across five iterations from 90 to 105 degrees.', cam: [1.85, 1.3, 1.4], target: [0.45, 0.65, 0.3] },
-      { tag: '04 // AVIONICS', title: 'Electronics & Telemetry', desc: 'HEXA Command Hub (ESP32-S3) paired to handheld controller over ESP-NOW, channel 11, no WiFi router needed. MCP3008 ADC telemetry, LSM6DSOX gyro, status OLED, NeoPixel LED.', cam: [-1.8, 1.9, 1.5], target: [0, 0.65, -0.15] },
-      { tag: '05 // MISSION ELEMENT', title: 'Payload Bay', desc: '90 mm, about 150 g FDM-printed Team 012 shell, delivered by a separate claw mechanism.', cam: [-0.2, 1.4, -2.5], target: [0, 0.55, -0.35] },
-      { tag: '06 // INTEGRATED SYSTEM', title: 'The Whole Machine', desc: 'Built for fast CORE scoring, reliable Payload delivery and a strong LEVEL UP endgame. Stays within the 18-inch starting volume and 8 kg limit.', cam: [2.5, 1.75, 2.75], target: [0, 0.55, 0] }
+      { code: '[02] DRIVETRAIN', tag: '02 // DRIVETRAIN', title: 'Drivetrain', desc: 'Differential tank drive, two DC motors, ramp-limited TankDrive control, slow/fast modes, gyro heading-hold assist, clear acrylic chassis plates, four treaded wheels.', cam: [0.4, 1.45, 3.45], target: [0, 0.36, 0], anchor: [0.55, 0.24, 0.52], showArrow: true },
+      { code: '[03] TWO-SERVO ARM', tag: '03 // MANIPULATION', title: 'Two-Servo Arm', desc: 'Two-servo arm with preset ladder (floor, carry, star, high, apex), one-press rung stepping, arm lift 115-degree top stop to 180-degree floor.', cam: [2.75, 2.1, 2.65], target: [0.08, 0.55, 0], anchor: [0.22, 0.78, 0.08], showArrow: true },
+      { code: '[04] CLAW MECHANISM', tag: '04 // END EFFECTOR', title: 'Claw Mechanism', desc: 'Gripper 0-degree open to 105-degree max-grip close, measured on the robot; tuned across five iterations from 90 to 105 degrees.', cam: [2.65, 1.75, 2.45], target: [0.22, 0.62, 0.12], anchor: [0.52, 0.92, 0.12], showArrow: true },
+      { code: '[05] HEXA AVIONICS', tag: '05 // AVIONICS', title: 'Electronics & Telemetry', desc: 'HEXA Command Hub (ESP32-S3) paired to handheld controller over ESP-NOW, channel 11, no WiFi router needed. MCP3008 ADC telemetry, LSM6DSOX gyro, status OLED, NeoPixel LED.', cam: [-2.75, 2.15, 2.25], target: [-0.04, 0.48, 0], anchor: [-0.22, 0.56, 0.14], showArrow: true },
+      { code: '[06] PAYLOAD BAY', tag: '06 // MISSION ELEMENT', title: 'Payload Bay', desc: '90 mm, about 150 g FDM-printed Team 012 shell, delivered by a separate claw mechanism.', cam: [-2.55, 1.9, -2.55], target: [-0.12, 0.48, 0], anchor: [-0.52, 0.64, -0.06], showArrow: true },
+      { code: '[01] FULL ROBOT', tag: '01 // INTEGRATED SYSTEM', title: 'The Whole Machine', desc: 'Built for fast CORE scoring, reliable Payload delivery and a strong LEVEL UP endgame. Stays within the 18-inch starting volume and 8 kg limit.', cam: [2.95, 1.98, 3.15], target: [0, 0.44, 0], anchor: [0.0, 0.52, 0.0], showArrow: false }
     ];
 
+    let activeStopIdx = 5;
+    let robotRoot = null;
     let outlineLines = [];
-    let styleMode = 0; // 0: Ink Outline, 1: Neon Lime Outline, 2: Shaded Only
+    let styleMode = 0; // 0: Sticker (white die-cut + ink edge), 1: Cyber Neon (lime die-cut + lime edge), 2: Pure Studio
+    let spinEnabled = true;
     let targetCamPos = null;
     let targetLookAt = null;
     let isVisible = true;
+    const anchorLocal = new THREE.Vector3(0, 0.52, 0);
+    const anchorWorld = new THREE.Vector3();
 
     gltfLoader.load('assets/argus-robot.glb', (gltf) => {
-      const { pivot } = normalizeRobotModel(gltf.scene, 2.2);
-      pivot.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
-      outlineLines = applyCadEdges(pivot, 0x0a0a0a, 20);
+      const { pivot } = normalizeRobotModel(gltf.scene, 1.95);
+      outlineLines = applyCadEdges(pivot, 0x09090b, 22);
+      robotRoot = pivot;
       scene.add(pivot);
       if (pill) pill.classList.add('hidden');
       if (poster) poster.classList.add('hidden');
+      selectStop(5);
     }, undefined, () => {
       if (pill) pill.querySelector('span:last-child').textContent = 'POSTER FALLBACK';
     });
 
     function selectStop(idx) {
-      const s = robotSpecs[idx] || robotSpecs[0];
+      activeStopIdx = idx;
+      const s = robotSpecs[idx] || robotSpecs[5];
       document.getElementById('robotSpecTag').textContent = s.tag;
       document.getElementById('robotSpecTitle').textContent = s.title;
       document.getElementById('robotSpecDesc').textContent = s.desc;
+      if (floatChip) floatChip.textContent = s.code;
       document.querySelectorAll('.preset-btn[data-rstop]').forEach(b => b.classList.toggle('active', Number(b.dataset.rstop) === idx));
       targetCamPos = new THREE.Vector3(...s.cam);
       targetLookAt = new THREE.Vector3(...s.target);
+      anchorLocal.set(...s.anchor);
+      userPauseUntil = performance.now() + 2600;
     }
 
     document.querySelectorAll('.preset-btn[data-rstop]').forEach(btn => {
@@ -2416,18 +2767,22 @@
     const styleBtn = document.getElementById('cadStyleBtn');
     styleBtn.addEventListener('click', () => {
       styleMode = (styleMode + 1) % 3;
-      const labels = ['Outline: Ink', 'Outline: Lime', 'Outline: Off'];
+      const labels = ['Outline: Sticker', 'Outline: Neon', 'Outline: Studio'];
       styleBtn.textContent = labels[styleMode];
+      wrap.classList.remove('cad-mode-sticker', 'cad-mode-neon', 'cad-mode-studio');
+      wrap.classList.add(styleMode === 0 ? 'cad-mode-sticker' : styleMode === 1 ? 'cad-mode-neon' : 'cad-mode-studio');
       outlineLines.forEach(line => {
         line.visible = styleMode !== 2;
-        line.material.color.setHex(styleMode === 1 ? 0xC6FF33 : 0x0a0a0a);
+        line.material.color.setHex(styleMode === 1 ? 0xC6FF33 : 0x09090b);
       });
     });
 
     const rotBtn = document.getElementById('cadRotateBtn');
     rotBtn.addEventListener('click', () => {
-      controls.autoRotate = !controls.autoRotate;
-      rotBtn.textContent = controls.autoRotate ? 'Spin: ON' : 'Spin: OFF';
+      spinEnabled = !spinEnabled;
+      controls.autoRotate = spinEnabled;
+      rotBtn.textContent = spinEnabled ? 'Spin: ON' : 'Spin: OFF';
+      rotBtn.classList.toggle('active', spinEnabled);
     });
 
     document.getElementById('cadResetBtn').addEventListener('click', () => selectStop(5));
@@ -2438,26 +2793,64 @@
 
     window.addEventListener('resize', () => {
       if (!wrap.clientWidth) return;
-      camera.aspect = wrap.clientWidth / wrap.clientHeight;
+      const asp = wrap.clientWidth / wrap.clientHeight;
+      camera.fov = asp < 1.25 ? 42 : 32;
+      camera.aspect = asp;
       camera.updateProjectionMatrix();
       renderer.setSize(wrap.clientWidth, wrap.clientHeight);
     });
 
-    function animate() {
+    function updateCalloutOverlay(now) {
+      if (!svg || !robotRoot || !wrap.clientWidth) return;
+      const s = robotSpecs[activeStopIdx] || robotSpecs[5];
+      if (!s.showArrow) {
+        svg.style.opacity = '0';
+        return;
+      }
+      svg.style.opacity = '1';
+      anchorWorld.copy(anchorLocal);
+      const proj = anchorWorld.project(camera);
+      const w = wrap.clientWidth, h = wrap.clientHeight;
+      const sx = Math.max(40, Math.min(w - 30, (proj.x * 0.5 + 0.5) * w));
+      const sy = Math.max(30, Math.min(h - 30, (-proj.y * 0.5 + 0.5) * h));
+
+      const chipW = floatChip ? floatChip.offsetWidth : 160;
+      const startX = Math.min(w * 0.42, 16 + chipW + 10);
+      const startY = h - 28;
+      const midX = (startX + sx) * 0.5 - 24;
+      const midY = Math.min(startY, sy) - Math.max(36, Math.abs(sx - startX) * 0.16);
+      const d = `M ${startX.toFixed(1)} ${startY.toFixed(1)} Q ${midX.toFixed(1)} ${midY.toFixed(1)} ${sx.toFixed(1)} ${sy.toFixed(1)}`;
+      const pulse = 13 + Math.sin(now * 0.005) * 2.5;
+
+      arrowShadow.setAttribute('d', d);
+      arrowStroke.setAttribute('d', d);
+      targetOuter.setAttribute('cx', sx.toFixed(1));
+      targetOuter.setAttribute('cy', sy.toFixed(1));
+      targetOuter.setAttribute('r', pulse.toFixed(1));
+      targetInner.setAttribute('cx', sx.toFixed(1));
+      targetInner.setAttribute('cy', sy.toFixed(1));
+      targetInner.setAttribute('r', pulse.toFixed(1));
+      targetDot.setAttribute('cx', sx.toFixed(1));
+      targetDot.setAttribute('cy', sy.toFixed(1));
+    }
+
+    function animate(now) {
       requestAnimationFrame(animate);
       if (!isVisible) return;
       if (targetCamPos && targetLookAt) {
-        camera.position.lerp(targetCamPos, 0.08);
-        controls.target.lerp(targetLookAt, 0.08);
+        camera.position.lerp(targetCamPos, 0.09);
+        controls.target.lerp(targetLookAt, 0.09);
         if (camera.position.distanceTo(targetCamPos) < 0.04) {
           targetCamPos = null;
           targetLookAt = null;
         }
       }
+      controls.autoRotate = spinEnabled && now > userPauseUntil && !targetCamPos;
       controls.update();
+      updateCalloutOverlay(now);
       renderer.render(scene, camera);
     }
-    animate();
+    requestAnimationFrame(animate);
   })();
 
   /* ============================================================
@@ -2467,84 +2860,158 @@
     const wrap = document.getElementById('arenaCanvasWrap');
     const pill = document.getElementById('arenaLoadPill');
     const poster = document.getElementById('arenaPosterFallback');
+    const objBanner = document.getElementById('arenaObjBanner');
+    const scorePop = document.getElementById('arenaScorePop');
     if (!wrap) return;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(wrap.clientWidth, wrap.clientHeight);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
+    renderer.toneMappingExposure = 1.08;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     wrap.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0b0b0f);
+    scene.background = new THREE.Color(0x130e22);
+    scene.fog = new THREE.FogExp2(0x130e22, 0.036);
     const pmrem = new THREE.PMREMGenerator(renderer);
-    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.05).texture;
 
-    const camera = new THREE.PerspectiveCamera(46, wrap.clientWidth / wrap.clientHeight, 0.05, 60);
+    const camera = new THREE.PerspectiveCamera(44, wrap.clientWidth / wrap.clientHeight, 0.05, 60);
     const orbit = new OrbitControls(camera, renderer.domElement);
     orbit.enableDamping = true;
     orbit.dampingFactor = 0.08;
     orbit.maxPolarAngle = Math.PI / 2 - 0.05;
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
-    keyLight.position.set(3, 8, 5);
+    // Championship Stadium Lighting Rig
+    const keyLight = new THREE.DirectionalLight(0xfffcf5, 2.1);
+    keyLight.position.set(3.5, 8.5, 4.5);
     keyLight.castShadow = true;
     keyLight.shadow.mapSize.set(1024, 1024);
     scene.add(keyLight);
-    scene.add(new THREE.HemisphereLight(0xdcdcff, 0x222228, 0.7));
+
+    const vioFill = new THREE.DirectionalLight(0x8e54f5, 0.9);
+    vioFill.position.set(-4.5, 4.5, -3.5);
+    scene.add(vioFill);
+    scene.add(new THREE.HemisphereLight(0xeae4ff, 0x1b152b, 0.78));
 
     // Arena State
     let fieldCenter = new THREE.Vector3(-0.28, 0, 1.42);
     let fieldBounds = { minX: -2.25, maxX: 1.70, minZ: -0.55, maxZ: 3.40 };
     let floorY = 0.03;
+    let walkableMeshes = [];
     let robotPivot = null;
+    let robotVisual = null;
+    let headlights = null;
+    let underglowRing = null;
     let carriedCore = null;
     let score = 0;
-    let camMode = 0; // 0: Chase, 1: Aerial Orbit, 2: Top-Down
+    let levelUpAwarded = false;
+    let camMode = 0; // 0: Chase, 1: Orbit, 2: Top
     let fastMode = true;
     let armIndex = 1;
     const armPoses = ['FLOOR', 'CARRY', 'STAR', 'HIGH', 'APEX'];
     let isVisible = true;
+    let popTimer = 0;
 
-    // Robot Physics
-    const bot = { x: -0.28, z: 2.35, yaw: Math.PI, v: 0, w: 0, snapTargetYaw: null };
+    // Robot Kinematics
+    const bot = { x: -0.28, y: 0.03, z: 2.35, yaw: Math.PI, v: 0, w: 0, prevV: 0, pitch: 0, roll: 0, slopePitch: 0, snapTargetYaw: null };
     const keys = { f: false, b: false, l: false, r: false };
 
-    // Interactive CORE rings & Scoring Zones
+    // Interactive Collectibles & Scoring Zones
     const cores = [];
     const coreGroup = new THREE.Group();
     scene.add(coreGroup);
 
-    const dropPadMat = new THREE.MeshBasicMaterial({ color: 0xC6FF33, transparent: true, opacity: 0.45, side: THREE.DoubleSide });
-    const dropZoneRing = new THREE.Mesh(new THREE.RingGeometry(0.28, 0.36, 32), dropPadMat);
+    const dropPadMat = new THREE.MeshBasicMaterial({ color: 0xC6FF33, transparent: true, opacity: 0.55, side: THREE.DoubleSide });
+    const dropZoneRing = new THREE.Mesh(new THREE.RingGeometry(0.24, 0.34, 36), dropPadMat);
     dropZoneRing.rotation.x = -Math.PI / 2;
     scene.add(dropZoneRing);
+
+    const poleBeaconMat = new THREE.MeshBasicMaterial({ color: 0x7D39EB, transparent: true, opacity: 0.42, side: THREE.DoubleSide });
+    const poleTargets = [];
+    const poleBeaconGroup = new THREE.Group();
+    scene.add(poleBeaconGroup);
+
+    function triggerScorePop(label) {
+      if (!scorePop) return;
+      scorePop.textContent = label;
+      scorePop.classList.remove('active');
+      void scorePop.offsetWidth;
+      scorePop.classList.add('active');
+      clearTimeout(popTimer);
+      popTimer = setTimeout(() => scorePop.classList.remove('active'), 1400);
+    }
 
     function spawnCores() {
       while (coreGroup.children.length) coreGroup.remove(coreGroup.children[0]);
       cores.length = 0;
-      const offsets = [
-        [-0.95, -0.55], [0.95, -0.55], [-0.85, 0.75], [0.85, 0.75]
+      const laneOffsets = [
+        [-1.08, -0.78], [0.95, -0.78], [-1.08, 0.65], [0.95, 0.65], [0.0, -1.05], [-0.52, 0.18]
       ];
-      offsets.forEach(([ox, oz], idx) => {
-        const mesh = new THREE.Mesh(
-          new THREE.TorusGeometry(0.11, 0.042, 12, 24),
+      laneOffsets.forEach(([ox, oz], idx) => {
+        const holder = new THREE.Group();
+        const isViolet = idx % 2 === 0;
+        const ring = new THREE.Mesh(
+          new THREE.TorusGeometry(0.056, 0.021, 14, 28),
           new THREE.MeshStandardMaterial({
-            color: idx % 2 === 0 ? 0x3b82f6 : 0xC6FF33,
-            emissive: idx % 2 === 0 ? 0x1d4ed8 : 0x4d7c0f,
-            emissiveIntensity: 0.45,
-            roughness: 0.3
+            color: isViolet ? 0x7D39EB : 0xC6FF33,
+            emissive: isViolet ? 0x521db8 : 0x6ea60d,
+            emissiveIntensity: 0.65,
+            roughness: 0.28,
+            metalness: 0.25
           })
         );
-        mesh.rotation.x = Math.PI / 2;
-        mesh.position.set(fieldCenter.x + ox, floorY + 0.05, fieldCenter.z + oz);
-        mesh.castShadow = true;
-        coreGroup.add(mesh);
-        cores.push({ mesh, active: true });
+        ring.rotation.x = Math.PI / 2;
+        ring.position.y = 0.025;
+        ring.castShadow = true;
+
+        const beam = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.052, 0.058, 0.34, 16, 1, true),
+          new THREE.MeshBasicMaterial({
+            color: isViolet ? 0xB592F7 : 0xC6FF33,
+            transparent: true,
+            opacity: 0.22,
+            side: THREE.DoubleSide,
+            depthWrite: false
+          })
+        );
+        beam.position.y = 0.19;
+        holder.add(ring);
+        holder.add(beam);
+
+        const px = Math.max(fieldBounds.minX + 0.15, Math.min(fieldBounds.maxX - 0.15, fieldCenter.x + ox));
+        const pz = Math.max(fieldBounds.minZ + 0.15, Math.min(fieldBounds.maxZ - 0.15, fieldCenter.z + oz));
+        holder.position.set(px, floorY, pz);
+        coreGroup.add(holder);
+        cores.push({ holder, ring, beam, active: true, phase: idx * 1.1 });
       });
+    }
+
+    function buildArenaStage(box, center, size, baseFloorY) {
+      // Matte Championship Riser under the field + Neon Perimeter Trim
+      const riserGeo = new THREE.BoxGeometry(size.x + 1.0, 0.24, size.z + 1.0);
+      const riserMat = new THREE.MeshStandardMaterial({ color: 0x161322, roughness: 0.85, metalness: 0.1 });
+      const riser = new THREE.Mesh(riserGeo, riserMat);
+      riser.position.set(center.x, baseFloorY - 0.145, center.z);
+      riser.receiveShadow = true;
+      scene.add(riser);
+
+      const trimGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(size.x + 1.02, 0.04, size.z + 1.02));
+      const trim = new THREE.LineSegments(trimGeo, new THREE.LineBasicMaterial({ color: 0x7D39EB, transparent: true, opacity: 0.8 }));
+      trim.position.set(center.x, baseFloorY - 0.03, center.z);
+      scene.add(trim);
+
+      const stadiumFloor = new THREE.Mesh(
+        new THREE.PlaneGeometry(36, 36),
+        new THREE.MeshStandardMaterial({ color: 0x0b0814, roughness: 0.95 })
+      );
+      stadiumFloor.rotation.x = -Math.PI / 2;
+      stadiumFloor.position.set(center.x, baseFloorY - 0.27, center.z);
+      stadiumFloor.receiveShadow = true;
+      scene.add(stadiumFloor);
     }
 
     let loadedCount = 0;
@@ -2559,7 +3026,6 @@
     // Load HYPERDRIVE 2026 Field
     gltfLoader.load('assets/hyperdrive-field.glb', (gltf) => {
       const field = gltf.scene;
-      field.traverse(c => { if (c.isMesh) { c.receiveShadow = true; } });
       scene.add(field);
 
       const box = new THREE.Box3().setFromObject(field);
@@ -2569,47 +3035,111 @@
       box.getSize(s);
       fieldCenter.copy(c);
       fieldBounds = {
-        minX: box.min.x + 0.48, maxX: box.max.x - 0.48,
-        minZ: box.min.z + 0.48, maxZ: box.max.z - 0.48
+        minX: box.min.x + 0.44, maxX: box.max.x - 0.44,
+        minZ: box.min.z + 0.44, maxZ: box.max.z - 0.44
       };
 
-      // Raycast downwards near center to detect true arena tile surface Y
-      const ray = new THREE.Raycaster(new THREE.Vector3(c.x, box.max.y + 1, c.z), new THREE.Vector3(0, -1, 0));
+      // Raycast baseline floor Y near open floor
+      const ray = new THREE.Raycaster(new THREE.Vector3(c.x + 0.7, box.max.y + 1, c.z + 0.6), new THREE.Vector3(0, -1, 0));
       const hits = ray.intersectObject(field, true);
-      floorY = hits.length ? hits[0].point.y : box.min.y + 0.06;
-      if (floorY > box.min.y + 0.35) floorY = box.min.y + 0.05; // safeguard if pole hit
+      floorY = hits.length ? hits[0].point.y : box.min.y + 0.05;
+      if (floorY > box.min.y + 0.32) floorY = box.min.y + 0.05;
+
+      // Classify walkable surfaces (base tiles + LEVEL UP ramp/bridge) & detect pole scoring targets
+      field.traverse(child => {
+        if (!child.isMesh) return;
+        child.receiveShadow = true;
+        const nm = (child.name || '').toLowerCase();
+        const mb = new THREE.Box3().setFromObject(child);
+        const h = mb.max.y - floorY;
+        const isObst = /pole|buzzer|wall|channel|silo|diffuser|clamp|insert|switch|ring/i.test(nm);
+        if (!isObst && h < 0.46) {
+          walkableMeshes.push(child);
+        }
+        if ((nm.includes('vert pole') || nm.includes('100mm pole')) && poleTargets.length < 6) {
+          const pc = new THREE.Vector3();
+          mb.getCenter(pc);
+          poleTargets.push({ x: pc.x, z: pc.z });
+        }
+      });
+      if (!walkableMeshes.length) walkableMeshes.push(field);
+
+      buildArenaStage(box, c, s, floorY);
+
+      // Visual beacons on pole scoring targets
+      const targetCoords = poleTargets.length ? poleTargets.slice(0, 4) : [
+        { x: c.x - 0.6, z: c.z + 1.1 }, { x: c.x + 0.6, z: c.z - 1.1 }
+      ];
+      targetCoords.forEach(pt => {
+        const pRing = new THREE.Mesh(new THREE.RingGeometry(0.18, 0.25, 28), poleBeaconMat);
+        pRing.rotation.x = -Math.PI / 2;
+        pRing.position.set(pt.x, floorY + 0.015, pt.z);
+        poleBeaconGroup.add(pRing);
+      });
 
       bot.x = c.x;
-      bot.z = c.z + s.z * 0.28;
+      bot.y = floorY;
+      bot.z = c.z + s.z * 0.25;
       bot.yaw = Math.PI;
-      if (robotPivot) robotPivot.position.set(bot.x, floorY, bot.z);
+      if (robotPivot) robotPivot.position.set(bot.x, bot.y, bot.z);
 
-      dropZoneRing.position.set(c.x - s.x * 0.25, floorY + 0.015, c.z - s.z * 0.22);
+      dropZoneRing.position.set(c.x - s.x * 0.24, floorY + 0.015, c.z - s.z * 0.22);
       spawnCores();
 
-      camera.position.set(c.x + 3.2, floorY + 2.8, c.z + 3.4);
-      orbit.target.set(c.x, floorY + 0.25, c.z);
+      camera.position.set(bot.x, floorY + 1.35, bot.z + 2.15);
+      orbit.target.set(bot.x, floorY + 0.18, bot.z - 0.4);
       markLoaded();
     }, undefined, () => markLoaded());
 
-    // Load ARGUS Robot #298 with Outlines onto the Field!
+    // Load ARGUS Robot #298 with Outlines + Dynamic Chase Lights onto Field
     gltfLoader.load('assets/argus-robot.glb', (gltf) => {
       const { pivot } = normalizeRobotModel(gltf.scene, 0.46);
       applyCadEdges(pivot, 0x050505, 22);
-      // Add subtle lime underglow marker ring so robot is always easy to track on the field
-      const halo = new THREE.Mesh(
-        new THREE.RingGeometry(0.25, 0.28, 32),
-        new THREE.MeshBasicMaterial({ color: 0xC6FF33, side: THREE.DoubleSide })
+      // Rotate CAD so two-servo arm & claw face +Z local forward
+      pivot.rotation.y = Math.PI;
+
+      robotVisual = new THREE.Group();
+      robotVisual.add(pivot);
+
+      const carrier = new THREE.Group();
+      carrier.add(robotVisual);
+
+      // Subtle speed underglow track
+      underglowRing = new THREE.Mesh(
+        new THREE.RingGeometry(0.24, 0.275, 36),
+        new THREE.MeshBasicMaterial({ color: 0xC6FF33, transparent: true, opacity: 0.72, side: THREE.DoubleSide })
       );
-      halo.rotation.x = -Math.PI / 2;
-      halo.position.y = 0.01;
-      pivot.add(halo);
-      pivot.position.set(bot.x, floorY, bot.z);
-      pivot.rotation.y = bot.yaw;
-      robotPivot = pivot;
+      underglowRing.rotation.x = -Math.PI / 2;
+      underglowRing.position.y = 0.008;
+      carrier.add(underglowRing);
+
+      // Front directional laser chevron ahead of claw (+Z forward)
+      const chevMat = new THREE.MeshBasicMaterial({ color: 0xC6FF33, transparent: true, opacity: 0.92, side: THREE.DoubleSide });
+      const chev = new THREE.Mesh(new THREE.ConeGeometry(0.062, 0.12, 3), chevMat);
+      chev.rotation.x = Math.PI / 2;
+      chev.position.set(0, 0.032, 0.34);
+      carrier.add(chev);
+
+      carrier.position.set(bot.x, bot.y, bot.z);
+      carrier.rotation.y = bot.yaw;
+      robotPivot = carrier;
       scene.add(robotPivot);
       markLoaded();
     }, undefined, () => markLoaded());
+
+    // Ground Height Raycaster for Ramp Climbing
+    const terrainRay = new THREE.Raycaster();
+    const downDir = new THREE.Vector3(0, -1, 0);
+    function sampleGroundY(x, z) {
+      if (!walkableMeshes.length) return floorY;
+      terrainRay.set(new THREE.Vector3(x, floorY + 0.65, z), downDir);
+      const hits = terrainRay.intersectObjects(walkableMeshes, true);
+      if (hits.length) {
+        const y = hits[0].point.y;
+        if (y >= floorY - 0.04 && y <= floorY + 0.38) return y;
+      }
+      return floorY;
+    }
 
     // Input Handling (Only intercept keys when arena is focused)
     const keyMap = { KeyW: 'f', ArrowUp: 'f', KeyS: 'b', ArrowDown: 'b', KeyA: 'l', ArrowLeft: 'l', KeyD: 'r', ArrowRight: 'r' };
@@ -2649,36 +3179,49 @@
       if (!robotPivot) return;
       const clawEl = document.getElementById('hudClawState');
       if (!carriedCore) {
-        // Find closest CORE within 0.62m
-        let best = null, bestDist = 0.62;
+        let best = null, bestDist = 0.65;
         for (const c of cores) {
           if (!c.active) continue;
-          const d = Math.hypot(c.mesh.position.x - bot.x, c.mesh.position.z - bot.z);
+          const d = Math.hypot(c.holder.position.x - bot.x, c.holder.position.z - bot.z);
           if (d < bestDist) { bestDist = d; best = c; }
         }
         if (best) {
           best.active = false;
+          best.beam.visible = false;
           carriedCore = best;
-          robotPivot.add(best.mesh);
-          best.mesh.position.set(0, 0.22, 0.24);
+          robotPivot.add(best.holder);
+          best.holder.position.set(0, 0.21, 0.22);
           clawEl.textContent = 'GRIP (105°)';
-          showToast('CORE grabbed (105° grip)! Drive to the Lime Drop Zone & press Score.');
+          triggerScorePop('CORE GRABBED!');
+          showToast('CORE gripped (105°)! Deliver to a Violet Pole (+25) or Lime Drop Zone (+15).');
         } else {
           clawEl.textContent = 'CLAW TEST (105°)';
-          setTimeout(() => { if (!carriedCore) clawEl.textContent = 'OPEN (0°)'; }, 700);
+          setTimeout(() => { if (!carriedCore) clawEl.textContent = 'OPEN (0°)'; }, 650);
         }
       } else {
-        // Score / Drop CORE
+        let nearestPole = 99;
+        for (const pt of poleBeaconGroup.children) {
+          nearestPole = Math.min(nearestPole, Math.hypot(bot.x - pt.position.x, bot.z - pt.position.z));
+        }
         const distDrop = Math.hypot(bot.x - dropZoneRing.position.x, bot.z - dropZoneRing.position.z);
-        const pts = distDrop < 0.7 ? 20 : 10;
+        let pts = 10;
+        let zoneLabel = '+10 PTS // FIELD DROP';
+        if (nearestPole < 0.72) {
+          pts = (armIndex >= 2) ? 30 : 25;
+          zoneLabel = `+${pts} PTS // HIGH POLE!`;
+        } else if (distDrop < 0.75) {
+          pts = 15;
+          zoneLabel = '+15 PTS // DROP ZONE!';
+        }
         score += pts;
         document.getElementById('hudScore').textContent = `SCORE: ${score}`;
-        scene.add(carriedCore.mesh);
-        carriedCore.mesh.position.set(bot.x + Math.sin(bot.yaw) * 0.35, floorY + 0.05, bot.z + Math.cos(bot.yaw) * 0.35);
+        scene.add(carriedCore.holder);
+        carriedCore.holder.position.set(bot.x + Math.sin(bot.yaw) * 0.34, bot.y + 0.02, bot.z + Math.cos(bot.yaw) * 0.34);
         carriedCore = null;
         clawEl.textContent = 'OPEN (0°)';
-        showToast(`+${pts} PTS SCORED! Total: ${score}`);
-        if (cores.every(c => !c.active)) setTimeout(spawnCores, 1200);
+        triggerScorePop(zoneLabel);
+        showToast(`${zoneLabel} Total Score: ${score}`);
+        if (cores.every(c => !c.active)) setTimeout(spawnCores, 1400);
       }
     }
 
@@ -2686,6 +3229,7 @@
       fastMode = !fastMode;
       document.getElementById('btnSpeedToggle').textContent = fastMode ? 'FAST' : 'SLOW';
       document.getElementById('hudSpeedMode').textContent = fastMode ? 'FAST' : 'SLOW';
+      if (underglowRing) underglowRing.material.color.setHex(fastMode ? 0xC6FF33 : 0x7D39EB);
     }
 
     function toggleCam() {
@@ -2693,7 +3237,7 @@
       const names = ['CAM: CHASE', 'CAM: ORBIT', 'CAM: TOP'];
       document.getElementById('btnCamToggle').textContent = names[camMode];
       if (camMode === 2) {
-        camera.position.set(fieldCenter.x, floorY + 6.2, fieldCenter.z + 0.1);
+        camera.position.set(fieldCenter.x, floorY + 6.4, fieldCenter.z + 0.12);
         orbit.target.copy(fieldCenter);
       }
     }
@@ -2711,10 +3255,11 @@
     });
     document.getElementById('btnArenaReset').addEventListener('click', () => {
       bot.x = fieldCenter.x;
-      bot.z = fieldCenter.z + 1.2;
+      bot.z = fieldCenter.z + 1.15;
+      bot.y = floorY;
       bot.yaw = Math.PI;
       bot.v = 0; bot.w = 0; bot.snapTargetYaw = null;
-      score = 0; carriedCore = null;
+      score = 0; carriedCore = null; levelUpAwarded = false;
       document.getElementById('hudScore').textContent = 'SCORE: 0';
       document.getElementById('hudClawState').textContent = 'OPEN (0°)';
       spawnCores();
@@ -2733,17 +3278,21 @@
 
     let lastTime = performance.now();
     const hdgEl = document.getElementById('hudHeading');
+    const spdEl = document.getElementById('hudSpeedVal');
+    const elevEl = document.getElementById('hudElevVal');
+
     function tick(now) {
       requestAnimationFrame(tick);
       if (!isVisible) { lastTime = now; return; }
       const dt = Math.min(0.05, (now - lastTime) / 1000);
       lastTime = now;
 
-      const maxV = fastMode ? 1.85 : 0.85;
-      const maxW = fastMode ? 3.2 : 1.7;
+      const maxV = fastMode ? 2.05 : 0.9;
+      const maxW = fastMode ? 3.25 : 1.75;
       const targetV = (keys.f ? 1 : 0) - (keys.b ? 1 : 0);
       const targetW = (keys.l ? 1 : 0) - (keys.r ? 1 : 0);
 
+      bot.prevV = bot.v;
       bot.v += (targetV * maxV - bot.v) * Math.min(1, dt * 10);
       if (bot.snapTargetYaw !== null) {
         const diff = bot.snapTargetYaw - bot.yaw;
@@ -2757,27 +3306,71 @@
       bot.x = Math.max(fieldBounds.minX, Math.min(fieldBounds.maxX, bot.x + Math.sin(bot.yaw) * bot.v * dt));
       bot.z = Math.max(fieldBounds.minZ, Math.min(fieldBounds.maxZ, bot.z + Math.cos(bot.yaw) * bot.v * dt));
 
+      // Live Terrain / LEVEL UP Ramp Elevation & Slope Pitch
+      const gY = sampleGroundY(bot.x, bot.z);
+      const fY = sampleGroundY(bot.x + Math.sin(bot.yaw) * 0.16, bot.z + Math.cos(bot.yaw) * 0.16);
+      const bY = sampleGroundY(bot.x - Math.sin(bot.yaw) * 0.16, bot.z - Math.cos(bot.yaw) * 0.16);
+      bot.y += (gY - bot.y) * Math.min(1, dt * 14);
+      const rawSlope = Math.atan2(fY - bY, 0.32);
+      bot.slopePitch += (rawSlope - bot.slopePitch) * Math.min(1, dt * 10);
+
+      // Chassis acceleration/braking pitch + cornering roll dynamics
+      const accel = (bot.v - bot.prevV) / Math.max(dt, 0.008);
+      bot.pitch += (Math.max(-0.08, Math.min(0.08, accel * 0.008)) - bot.pitch) * Math.min(1, dt * 10);
+      bot.roll += (Math.max(-0.06, Math.min(0.06, -bot.w * bot.v * 0.015)) - bot.roll) * Math.min(1, dt * 10);
+
+      const elevCm = Math.max(0, Math.round((bot.y - floorY) * 100));
+      if (!levelUpAwarded && elevCm >= 12) {
+        levelUpAwarded = true;
+        score += 30;
+        document.getElementById('hudScore').textContent = `SCORE: ${score}`;
+        triggerScorePop('+30 PTS // LEVEL UP RAMP!');
+        showToast('+30 PTS LEVEL UP BONUS! Summit reached!');
+      }
+
       if (robotPivot) {
-        robotPivot.position.set(bot.x, floorY, bot.z);
+        robotPivot.position.set(bot.x, bot.y, bot.z);
         robotPivot.rotation.y = bot.yaw;
       }
-
-      if (hdgEl) {
-        const deg = Math.round(((bot.yaw * 180 / Math.PI) % 360 + 360) % 360);
-        hdgEl.textContent = String(deg).padStart(3, '0') + '°';
+      if (robotVisual) {
+        robotVisual.rotation.x = -bot.slopePitch + bot.pitch;
+        robotVisual.rotation.z = bot.roll;
       }
 
-      // Pulse Drop Zone ring
-      dropPadMat.opacity = 0.35 + Math.sin(now * 0.005) * 0.2;
+      // Pulse Collectibles + Check Nearest Prompt
+      let minCoreDist = 99;
+      for (const c of cores) {
+        if (!c.active) continue;
+        c.ring.position.y = 0.03 + Math.sin(now * 0.004 + c.phase) * 0.014;
+        c.beam.material.opacity = 0.14 + Math.sin(now * 0.005 + c.phase) * 0.08;
+        minCoreDist = Math.min(minCoreDist, Math.hypot(c.holder.position.x - bot.x, c.holder.position.z - bot.z));
+      }
+
+      if (objBanner) {
+        if (carriedCore) {
+          objBanner.innerHTML = 'CORE GRIPPED: <b>DRIVE TO VIOLET POLE (+25/+30) OR LIME ZONE (+15)</b> &amp; PRESS <b>[C]</b>';
+        } else if (minCoreDist < 0.65) {
+          objBanner.innerHTML = 'IN RANGE! PRESS <b>[C]</b> OR <b>PICK / SCORE CORE</b> TO GRAB';
+        } else {
+          objBanner.innerHTML = 'OBJECTIVE: <b>DRIVE TO A GLOWING CORE BEAM</b> OR CLIMB <b>WHITE RAMP (+30)</b>';
+        }
+      }
+
+      if (hdgEl) hdgEl.textContent = String(Math.round(((bot.yaw * 180 / Math.PI) % 360 + 360) % 360)).padStart(3, '0') + '°';
+      if (spdEl) spdEl.textContent = `${Math.abs(bot.v).toFixed(1)} m/s`;
+      if (elevEl) elevEl.textContent = `${elevCm} cm`;
+
+      dropPadMat.opacity = 0.40 + Math.sin(now * 0.005) * 0.22;
+      poleBeaconMat.opacity = carriedCore ? (0.48 + Math.sin(now * 0.008) * 0.28) : 0.22;
 
       if (camMode === 0 && robotPivot) {
         const desiredCam = new THREE.Vector3(
-          bot.x - Math.sin(bot.yaw) * 1.9,
-          floorY + 1.25,
-          bot.z - Math.cos(bot.yaw) * 1.9
+          bot.x - Math.sin(bot.yaw) * 2.05,
+          bot.y + 1.28,
+          bot.z - Math.cos(bot.yaw) * 2.05
         );
-        camera.position.lerp(desiredCam, Math.min(1, dt * 5));
-        orbit.target.lerp(new THREE.Vector3(bot.x, floorY + 0.18, bot.z), Math.min(1, dt * 8));
+        camera.position.lerp(desiredCam, Math.min(1, dt * 5.2));
+        orbit.target.lerp(new THREE.Vector3(bot.x + Math.sin(bot.yaw) * 0.45, bot.y + 0.18, bot.z + Math.cos(bot.yaw) * 0.45), Math.min(1, dt * 8.5));
       }
 
       orbit.update();
