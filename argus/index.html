@@ -1251,58 +1251,21 @@
       padding: 4px 10px; font-family: var(--font-mono); font-size: 10px; font-weight: 700;
     }
 
-    /* Virtual Drive Console Controls */
-    .drive-console-bar {
-      background: #141418;
-      border-top: 2px solid #2b2b2b;
-      padding: 14px 16px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-    }
-
-    .dpad-cluster {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      user-select: none;
-      -webkit-user-select: none;
-    }
-
-    .drive-btn {
-      background: #222229;
+    .hud-action-btn {
+      background: #1a1529;
       color: var(--white);
-      border: 1.5px solid #555;
+      border: 1.5px solid #4d3f73;
+      padding: 5px 10px;
       font-family: var(--font-mono);
-      font-size: 12px;
+      font-size: 10.5px;
       font-weight: 700;
-      min-width: 44px;
-      min-height: 42px;
-      padding: 6px 12px;
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      touch-action: manipulation;
-      transition: background 0.1s, color 0.1s, border-color 0.1s;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
     }
-
-    .drive-btn:hover, .drive-btn.pressed {
-      background: var(--lime);
-      color: var(--black);
-      border-color: var(--lime);
-    }
-
-    .drive-btn.accent-vio { background: var(--violet); border-color: var(--violet-light); }
-    .drive-btn.accent-vio:hover, .drive-btn.accent-vio.pressed { background: var(--lime); color: var(--black); border-color: var(--lime); }
+    .hud-action-btn:hover { background: var(--violet); border-color: var(--white); }
 
     .arena-actions-cluster {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
+      display: none;
     }
 
     .field-meta-bar {
@@ -2086,10 +2049,12 @@
           <div class="hud-chip">SPD: <b id="hudSpeedVal">0.0 m/s</b> (<span id="hudSpeedMode">FAST</span>)</div>
           <div class="hud-chip">HDG: <b id="hudHeading">000°</b></div>
           <div class="hud-chip">ELEV: <b id="hudElevVal">0 cm</b></div>
-          <div class="hud-chip">ARM: <b id="hudArmPose">CARRY</b></div>
+          <div class="hud-chip">ARM: <b id="hudArmPose">FLOOR</b></div>
           <div class="hud-chip">CLAW: <b id="hudClawState">OPEN (0°)</b></div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <button type="button" class="hud-action-btn" id="btnCamToggle" title="Cycle Camera View (V)">CAM: CHASE</button>
+          <button type="button" class="hud-action-btn" id="btnArenaReset" title="Reset Robot & Match">RESET</button>
           <button type="button" class="hud-fs-btn" id="btnArenaFullscreen" title="Toggle Fullscreen (F)">⛶ FULLSCREEN</button>
           <div class="hud-score-pill" id="hudScore">SCORE: 0</div>
         </div>
@@ -2102,32 +2067,10 @@
           <span class="mv-mini-spin"></span>
           <span>LOADING 3D ARENA &amp; ROBOT...</span>
         </div>
-        <div class="arena-obj-banner" id="arenaObjBanner">OBJECTIVE: <b>DRIVE TO A GLOWING CORE BEAM</b> &amp; PRESS <b>[C]</b> TO GRAB</div>
+        <div class="arena-obj-banner" id="arenaObjBanner">READY: <b>WASD TO DRIVE • [R/G] ARM UP/DN • [O] CLAW • [C] GRAB/SCORE • [F] FULLSCREEN</b></div>
         <div class="arena-score-pop" id="arenaScorePop">+25 PTS // HIGH POLE!</div>
-      <div class="arena-focus-hint" id="arenaKeyHint">
-          DRIVE: <kbd data-k="f">W</kbd><kbd data-k="l">A</kbd><kbd data-k="b">S</kbd><kbd data-k="r">D</kbd> / ARROWS • <kbd>R</kbd>/<kbd>G</kbd> ARM UP/DN • <kbd>Q</kbd>/<kbd>E</kbd> 90° • <kbd>C</kbd> PICK/SCORE • <kbd>V</kbd> CAM • <kbd>F</kbd> FULLSCREEN
-        </div>
-      </div>
-
-      <!-- Arcade Drive Console -->
-      <div class="drive-console-bar">
-        <div class="dpad-cluster" aria-label="Robot Drive Pad">
-          <button class="drive-btn" id="btnTurnLeft" title="Turn Left (A / Left)">◀</button>
-          <button class="drive-btn" id="btnForward" title="Drive Forward (W / Up)">▲ FWD</button>
-          <button class="drive-btn" id="btnBackward" title="Drive Reverse (S / Down)">▼ REV</button>
-          <button class="drive-btn" id="btnTurnRight" title="Turn Right (D / Right)">▶</button>
-        </div>
-
-        <div class="arena-actions-cluster">
-          <button class="drive-btn" id="btnSnapLeft" title="90° Gyro Snap Left (Q)">-90°</button>
-          <button class="drive-btn" id="btnSnapRight" title="90° Gyro Snap Right (E)">+90°</button>
-          <button class="drive-btn" id="btnArmUp" title="Raise Arm Rung Up (R)">▲ ARM UP</button>
-          <button class="drive-btn" id="btnArmDown" title="Lower Arm Rung Down (G)">▼ ARM DN</button>
-          <button class="drive-btn accent-vio" id="btnCoreAction" title="Pick Up or Score Nearby CORE (C)">PICK / SCORE CORE</button>
-          <button class="drive-btn" id="btnSpeedToggle" title="Toggle Speed Mode (Shift)">FAST</button>
-          <button class="drive-btn" id="btnCamToggle" title="Cycle Camera View (V)">CAM: CHASE</button>
-          <button class="drive-btn" id="btnConsoleFullscreen" title="Fullscreen Mode (F)">⛶ FULL</button>
-          <button class="drive-btn" id="btnArenaReset">RESET</button>
+        <div class="arena-focus-hint" id="arenaKeyHint">
+          <kbd data-k="f">W</kbd><kbd data-k="l">A</kbd><kbd data-k="b">S</kbd><kbd data-k="r">D</kbd> / ARROWS: DRIVE • <kbd>R</kbd>/<kbd>G</kbd> ARM UP/DN • <kbd>O</kbd> CLAW OPEN/CLOSE • <kbd>C</kbd> GRAB/SCORE • <kbd>SHIFT</kbd> SPEED • <kbd>V</kbd> CAM • <kbd>F</kbd> FULL
         </div>
       </div>
     </div>
@@ -3220,7 +3163,6 @@
     const objBanner = document.getElementById('arenaObjBanner');
     const scorePop = document.getElementById('arenaScorePop');
     const fsHudBtn = document.getElementById('btnArenaFullscreen');
-    const fsConsoleBtn = document.getElementById('btnConsoleFullscreen');
     if (!wrap || !shell) return;
 
     // Desktop-only simulator guard (Mobile shows clean non-interactive showcase card)
@@ -3372,10 +3314,15 @@
     let levelUpAwarded = false;
     let camMode = 0; // 0: Chase, 1: Orbit, 2: Top, 3: Driver POV
     let fastMode = true;
-    let armIndex = 1;
+    let armIndex = 0;
     const armPoses = ['FLOOR', 'CARRY', 'STAR', 'HIGH', 'APEX'];
-    const armHeights = [0.06, 0.14, 0.22, 0.30, 0.36];
-    let armCurY = 0.14;
+    const armHeights = [0.055, 0.135, 0.215, 0.29, 0.355];
+    const armAngles = [-0.82, -0.36, 0.0, 0.22, 0.42];
+    let armCurY = 0.055;
+    let armCurAngle = armAngles[0];
+    let clawIsOpen = true;
+    let jawCurAngle = 0.56;
+    let armRig = null;
     let isVisible = true;
     let popTimer = 0;
 
@@ -3623,9 +3570,139 @@
       markLoaded();
     }, undefined, () => markLoaded());
 
-    // Load ARGUS Robot #298 — Crystal Acrylic, Cream 5-Spoke Wheels, Matte Black Tires, Red Shrouds & 298 Rear Badge!
+    // Articulated CAD Triangle Splitter: separates chassis vs shoulder arm, wrist servo, and L/R claw fingers
+    function rigArticulatedArgusRobot(gltfScene) {
+      gltfScene.updateMatrixWorld(true);
+      const invRoot = new THREE.Matrix4().copy(gltfScene.matrixWorld).invert();
+      const mat4 = new THREE.Matrix4();
+      const normMat = new THREE.Matrix3();
+
+      const sh = new THREE.Vector3(0.0206, 0.0114, -0.0160);
+      const wr = new THREE.Vector3(0.0206, 0.0176, -0.0250);
+      const lj = new THREE.Vector3(0.0184, 0.0174, -0.0274);
+      const rj = new THREE.Vector3(0.0228, 0.0174, -0.0274);
+      const pivots = [new THREE.Vector3(0, 0, 0), sh, wr, lj, rj];
+
+      const armPivot = new THREE.Group();
+      armPivot.position.copy(sh);
+      armPivot.name = 'argusArmPivot';
+
+      const wristPivot = new THREE.Group();
+      wristPivot.position.copy(wr).sub(sh);
+      wristPivot.name = 'argusWristPivot';
+      armPivot.add(wristPivot);
+
+      const leftJawPivot = new THREE.Group();
+      leftJawPivot.position.copy(lj).sub(wr);
+      leftJawPivot.name = 'argusLeftJawPivot';
+      wristPivot.add(leftJawPivot);
+
+      const rightJawPivot = new THREE.Group();
+      rightJawPivot.position.copy(rj).sub(wr);
+      rightJawPivot.name = 'argusRightJawPivot';
+      wristPivot.add(rightJawPivot);
+
+      const clawCarrySlot = new THREE.Group();
+      clawCarrySlot.position.set(0, -0.0012, -0.0068);
+      clawCarrySlot.name = 'argusClawCarrySlot';
+      wristPivot.add(clawCarrySlot);
+
+      const bucketParents = [gltfScene, armPivot, wristPivot, leftJawPivot, rightJawPivot];
+      const srcMeshes = [];
+      gltfScene.traverse(o => { if (o.isMesh && o.geometry) srcMeshes.push(o); });
+
+      const va = new THREE.Vector3(), vb = new THREE.Vector3(), vc = new THREE.Vector3();
+      const na = new THREE.Vector3();
+
+      for (const mesh of srcMeshes) {
+        const g = mesh.geometry.index ? mesh.geometry.toNonIndexed() : mesh.geometry.clone();
+        mat4.multiplyMatrices(invRoot, mesh.matrixWorld);
+        g.applyMatrix4(mat4);
+        normMat.getNormalMatrix(mat4);
+
+        const pos = g.getAttribute('position');
+        const nor = g.getAttribute('normal');
+        const uv = g.getAttribute('uv');
+        if (!pos) continue;
+
+        const groups = (g.groups && g.groups.length) ? g.groups : [{ start: 0, count: pos.count, materialIndex: 0 }];
+        const bPos = [[], [], [], [], []];
+        const bNor = [[], [], [], [], []];
+        const bUv = [[], [], [], [], []];
+        const bGroups = [[], [], [], [], []];
+
+        for (const grp of groups) {
+          const gStarts = [bPos[0].length / 3, bPos[1].length / 3, bPos[2].length / 3, bPos[3].length / 3, bPos[4].length / 3];
+          const end = Math.min(pos.count, grp.start + grp.count);
+          for (let i = grp.start; i + 2 < end; i += 3) {
+            va.fromBufferAttribute(pos, i);
+            vb.fromBufferAttribute(pos, i + 1);
+            vc.fromBufferAttribute(pos, i + 2);
+            const cx = (va.x + vb.x + vc.x) / 3;
+            const cy = (va.y + vb.y + vc.y) / 3;
+            const cz = (va.z + vb.z + vc.z) / 3;
+
+            let bIdx = 0;
+            if (cx > 0.0138 && cx < 0.0274 && ((cy > 0.0114 && cz < -0.0148) || (cy > 0.0094 && cz < -0.0252))) {
+              if (cz >= -0.0244) bIdx = 1;
+              else if (cz >= -0.0274) bIdx = 2;
+              else bIdx = (cx <= 0.0206) ? 3 : 4;
+            }
+
+            const piv = pivots[bIdx];
+            bPos[bIdx].push(
+              va.x - piv.x, va.y - piv.y, va.z - piv.z,
+              vb.x - piv.x, vb.y - piv.y, vb.z - piv.z,
+              vc.x - piv.x, vc.y - piv.y, vc.z - piv.z
+            );
+            if (nor) {
+              for (let k = 0; k < 3; k++) {
+                na.fromBufferAttribute(nor, i + k);
+                bNor[bIdx].push(na.x, na.y, na.z);
+              }
+            }
+            if (uv) {
+              for (let k = 0; k < 3; k++) bUv[bIdx].push(uv.getX(i + k), uv.getY(i + k));
+            }
+          }
+          for (let b = 0; b < 5; b++) {
+            const added = bPos[b].length / 3 - gStarts[b];
+            if (added > 0) bGroups[b].push({ start: gStarts[b], count: added, materialIndex: grp.materialIndex || 0 });
+          }
+        }
+
+        if (mesh.parent) mesh.parent.remove(mesh);
+        for (let b = 0; b < 5; b++) {
+          if (!bPos[b].length) continue;
+          const bg = new THREE.BufferGeometry();
+          bg.setAttribute('position', new THREE.Float32BufferAttribute(bPos[b], 3));
+          if (bNor[b].length === bPos[b].length) bg.setAttribute('normal', new THREE.Float32BufferAttribute(bNor[b], 3));
+          else bg.computeVertexNormals();
+          if (bUv[b].length) bg.setAttribute('uv', new THREE.Float32BufferAttribute(bUv[b], 2));
+          if (Array.isArray(mesh.material)) {
+            bGroups[b].forEach(bgGrp => bg.addGroup(bgGrp.start, bgGrp.count, bgGrp.materialIndex));
+          }
+          const subMesh = new THREE.Mesh(bg, mesh.material);
+          subMesh.name = mesh.name || `part_${b}`;
+          bucketParents[b].add(subMesh);
+        }
+      }
+
+      gltfScene.add(armPivot);
+      return { armPivot, wristPivot, leftJawPivot, rightJawPivot, clawCarrySlot };
+    }
+
+    // Load ARGUS Robot #298 — Articulated Arm & Claw, Crystal Acrylic, Cream 5-Spoke Wheels, Matte Black Tires, Red Shrouds & 298 Rear Badge!
     gltfLoader.load('assets/argus-robot.glb', (gltf) => {
+      armRig = rigArticulatedArgusRobot(gltf.scene);
       const { pivot, scaledWidth, scaledHeight, scaledDepth } = normalizeRobotModel(gltf.scene, 0.46);
+      const invScale = 1 / (pivot.scale.x || 1);
+      armRig.clawCarrySlot.scale.setScalar(invScale);
+      armRig.armPivot.rotation.x = armCurAngle;
+      armRig.wristPivot.rotation.x = -armCurAngle;
+      armRig.leftJawPivot.rotation.y = jawCurAngle;
+      armRig.rightJawPivot.rotation.y = -jawCurAngle;
+
       styleArgusRobotMaterials(pivot, true);
       pivot.traverse(obj => {
         if (!obj.isMesh) return;
@@ -3652,15 +3729,6 @@
       const statusLed = new THREE.Mesh(new THREE.SphereGeometry(0.015, 12, 12), statusLedMat);
       statusLed.position.set(0.048, 0.155, -0.045);
       robotVisual.add(statusLed);
-
-      // Dynamic 3D Arm Elevation Target Indicator Ring
-      armLevelRing = new THREE.Mesh(
-        new THREE.RingGeometry(0.038, 0.050, 24),
-        new THREE.MeshBasicMaterial({ color: 0x7D39EB, transparent: true, opacity: 0.65, side: THREE.DoubleSide })
-      );
-      armLevelRing.rotation.x = -Math.PI / 2;
-      armLevelRing.position.set(0, armCurY, 0.22);
-      robotVisual.add(armLevelRing);
 
       const carrier = new THREE.Group();
       carrier.add(robotVisual);
@@ -3733,7 +3801,6 @@
     function syncFullscreenUI() {
       const active = Boolean(document.fullscreenElement === shell || shell.classList.contains('is-pseudo-fs'));
       if (fsHudBtn) fsHudBtn.textContent = active ? '✕ EXIT FULL' : '⛶ FULLSCREEN';
-      if (fsConsoleBtn) fsConsoleBtn.textContent = active ? '✕ EXIT' : '⛶ FULL';
       setTimeout(handleResize, 40);
       setTimeout(handleResize, 160);
     }
@@ -3751,7 +3818,6 @@
       syncFullscreenUI();
     });
     if (fsHudBtn) fsHudBtn.addEventListener('click', (e) => { e.currentTarget.blur(); toggleFullscreen(); });
-    if (fsConsoleBtn) fsConsoleBtn.addEventListener('click', (e) => { e.currentTarget.blur(); toggleFullscreen(); });
 
     // Immediate Global Window Keyboard Controls (works without clicking canvas whenever Arena is in view OR Fullscreen!)
     const keyMap = { KeyW: 'f', ArrowUp: 'f', KeyS: 'b', ArrowDown: 'b', KeyA: 'l', ArrowLeft: 'l', KeyD: 'r', ArrowRight: 'r' };
@@ -3773,6 +3839,16 @@
       return isVisible || shell.classList.contains('is-pseudo-fs') || document.fullscreenElement === shell;
     }
 
+    function toggleClaw() {
+      clawIsOpen = !clawIsOpen;
+      const clawEl = document.getElementById('hudClawState');
+      if (clawEl) {
+        clawEl.textContent = carriedCore
+          ? (clawIsOpen ? 'RELEASE' : 'GRIP (105°)')
+          : (clawIsOpen ? 'OPEN (0°)' : 'CLOSED (105°)');
+      }
+    }
+
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && shell.classList.contains('is-pseudo-fs')) { exitFullscreen(); return; }
       if (!canDriveWithKeyboard()) return;
@@ -3781,6 +3857,7 @@
       else if (e.code === 'KeyE') { e.preventDefault(); snapTurn(-Math.PI / 2); }
       else if (e.code === 'KeyR') { e.preventDefault(); stepArm(1); }
       else if (e.code === 'KeyG') { e.preventDefault(); stepArm(-1); }
+      else if (e.code === 'KeyO') { e.preventDefault(); toggleClaw(); }
       else if (e.code === 'KeyC' || e.code === 'Enter') { e.preventDefault(); handleCoreAction(); }
       else if (e.code === 'KeyF') { e.preventDefault(); toggleFullscreen(); }
       else if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') { toggleSpeed(); }
@@ -3792,21 +3869,6 @@
       if (keyMap[e.code]) { keys[keyMap[e.code]] = false; syncKeyHints(); }
     });
     window.addEventListener('blur', () => { keys.f = keys.b = keys.l = keys.r = false; syncKeyHints(); });
-
-    function bindHoldButton(id, dir) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const down = (e) => { e.preventDefault(); keys[dir] = true; el.classList.add('pressed'); syncKeyHints(); el.blur(); };
-      const up = () => { keys[dir] = false; el.classList.remove('pressed'); syncKeyHints(); };
-      el.addEventListener('mousedown', down);
-      el.addEventListener('touchstart', down, { passive: false });
-      window.addEventListener('mouseup', up);
-      window.addEventListener('touchend', up);
-    }
-    bindHoldButton('btnForward', 'f');
-    bindHoldButton('btnBackward', 'b');
-    bindHoldButton('btnTurnLeft', 'l');
-    bindHoldButton('btnTurnRight', 'r');
 
     function snapTurn(delta) {
       bot.snapTargetYaw = (bot.snapTargetYaw ?? bot.yaw) + delta;
@@ -3826,17 +3888,23 @@
           best.active = false;
           best.subRing.visible = false;
           carriedCore = best;
-          robotVisual.add(best.holder);
-          best.holder.position.set(0, armCurY, 0.23);
-          clawEl.textContent = 'GRIP (105°)';
+          clawIsOpen = false;
+          if (armRig && armRig.clawCarrySlot) {
+            armRig.clawCarrySlot.add(best.holder);
+            best.holder.position.set(0, -0.019, 0);
+          } else {
+            robotVisual.add(best.holder);
+            best.holder.position.set(0, armCurY, 0.23);
+          }
+          if (armIndex === 0) stepArm(1);
+          if (clawEl) clawEl.textContent = 'GRIP (105°)';
           if (statusLedMat) statusLedMat.color.setHex(0xC6FF33);
           dropZoneGroup.visible = true;
           poleBeaconGroup.visible = true;
           triggerScorePop(best.isPayload ? 'PAYLOAD GRABBED!' : 'CORE GRABBED!');
           showToast('Gripped (105°)! Raise arm [R] & deliver to a High Pole (+30) or Lime Drop Zone (+15).');
         } else {
-          clawEl.textContent = 'CLAW TEST (105°)';
-          setTimeout(() => { if (!carriedCore) clawEl.textContent = 'OPEN (0°)'; }, 650);
+          toggleClaw();
         }
       } else {
         let nearestPole = 99;
@@ -3858,9 +3926,10 @@
         scene.add(carriedCore.holder);
         carriedCore.holder.position.set(bot.x + Math.sin(bot.yaw) * 0.34, bot.y + 0.01, bot.z + Math.cos(bot.yaw) * 0.34);
         carriedCore = null;
+        clawIsOpen = true;
         dropZoneGroup.visible = false;
         poleBeaconGroup.visible = false;
-        clawEl.textContent = 'OPEN (0°)';
+        if (clawEl) clawEl.textContent = 'OPEN (0°)';
         if (statusLedMat) statusLedMat.color.setHex(0x7D39EB);
         triggerScorePop(zoneLabel);
         showToast(`${zoneLabel} Total Score: ${score}`);
@@ -3870,15 +3939,16 @@
 
     function toggleSpeed() {
       fastMode = !fastMode;
-      document.getElementById('btnSpeedToggle').textContent = fastMode ? 'FAST' : 'SLOW';
-      document.getElementById('hudSpeedMode').textContent = fastMode ? 'FAST' : 'SLOW';
+      const spdEl = document.getElementById('hudSpeedMode');
+      if (spdEl) spdEl.textContent = fastMode ? 'FAST' : 'SLOW';
       if (underglowRing) underglowRing.material.color.setHex(fastMode ? 0xC6FF33 : 0x7D39EB);
     }
 
     function toggleCam() {
       camMode = (camMode + 1) % 4;
       const names = ['CAM: CHASE', 'CAM: ORBIT', 'CAM: TOP', 'CAM: DRIVER'];
-      document.getElementById('btnCamToggle').textContent = names[camMode];
+      const camBtn = document.getElementById('btnCamToggle');
+      if (camBtn) camBtn.textContent = names[camMode];
       if (camMode === 2) {
         camera.position.set(fieldCenter.x, floorY + 6.4, fieldCenter.z + 0.12);
         orbit.target.copy(fieldCenter);
@@ -3888,14 +3958,10 @@
       }
     }
 
-    document.getElementById('btnSnapLeft').addEventListener('click', (e) => { e.currentTarget.blur(); snapTurn(Math.PI / 2); });
-    document.getElementById('btnSnapRight').addEventListener('click', (e) => { e.currentTarget.blur(); snapTurn(-Math.PI / 2); });
-    document.getElementById('btnArmUp').addEventListener('click', (e) => { e.currentTarget.blur(); stepArm(1); });
-    document.getElementById('btnArmDown').addEventListener('click', (e) => { e.currentTarget.blur(); stepArm(-1); });
-    document.getElementById('btnCoreAction').addEventListener('click', (e) => { e.currentTarget.blur(); handleCoreAction(); });
-    document.getElementById('btnSpeedToggle').addEventListener('click', (e) => { e.currentTarget.blur(); toggleSpeed(); });
-    document.getElementById('btnCamToggle').addEventListener('click', (e) => { e.currentTarget.blur(); toggleCam(); });
-    document.getElementById('btnArenaReset').addEventListener('click', (e) => {
+    const camBtnEl = document.getElementById('btnCamToggle');
+    if (camBtnEl) camBtnEl.addEventListener('click', (e) => { e.currentTarget.blur(); toggleCam(); });
+    const resetBtnEl = document.getElementById('btnArenaReset');
+    if (resetBtnEl) resetBtnEl.addEventListener('click', (e) => {
       e.currentTarget.blur();
       bot.x = fieldCenter.x;
       bot.z = fieldCenter.z + 1.15;
@@ -3904,8 +3970,9 @@
       bot.v = 0; bot.w = 0; bot.snapTargetYaw = null;
       score = 0; carriedCore = null; levelUpAwarded = false;
       dropZoneGroup.visible = false; poleBeaconGroup.visible = false;
-      armIndex = 1;
-      document.getElementById('hudArmPose').textContent = 'CARRY';
+      armIndex = 0;
+      clawIsOpen = true;
+      document.getElementById('hudArmPose').textContent = 'FLOOR';
       document.getElementById('hudScore').textContent = 'SCORE: 0';
       document.getElementById('hudClawState').textContent = 'OPEN (0°)';
       if (statusLedMat) statusLedMat.color.setHex(0x7D39EB);
@@ -3966,8 +4033,16 @@
       bot.pitch += (Math.max(-0.08, Math.min(0.08, accel * 0.008)) - bot.pitch) * Math.min(1, dt * 10);
       bot.roll += (Math.max(-0.06, Math.min(0.06, -bot.w * bot.v * 0.015)) - bot.roll) * Math.min(1, dt * 10);
       armCurY += (armHeights[armIndex] - armCurY) * Math.min(1, dt * 10);
-      if (armLevelRing) armLevelRing.position.y = armCurY;
-      if (carriedCore) carriedCore.holder.position.y = armCurY;
+      armCurAngle += (armAngles[armIndex] - armCurAngle) * Math.min(1, dt * 10);
+      const targetJaw = clawIsOpen ? 0.56 : -0.05;
+      jawCurAngle += (targetJaw - jawCurAngle) * Math.min(1, dt * 14);
+      if (armRig) {
+        armRig.armPivot.rotation.x = armCurAngle;
+        armRig.wristPivot.rotation.x = -armCurAngle;
+        armRig.leftJawPivot.rotation.y = jawCurAngle;
+        armRig.rightJawPivot.rotation.y = -jawCurAngle;
+      }
+      if (carriedCore && (!armRig || !armRig.clawCarrySlot)) carriedCore.holder.position.y = armCurY;
 
       const elevCm = Math.max(0, Math.round((bot.y - floorY) * 100));
       if (!levelUpAwarded && elevCm >= 12) {
