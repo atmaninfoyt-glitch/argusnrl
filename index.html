@@ -84,7 +84,7 @@
 
     .pg {
       width: 100%;
-      max-width: 1440px;
+      max-width: min(1560px, 100%);
       margin: 0 auto;
       background: var(--white);
       border-left: 2px solid var(--black);
@@ -230,8 +230,8 @@
     /* Smooth Scroll-Reveal */
     .reveal {
       opacity: 0;
-      transform: translateY(14px);
-      transition: opacity 0.38s cubic-bezier(0.22, 1, 0.36, 1), transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+      transform: translateY(10px);
+      transition: opacity 0.24s cubic-bezier(0.22, 1, 0.36, 1), transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .reveal.in-view {
@@ -807,7 +807,7 @@
 
     .three-viewport {
       width: 100%;
-      height: clamp(360px, 56vh, 560px);
+      height: clamp(300px, 56dvh, 560px);
       position: relative;
       background-color: #0b0618;
       background-image:
@@ -1153,9 +1153,7 @@
 
     .arena-viewport {
       width: 100%;
-      aspect-ratio: 16/8.4;
-      min-height: 390px;
-      max-height: 600px;
+      height: clamp(320px, min(58dvh, 52vw), 590px);
       position: relative;
       background: radial-gradient(circle at 50% 40%, #1d1533 0%, #090710 100%);
       outline: none;
@@ -1420,12 +1418,57 @@
     }
     .toast-popup.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
 
+    /* Mobile swipe hint pills (hidden on desktop) */
+    .mobile-swipe-hint {
+      display: none;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      color: var(--violet-dark);
+      align-items: center;
+      justify-content: space-between;
+    }
+    .sec-dark .mobile-swipe-hint { color: var(--lime); }
+
     /* ========================================================
-       RESPONSIVE BREAKPOINTS
+       RESPONSIVE BREAKPOINTS (ALL LAPTOP ZOOMS + MOBILE UX)
        ======================================================== */
+    /* Zoomed-in Laptop Navigation Compression (125%–150% scale keeps desktop links intact!) */
+    @media (max-width: 1200px) and (min-width: 941px) {
+      nav.top-nav { padding: 8px clamp(14px, 2.5vw, 28px); gap: 8px; }
+      .nav-live-badge { display: none; }
+      .brand-title { font-size: 22px; }
+      .nav-links { gap: 2px; }
+      .nav-links a { font-size: 10px; padding: 6px 6px; letter-spacing: 0.04em; }
+    }
+
+    /* Short Laptop Viewports (e.g. 125%-175% Windows/Browser Zoom) */
+    @media (max-height: 750px) and (min-width: 768px) {
+      .hero { padding: clamp(20px, 3.2dvh, 40px) var(--pad-x); }
+      .hero-title { font-size: clamp(38px, 6vw, 76px); margin-bottom: 12px; }
+      .hero-sub { margin-bottom: 16px; }
+      .arena-hud-bar { padding: 7px 12px; gap: 6px; font-size: 10px; }
+      .hud-chip { padding: 3px 8px; }
+      .arena-viewport { height: clamp(300px, 56dvh, 470px); }
+      .three-viewport { height: clamp(300px, 54dvh, 460px); }
+    }
+
+    /* Ultrawide / Zoomed-Out Viewports (e.g. 50%–75% Browser Zoom) */
+    @media (min-width: 1600px) {
+      :root { --pad-x: 56px; }
+      .arena-viewport { height: clamp(460px, 54dvh, 660px); }
+    }
+
+    /* Disable pointer-only 3D card tilt on touch screens for smooth mobile scrolling */
+    @media (hover: none), (pointer: coarse) {
+      .tilt-glow-card { transform: none !important; will-change: auto; }
+      .tg-spot, .tg-border-glow { display: none !important; }
+    }
+
     @media (max-width: 1180px) {
-      .nav-links, .nav-live-badge { display: none !important; }
-      .mobile-menu-btn { display: inline-flex; align-items: center; }
       .team-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .stats-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .stat-cell { border-bottom: 1px solid #2b2b2b; }
@@ -1437,7 +1480,10 @@
       .bootcamp-layout { grid-template-columns: 1fr; }
     }
 
-    @media (max-width: 920px) {
+    /* Keep desktop nav compact down to 940px; switch to drawer below */
+    @media (max-width: 940px) {
+      .nav-links, .nav-live-badge { display: none !important; }
+      .mobile-menu-btn { display: inline-flex; align-items: center; }
       .hero-content, .about-grid, .team-lab-feature, .scoreboard-main, .news-grid, .eng-deepdive-grid, .comm-grid, .contact-grid {
         grid-template-columns: 1fr;
       }
@@ -1448,38 +1494,112 @@
       .win-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .gallery-masonry { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .gallery-item.col-span-2 { grid-column: span 2; }
-      /* Desktop-only Arena Drive Mode: keep mobile clean & fast */
-      #arenaSimShell { display: none !important; }
-      .arena-mobile-card { display: block !important; }
-      .field-meta-bar .m { display: none; }
-      .field-meta-bar { justify-content: center; background: transparent; border: none; padding: 8px 0 0; }
     }
 
-    @media (max-width: 600px) {
+    /* Hide PC Driving Simulator ONLY on small screens / coarse touch devices (NOT zoomed-in laptops!) */
+    @media (max-width: 767px), (max-width: 940px) and (pointer: coarse) {
+      #arenaSimShell { display: none !important; }
+      .arena-mobile-card { display: block !important; }
+      .field-meta-bar { display: none !important; }
+    }
+
+    @media (max-width: 640px) {
+      :root { --pad-x: 16px; --pad-y: 34px; }
       .pg { border-left: none; border-right: none; }
+      nav.top-nav { min-height: 54px; padding: 8px 16px; }
+      .brand-logo-img { height: 32px; width: 32px; }
+      .brand-title { font-size: 22px; }
+      .h2 { font-size: clamp(32px, 10vw, 46px); }
+
+      /* Mobile Hero: compact, high-impact framing */
+      .hero { padding: 24px 16px 28px; }
+      .hero-meta-badges { gap: 6px; margin-bottom: 12px; }
+      .badge-champion, .badge-meta { font-size: 9.5px; padding: 4px 8px; }
+      .hero-title { font-size: clamp(38px, 11.5vw, 52px); margin-bottom: 12px; }
+      .hero-sub { font-size: 14.5px; margin-bottom: 16px; }
+      .hero-ctas { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .hero-ctas .btn { width: 100%; padding: 10px 10px; font-size: 10.5px; white-space: normal; text-align: center; min-height: 42px; }
+      .hero-bootcamp-pill { width: 100%; margin-top: 14px; padding: 8px 10px; font-size: 10px; box-shadow: 3px 3px 0px var(--violet); }
+      .countdown-card { padding: 14px; box-shadow: 4px 4px 0px var(--lime); }
+      .cd-box { padding: 8px 3px; }
+      .cd-val { font-size: 28px; }
+      .hero-side-card { box-shadow: 4px 4px 0px var(--violet); margin-top: 12px; }
+      .hero-img-box { aspect-ratio: 16/9; }
+
+      /* Lighter crisp shadows on narrow phones */
+      .scoreboard-wrap, .bootcamp-form-box, .contact-form-box, .robot-stage-shell, .news-card, .comm-card, .minister-banner {
+        box-shadow: 4px 4px 0px var(--black);
+      }
+      .robot-stage-shell { box-shadow: 4px 4px 0px var(--lime); }
+      .contact-form-box { box-shadow: 4px 4px 0px var(--lime); }
+
+      /* Cleaner compact Team cards */
       .team-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-      .team-banner-art { height: 68px; padding: 8px 10px; }
-      .team-details { padding: 10px; }
-      .team-name { font-size: 19px; }
+      .team-banner-art { height: 54px; padding: 7px 9px; }
+      .team-num { font-size: 30px; }
+      .team-tag-pill { font-size: 8.5px; padding: 2px 5px; }
+      .team-details { padding: 10px; gap: 3px; }
+      .team-name { font-size: 18px; }
+      .team-badge-sub { display: none; }
+
+      /* Stats & Process Grids */
       .stats-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .stat-cell { min-height: 100px; padding: 14px 12px; }
+      .stat-cell { min-height: 92px; padding: 12px; }
       .stat-cell:nth-child(3n) { border-right: 1px solid #2b2b2b; }
       .stat-cell:nth-child(2n) { border-right: none; }
-      .win-gallery-grid, .gallery-masonry, .sessions-card-grid, .form-row-2, .timeline-stream { grid-template-columns: 1fr; }
-      .gallery-item.col-span-2 { grid-column: span 1; }
-      .gallery-item-img { height: auto; aspect-ratio: 16/10; }
+      .sessions-card-grid, .form-row-2 { grid-template-columns: 1fr; }
       .process-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .process-step:nth-child(3n) { border-right: 2px solid var(--white); }
       .process-step:nth-child(2n) { border-right: none; }
-      .minister-banner { flex-direction: column; align-items: flex-start; }
-      .hero-ctas .btn { width: 100%; }
-      .three-viewport { height: 320px; }
+
+      /* Mobile Horizontal Snap Carousels (cuts repetitive vertical card walls!) */
+      .mobile-swipe-hint { display: flex; }
+      .win-gallery-grid, .gallery-masonry, .timeline-stream {
+        display: grid;
+        grid-template-columns: none;
+        grid-auto-flow: column;
+        grid-auto-columns: 80%;
+        gap: 12px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-padding-left: 4px;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 10px;
+        scrollbar-width: none;
+      }
+      .win-gallery-grid::-webkit-scrollbar,
+      .gallery-masonry::-webkit-scrollbar,
+      .timeline-stream::-webkit-scrollbar { display: none; }
+      .win-photo-card, .gallery-item, .timeline-node { scroll-snap-align: start; }
+      .gallery-item.col-span-2 { grid-column: auto; }
+      .gallery-item-img { height: auto; aspect-ratio: 16/10; }
+
+      /* 3D Robot Tour Mobile Polish */
+      .three-viewport { height: 300px; }
       .robot-float-chip { font-size: 9.5px; padding: 4px 8px; bottom: 8px; left: 8px; }
-      .robot-drag-hint { font-size: 9px; padding: 4px 8px; }
-      .arena-viewport { aspect-ratio: 4/3; min-height: 310px; }
-      .arena-obj-banner { font-size: 9px; padding: 4px 9px; top: 8px; }
-      .drive-console-bar { justify-content: center; }
-      .arena-focus-hint { display: none; }
+      .robot-drag-hint { font-size: 8.5px; padding: 3px 7px; top: 8px; right: 8px; }
+      .robot-toolbar { padding: 10px 12px; gap: 8px; }
+      .robot-stops-pills {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        width: 100%;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+      }
+      .robot-stops-pills::-webkit-scrollbar { display: none; }
+      .robot-stops-pills .preset-btn { flex-shrink: 0; }
+      .robot-single-spec { padding: 14px; }
+      .robot-single-spec .btn { width: 100%; }
+
+      /* Scoreboard & Banners */
+      .scoreboard-header { padding: 10px 14px; }
+      .scoreboard-strip { padding: 10px 14px; gap: 6px; font-size: 10px; }
+      .minister-banner { flex-direction: column; align-items: flex-start; padding: 14px; }
+      .form-group label { white-space: normal; }
+      .gallery-filter-tabs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+      .gallery-filter-tabs::-webkit-scrollbar { display: none; }
+      .filter-btn { flex-shrink: 0; }
       .toast-popup { left: 16px; right: 16px; bottom: 16px; }
     }
   </style>
@@ -1564,13 +1684,13 @@
         </p>
 
         <div class="hero-ctas" data-grid-avoid>
-          <a href="#robot-tour" class="btn btn-lime">Inspect 3D Robot ➔</a>
-          <a href="#field" class="btn btn-white">Drive Virtual Arena ➔</a>
+          <a href="#robot-tour" class="btn btn-lime">3D Robot CAD ➔</a>
+          <a href="#field" class="btn btn-white">Drive Arena ➔</a>
         </div>
 
         <a href="#sessions" class="hero-bootcamp-pill" data-grid-avoid>
           <span class="free-chip">FREE VIRTUAL BOOTCAMP</span>
-          <span>4–9 DEC 2026 • 8–9 PM DAILY (UP TO 2 HRS) • ₹0 COST ➔</span>
+          <span>4–9 DEC • 8–9 PM DAILY (UP TO 2H) • ₹0 ➔</span>
         </a>
       </div>
 
@@ -1930,29 +2050,30 @@
       <b>Alliance Camaraderie:</b> Ranked 27th after qualifiers, ARGUS mounted a comeback into the playoffs with alliance partner <b>#263 Overclocked</b>, posting an event-high <b>106 points</b> and sweeping the finals <b>2-0</b>.
     </div>
 
+    <div class="mobile-swipe-hint"><span>WIN ARCHIVE (6 PHOTOS)</span><span>SWIPE →</span></div>
     <div class="win-gallery-grid">
       <div class="win-photo-card" onclick="openLightbox('assets/images/regional-win/win_photo_12.jpeg', 'ARGUS on stage with Winner Regionals banner and gold medals')">
-        <img src="assets/images/regional-win/win_photo_12.jpeg" alt="ARGUS on stage with Winner Regionals banner" class="win-photo-img" loading="lazy" decoding="async">
+        <img src="assets/images/regional-win/win_photo_12.jpeg" alt="ARGUS on stage with Winner Regionals banner" class="win-photo-img" decoding="async">
         <div class="win-photo-cap"><span>01 // Regional Champions</span><span style="color:var(--violet-dark);">Stage</span></div>
       </div>
       <div class="win-photo-card" onclick="openLightbox('assets/images/regional-win/win_photo_13.jpeg', 'Brand Builder Award celebration under confetti')">
-        <img src="assets/images/regional-win/win_photo_13.jpeg" alt="Brand Builder Award celebration" class="win-photo-img" loading="lazy" decoding="async">
+        <img src="assets/images/regional-win/win_photo_13.jpeg" alt="Brand Builder Award celebration" class="win-photo-img" decoding="async">
         <div class="win-photo-cap"><span>02 // Brand Builder</span><span style="color:var(--violet-dark);">Award</span></div>
       </div>
       <div class="win-photo-card" onclick="openLightbox('assets/images/regional-win/win_photo_00.jpeg', 'Team ARGUS holding robot #298 high in celebration')">
-        <img src="assets/images/regional-win/win_photo_00.jpeg" alt="Team holding champion robot" class="win-photo-img" loading="lazy" decoding="async">
+        <img src="assets/images/regional-win/win_photo_00.jpeg" alt="Team holding champion robot" class="win-photo-img" decoding="async">
         <div class="win-photo-cap"><span>03 // Victory Lift</span><span style="color:var(--violet-dark);">Team</span></div>
       </div>
       <div class="win-photo-card" onclick="openLightbox('assets/images/regional-win/win_photo_05.jpeg', 'Squad alliance 263 Overclocked + 298 ARGUS celebrating on the field')">
-        <img src="assets/images/regional-win/win_photo_05.jpeg" alt="Squad alliance Overclocked and ARGUS" class="win-photo-img" loading="lazy" decoding="async">
+        <img src="assets/images/regional-win/win_photo_05.jpeg" alt="Squad alliance Overclocked and ARGUS" class="win-photo-img" decoding="async">
         <div class="win-photo-cap"><span>04 // 263 + 298 Alliance</span><span style="color:var(--violet-dark);">Squad</span></div>
       </div>
       <div class="win-photo-card" onclick="openLightbox('assets/images/regional-win/win_photo_09.jpeg', 'Robot #298 scoring CORE in the arena')">
-        <img src="assets/images/regional-win/win_photo_09.jpeg" alt="Robot #298 scoring CORE" class="win-photo-img" loading="lazy" decoding="async">
+        <img src="assets/images/regional-win/win_photo_09.jpeg" alt="Robot #298 scoring CORE" class="win-photo-img" decoding="async">
         <div class="win-photo-cap"><span>05 // Arena Scoring</span><span style="color:var(--violet-dark);">Match</span></div>
       </div>
       <div class="win-photo-card" onclick="openLightbox('assets/images/regional-win/win_photo_08.jpeg', 'Thyagaraj Stadium arena floor during playoffs')">
-        <img src="assets/images/regional-win/win_photo_08.jpeg" alt="Thyagaraj Stadium arena floor" class="win-photo-img" loading="lazy" decoding="async">
+        <img src="assets/images/regional-win/win_photo_08.jpeg" alt="Thyagaraj Stadium arena floor" class="win-photo-img" decoding="async">
         <div class="win-photo-cap"><span>06 // Arena Overview</span><span style="color:var(--violet-dark);">Playoffs</span></div>
       </div>
     </div>
@@ -2010,6 +2131,7 @@
       <div class="process-step"><div class="process-step-num">06</div><div class="process-step-name">Improve</div></div>
     </div>
 
+    <div class="mobile-swipe-hint"><span>BUILD TIMELINE (OCT – DEC 2026)</span><span>SWIPE →</span></div>
     <div class="timeline-stream">
       <div class="timeline-node"><span class="timeline-date">12 OCT 2026</span><div class="timeline-title">Team Formed</div><p class="timeline-desc">Team named ARGUS and formed.</p></div>
       <div class="timeline-node"><span class="timeline-date">13 OCT 2026</span><div class="timeline-title">Build Kickoff</div><p class="timeline-desc">Roles assigned, build kicked off.</p></div>
@@ -2038,21 +2160,23 @@
     <div class="sec-hdr">
       <span class="sec-tag">07 // The Field — Drive ARGUS #298</span>
       <h2 class="d h2">Know the arena.<br><span style="color:var(--violet);">Drive our robot live.</span></h2>
-      <p class="m" style="color:#555;">HYPERDRIVE 2026 3D Simulator // Use WASD / Arrow Keys or Touch Controls below</p>
+      <p class="m" style="color:#555;">HYPERDRIVE 2026 3D Simulator // Desktop Keyboard Drive, Claw &amp; Match Arena</p>
     </div>
 
     <div class="arena-sim-shell" id="arenaSimShell">
       <!-- Live HEXA Telemetry HUD -->
       <div class="arena-hud-bar">
         <div class="hud-stats">
-          <div class="hud-chip">LINK: <b>ESP-NOW CH11</b></div>
+          <div class="hud-chip">LINK: <b>ESP-NOW</b></div>
           <div class="hud-chip">SPD: <b id="hudSpeedVal">0.0 m/s</b> (<span id="hudSpeedMode">FAST</span>)</div>
           <div class="hud-chip">HDG: <b id="hudHeading">000°</b></div>
           <div class="hud-chip">ELEV: <b id="hudElevVal">0 cm</b></div>
           <div class="hud-chip">ARM: <b id="hudArmPose">FLOOR</b></div>
           <div class="hud-chip">CLAW: <b id="hudClawState">OPEN (0°)</b></div>
+          <div class="hud-chip">MODE: <b id="hudMatchTimer">FREE DRIVE</b></div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <button type="button" class="hud-action-btn" id="btnMatchToggle" title="Start / Stop 2:30 NRL Match Timer (M)">▶ 2:30 MATCH</button>
           <button type="button" class="hud-action-btn" id="btnCamToggle" title="Cycle Camera View (V)">CAM: CHASE</button>
           <button type="button" class="hud-action-btn" id="btnArenaReset" title="Reset Robot & Match">RESET</button>
           <button type="button" class="hud-fs-btn" id="btnArenaFullscreen" title="Toggle Fullscreen (F)">⛶ FULLSCREEN</button>
@@ -2067,23 +2191,31 @@
           <span class="mv-mini-spin"></span>
           <span>LOADING 3D ARENA &amp; ROBOT...</span>
         </div>
-        <div class="arena-obj-banner" id="arenaObjBanner">READY: <b>WASD TO DRIVE • [R/G] ARM UP/DN • [O] CLAW • [C] GRAB/SCORE • [F] FULLSCREEN</b></div>
+        <div class="arena-obj-banner" id="arenaObjBanner">READY: <b>WASD TO DRIVE • [R/G] ARM • [O] CLAW • [C] GRAB/SCORE • [M] 2:30 MATCH</b></div>
         <div class="arena-score-pop" id="arenaScorePop">+25 PTS // HIGH POLE!</div>
         <div class="arena-focus-hint" id="arenaKeyHint">
-          <kbd data-k="f">W</kbd><kbd data-k="l">A</kbd><kbd data-k="b">S</kbd><kbd data-k="r">D</kbd> / ARROWS: DRIVE • <kbd>R</kbd>/<kbd>G</kbd> ARM UP/DN • <kbd>O</kbd> CLAW OPEN/CLOSE • <kbd>C</kbd> GRAB/SCORE • <kbd>SHIFT</kbd> SPEED • <kbd>V</kbd> CAM • <kbd>F</kbd> FULL
+          <kbd data-k="f">W</kbd><kbd data-k="l">A</kbd><kbd data-k="b">S</kbd><kbd data-k="r">D</kbd> DRIVE • <kbd>Q</kbd>/<kbd>E</kbd> 90° • <kbd>R</kbd>/<kbd>G</kbd> ARM • <kbd>O</kbd> CLAW • <kbd>C</kbd> GRAB/SCORE • <kbd>M</kbd> MATCH • <kbd>SHIFT</kbd> SPD • <kbd>V</kbd> CAM • <kbd>F</kbd> FULL
         </div>
       </div>
     </div>
 
-    <!-- Mobile / Small-Screen Non-Interactive Showcase Card (Driving Simulator is Desktop-Only) -->
+    <!-- Mobile / Touch-Device Non-Interactive Showcase Card (Driving Simulator is Desktop-Only) -->
     <div class="arena-mobile-card" aria-label="HYPERDRIVE 2026 Arena Overview">
-      <img src="assets/field-poster.jpg" alt="HYPERDRIVE 2026 Official Competition Arena" loading="lazy" decoding="async">
+      <div style="position:relative;">
+        <img src="assets/field-poster.jpg" alt="HYPERDRIVE 2026 Official Competition Arena" decoding="async">
+        <span class="arena-pc-badge" style="position:absolute;top:10px;left:10px;">PC / DESKTOP SIMULATOR</span>
+      </div>
       <div class="arena-mobile-card-body">
-        <span class="arena-pc-badge">PC / DESKTOP EXCLUSIVE SIMULATOR</span>
         <div class="d" style="font-size:28px;color:var(--white);line-height:0.95;">Drive ARGUS #298 on Desktop</div>
         <p style="font-size:13.5px;color:#d6d0e8;line-height:1.48;">
-          The interactive 3D HYPERDRIVE 2026 arena &amp; fullscreen keyboard simulator is available on laptop/desktop screens (≥ 920 px) for smooth WASD + Arm driving.
+          Open this site on a laptop or desktop for our full interactive 3D HYPERDRIVE arena: drive with <b>WASD</b>, articulate the 2-servo arm &amp; claw, stack COREs on high poles, and run a timed 2:30 match.
         </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:2px;">
+          <span class="hud-chip" style="font-size:10px;">4-WHEEL DRIVE</span>
+          <span class="hud-chip" style="font-size:10px;">ARTICULATED CLAW</span>
+          <span class="hud-chip" style="font-size:10px;">2:30 TELEOP SIM</span>
+        </div>
+        <a href="https://nrl.theinnovationstory.com/" target="_blank" rel="noopener noreferrer" class="btn btn-lime" style="margin-top:6px;width:100%;">Official NRL Website ↗</a>
       </div>
     </div>
 
@@ -2253,45 +2385,46 @@
       <button class="filter-btn" data-filter="lab">TEAM &amp; LAB</button>
     </div>
 
+    <div class="mobile-swipe-hint"><span>BUILD ARCHIVE</span><span>SWIPE →</span></div>
     <div class="gallery-masonry" id="galleryMasonry">
       <div class="gallery-item" data-cat="win" onclick="openLightbox('assets/images/regional-win/win_photo_14.jpeg', 'ARGUS Robot #298 flatlay with Brand Builder Trophy, 10 gold medals, and controller')">
-        <img src="assets/images/regional-win/win_photo_14.jpeg" alt="ARGUS Robot #298 flatlay with trophy and medals" class="gallery-item-img" loading="lazy" decoding="async">
+        <img src="assets/images/regional-win/win_photo_14.jpeg" alt="ARGUS Robot #298 flatlay with trophy and medals" class="gallery-item-img" decoding="async">
         <div class="gallery-item-cap"><span>Robot #298 + Medals</span><span style="color:var(--violet-dark);">Win</span></div>
       </div>
       <div class="gallery-item col-span-2" data-cat="win" onclick="openLightbox('assets/images/regional-win/win_photo_12.jpeg', 'Team ARGUS on stage with Winner Regionals banner')">
-        <img src="assets/images/regional-win/win_photo_12.jpeg" alt="Team ARGUS with Winner Regionals banner" class="gallery-item-img" loading="lazy" decoding="async">
+        <img src="assets/images/regional-win/win_photo_12.jpeg" alt="Team ARGUS with Winner Regionals banner" class="gallery-item-img" decoding="async">
         <div class="gallery-item-cap"><span>Regional Champions Award</span><span style="color:var(--violet-dark);">Thyagaraj</span></div>
       </div>
       <div class="gallery-item" data-cat="lab" onclick="openLightbox('assets/images/argus_team_lab.jpg', 'Team assembly session in the build room')">
-        <img src="assets/images/argus_team_lab.jpg" alt="Team working on assembly in the lab" class="gallery-item-img" loading="lazy" decoding="async">
+        <img src="assets/images/argus_team_lab.jpg" alt="Team working on assembly in the lab" class="gallery-item-img" decoding="async">
         <div class="gallery-item-cap"><span>Assembly Session</span><span style="color:var(--violet-dark);">Lab</span></div>
       </div>
       <div class="gallery-item" data-cat="cad" onclick="openLightbox('assets/images/argus_robot_clean.jpg', 'Competition Robot hardware top view')">
-        <img src="assets/images/argus_robot_clean.jpg" alt="Competition Robot hardware" class="gallery-item-img" loading="lazy" decoding="async">
+        <img src="assets/images/argus_robot_clean.jpg" alt="Competition Robot hardware" class="gallery-item-img" decoding="async">
         <div class="gallery-item-cap"><span>Robot Hardware</span><span style="color:var(--violet-dark);">Chassis</span></div>
       </div>
       <div class="gallery-item" data-cat="cad" onclick="openLightbox('assets/images/argus_robot_cad.jpg', 'Onshape 3D CAD model rendering')">
-        <img src="assets/images/argus_robot_cad.jpg" alt="Onshape 3D CAD model rendering" class="gallery-item-img" loading="lazy" decoding="async">
+        <img src="assets/images/argus_robot_cad.jpg" alt="Onshape 3D CAD model rendering" class="gallery-item-img" decoding="async">
         <div class="gallery-item-cap"><span>Onshape CAD</span><span style="color:var(--violet-dark);">CAD</span></div>
       </div>
       <div class="gallery-item" data-cat="lab" onclick="openLightbox('assets/images/argus_programming.jpg', 'Firmware compilation and calibration')">
-        <img src="assets/images/argus_programming.jpg" alt="Firmware compilation and calibration" class="gallery-item-img" loading="lazy" decoding="async">
+        <img src="assets/images/argus_programming.jpg" alt="Firmware compilation and calibration" class="gallery-item-img" decoding="async">
         <div class="gallery-item-cap"><span>OpMode Calibration</span><span style="color:var(--violet-dark);">Code</span></div>
       </div>
       <div class="gallery-item" data-cat="win" onclick="openLightbox('assets/images/regional-win/win_photo_03.jpeg', 'Drivers at arena barrier during finals')">
-        <img src="assets/images/regional-win/win_photo_03.jpeg" alt="Drivers at arena barrier" class="gallery-item-img" loading="lazy" decoding="async">
+        <img src="assets/images/regional-win/win_photo_03.jpeg" alt="Drivers at arena barrier" class="gallery-item-img" decoding="async">
         <div class="gallery-item-cap"><span>Match Drivers</span><span style="color:var(--violet-dark);">Finals</span></div>
       </div>
       <div class="gallery-item col-span-2" data-cat="win" onclick="openLightbox('assets/images/regional-win/win_photo_13.jpeg', 'Confetti celebration on awards podium')">
-        <img src="assets/images/regional-win/win_photo_13.jpeg" alt="Confetti celebration on podium" class="gallery-item-img" loading="lazy" decoding="async">
+        <img src="assets/images/regional-win/win_photo_13.jpeg" alt="Confetti celebration on podium" class="gallery-item-img" decoding="async">
         <div class="gallery-item-cap"><span>Podium Celebration</span><span style="color:var(--violet-dark);">Brand Builder</span></div>
       </div>
       <div class="gallery-item" data-cat="win" onclick="openLightbox('assets/images/regional-win/win_photo_09.jpeg', 'Robot #298 placing CORE on pole')">
-        <img src="assets/images/regional-win/win_photo_09.jpeg" alt="Robot #298 scoring on pole" class="gallery-item-img" loading="lazy" decoding="async">
+        <img src="assets/images/regional-win/win_photo_09.jpeg" alt="Robot #298 scoring on pole" class="gallery-item-img" decoding="async">
         <div class="gallery-item-cap"><span>Scoring TeleOp</span><span style="color:var(--violet-dark);">Field</span></div>
       </div>
       <div class="gallery-item" data-cat="win" onclick="openLightbox('assets/images/regional-win/win_photo_04.jpeg', 'Drivers coordinating during finals match')">
-        <img src="assets/images/regional-win/win_photo_04.jpeg" alt="ARGUS drivers coordinating" class="gallery-item-img" loading="lazy" decoding="async">
+        <img src="assets/images/regional-win/win_photo_04.jpeg" alt="ARGUS drivers coordinating" class="gallery-item-img" decoding="async">
         <div class="gallery-item-cap"><span>Driver Coordination</span><span style="color:var(--violet-dark);">Finals</span></div>
       </div>
     </div>
@@ -2555,6 +2688,11 @@
       at = { x: e.clientX - bounds.left, y: e.clientY - bounds.top };
       if (!pending) pending = requestAnimationFrame(paint);
     }, { passive: true });
+    el.parentElement?.addEventListener('pointerdown', (e) => {
+      const bounds = el.getBoundingClientRect();
+      at = { x: e.clientX - bounds.left, y: e.clientY - bounds.top };
+      paint();
+    }, { passive: true });
 
     let visible = true;
     function drift() {
@@ -2652,14 +2790,14 @@
   setInterval(updateCountdown, 1000);
   updateCountdown();
 
-  // 3. Reveal Observer
+  // 3. Reveal Observer (pre-triggers smoothly 120px ahead so fast mobile scrolls never flicker gray)
   const revealEls = document.querySelectorAll('.reveal');
   if ('IntersectionObserver' in window) {
     const revObs = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) { entry.target.classList.add('in-view'); revObs.unobserve(entry.target); }
       });
-    }, { threshold: 0.02, rootMargin: '0px 0px -10px 0px' });
+    }, { threshold: 0, rootMargin: '120px 0px 120px 0px' });
     revealEls.forEach(el => revObs.observe(el));
   } else revealEls.forEach(el => el.classList.add('in-view'));
 
@@ -3090,14 +3228,18 @@
       new IntersectionObserver(entries => { isVisible = entries[0].isIntersecting; }, { threshold: 0.05 }).observe(wrap);
     }
 
-    window.addEventListener('resize', () => {
-      if (!wrap.clientWidth) return;
+    function syncRobotViewportSize() {
+      if (!wrap.clientWidth || !wrap.clientHeight) return;
       const asp = wrap.clientWidth / wrap.clientHeight;
-      camera.fov = asp < 1.25 ? 42 : 32;
+      camera.fov = asp < 1.15 ? 44 : 32;
       camera.aspect = asp;
       camera.updateProjectionMatrix();
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       renderer.setSize(wrap.clientWidth, wrap.clientHeight);
-    });
+    }
+    if ('ResizeObserver' in window) new ResizeObserver(syncRobotViewportSize).observe(wrap);
+    window.addEventListener('resize', syncRobotViewportSize);
+    window.visualViewport?.addEventListener('resize', syncRobotViewportSize);
 
     function updateCalloutOverlay(now) {
       if (!svg || !robotRoot || !wrap.clientWidth) return;
@@ -3110,12 +3252,12 @@
       anchorWorld.copy(anchorLocal);
       const proj = anchorWorld.project(camera);
       const w = wrap.clientWidth, h = wrap.clientHeight;
-      const sx = Math.max(40, Math.min(w - 30, (proj.x * 0.5 + 0.5) * w));
-      const sy = Math.max(30, Math.min(h - 30, (-proj.y * 0.5 + 0.5) * h));
+      const sx = Math.max(36, Math.min(w - 28, (proj.x * 0.5 + 0.5) * w));
+      const sy = Math.max(28, Math.min(h - 46, (-proj.y * 0.5 + 0.5) * h));
 
-      const chipW = floatChip ? floatChip.offsetWidth : 160;
-      const startX = Math.min(w * 0.42, 16 + chipW + 10);
-      const startY = h - 28;
+      const chipW = floatChip ? floatChip.offsetWidth : 140;
+      const startX = Math.min(w * 0.48, 14 + chipW + 8);
+      const startY = h - 22;
       const midX = (startX + sx) * 0.5 - 24;
       const midY = Math.min(startY, sy) - Math.max(36, Math.abs(sx - startX) * 0.16);
       const d = `M ${startX.toFixed(1)} ${startY.toFixed(1)} Q ${midX.toFixed(1)} ${midY.toFixed(1)} ${sx.toFixed(1)} ${sy.toFixed(1)}`;
@@ -3165,10 +3307,11 @@
     const fsHudBtn = document.getElementById('btnArenaFullscreen');
     if (!wrap || !shell) return;
 
-    // Desktop-only simulator guard (Mobile shows clean non-interactive showcase card)
-    if (window.innerWidth <= 920) {
+    // Desktop/Laptop simulator guard (keeps working at 125%-175% laptop zoom; mobile/touch shows showcase card)
+    const isPhoneOrCoarse = () => window.matchMedia('(max-width: 767px), (max-width: 940px) and (pointer: coarse)').matches;
+    if (isPhoneOrCoarse()) {
       const onWiden = () => {
-        if (window.innerWidth > 920) {
+        if (!isPhoneOrCoarse()) {
           window.removeEventListener('resize', onWiden);
           initArenaSimulator();
         }
@@ -3312,6 +3455,13 @@
     let carriedCore = null;
     let score = 0;
     let levelUpAwarded = false;
+    let matchActive = false;
+    let matchRemaining = 150.0;
+    let lastScoreTime = 0;
+    let comboStreak = 0;
+    let dropZoneCount = 0;
+    let scoredHolders = [];
+    const poleObstacles = [];
     let camMode = 0; // 0: Chase, 1: Orbit, 2: Top, 3: Driver POV
     let fastMode = true;
     let armIndex = 0;
@@ -3535,23 +3685,32 @@
         }
 
         if (!isObst && h < 0.46) walkableMeshes.push(child);
-        if ((nm.includes('vert pole') || nm.includes('100mm pole')) && poleTargets.length < 6) {
+        if ((nm.includes('pole') && !nm.includes('insert')) && h > 0.14) {
           const pc = new THREE.Vector3();
           mb.getCenter(pc);
-          poleTargets.push({ x: pc.x, z: pc.z });
+          if (!poleObstacles.some(p => Math.hypot(p.x - pc.x, p.z - pc.z) < 0.16)) {
+            poleObstacles.push({ x: pc.x, z: pc.z, r: 0.24 });
+          }
+          if ((nm.includes('vert pole') || nm.includes('100mm pole') || nm.includes('122mm')) && poleTargets.length < 6 && !poleTargets.some(p => Math.hypot(p.x - pc.x, p.z - pc.z) < 0.16)) {
+            poleTargets.push({ x: pc.x, z: pc.z, topY: mb.max.y, stack: 0 });
+          }
         }
       });
       if (!walkableMeshes.length) walkableMeshes.push(field);
 
       buildArenaStage(box, c, s, floorY);
 
-      const targetCoords = poleTargets.length ? poleTargets.slice(0, 4) : [
-        { x: c.x - 0.6, z: c.z + 1.1 }, { x: c.x + 0.6, z: c.z - 1.1 }
-      ];
-      targetCoords.forEach(pt => {
+      if (!poleTargets.length) {
+        poleTargets.push(
+          { x: c.x - 0.6, z: c.z + 1.1, topY: floorY + 0.35, stack: 0 },
+          { x: c.x + 0.6, z: c.z - 1.1, topY: floorY + 0.35, stack: 0 }
+        );
+      }
+      poleTargets.slice(0, 6).forEach(pt => {
         const pRing = new THREE.Mesh(new THREE.RingGeometry(0.13, 0.16, 28), poleBeaconMat);
         pRing.rotation.x = -Math.PI / 2;
         pRing.position.set(pt.x, floorY + 0.008, pt.z);
+        pt.beaconRing = pRing;
         poleBeaconGroup.add(pRing);
       });
       poleBeaconGroup.visible = false;
@@ -3614,6 +3773,64 @@
       const va = new THREE.Vector3(), vb = new THREE.Vector3(), vc = new THREE.Vector3();
       const na = new THREE.Vector3();
 
+      // Detect exact 4 wheel axle bounds dynamically from decoded Opaque(76,76,76) tire triangles
+      const wheelBoxes = [
+        { side: 'L', minX: 9, maxX: -9, minY: 9, maxY: -9, minZ: 9, maxZ: -9, hits: 0 }, // FL
+        { side: 'R', minX: 9, maxX: -9, minY: 9, maxY: -9, minZ: 9, maxZ: -9, hits: 0 }, // FR
+        { side: 'L', minX: 9, maxX: -9, minY: 9, maxY: -9, minZ: 9, maxZ: -9, hits: 0 }, // BL
+        { side: 'R', minX: 9, maxX: -9, minY: 9, maxY: -9, minZ: 9, maxZ: -9, hits: 0 }  // BR
+      ];
+      for (const mesh of srcMeshes) {
+        const g0 = mesh.geometry.index ? mesh.geometry.toNonIndexed() : mesh.geometry;
+        const p0 = g0.getAttribute('position');
+        if (!p0) continue;
+        const m0 = new THREE.Matrix4().multiplyMatrices(invRoot, mesh.matrixWorld);
+        const grps0 = (g0.groups && g0.groups.length) ? g0.groups : [{ start: 0, count: p0.count, materialIndex: 0 }];
+        const mats0 = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+        for (const grp of grps0) {
+          const mn0 = (mats0[grp.materialIndex || 0]?.name || '');
+          if (mn0 !== 'Opaque(76,76,76)') continue;
+          const end0 = Math.min(p0.count, grp.start + grp.count);
+          for (let i = grp.start; i + 2 < end0; i += 3) {
+            va.fromBufferAttribute(p0, i).applyMatrix4(m0);
+            vb.fromBufferAttribute(p0, i + 1).applyMatrix4(m0);
+            vc.fromBufferAttribute(p0, i + 2).applyMatrix4(m0);
+            const cx = (va.x + vb.x + vc.x) / 3, cy = (va.y + vb.y + vc.y) / 3, cz = (va.z + vb.z + vc.z) / 3;
+            if (cy > 0.011 || (cx > 0.013 && cx < 0.028)) continue;
+            const wi = (cz < -0.0155 ? 0 : 2) + (cx < 0.0206 ? 0 : 1);
+            const wb = wheelBoxes[wi];
+            [va, vb, vc].forEach(v => {
+              wb.minX = Math.min(wb.minX, v.x); wb.maxX = Math.max(wb.maxX, v.x);
+              wb.minY = Math.min(wb.minY, v.y); wb.maxY = Math.max(wb.maxY, v.y);
+              wb.minZ = Math.min(wb.minZ, v.z); wb.maxZ = Math.max(wb.maxZ, v.z);
+            });
+            wb.hits++;
+          }
+        }
+      }
+      const wheels = [];
+      wheelBoxes.forEach((wb, wi) => {
+        if (wb.hits < 6) return;
+        const ax = (wb.minX + wb.maxX) * 0.5;
+        const ay = (wb.minY + wb.maxY) * 0.5;
+        const az = (wb.minZ + wb.maxZ) * 0.5;
+        const rad = Math.max(0.003, (wb.maxY - wb.minY) * 0.5);
+        const wp = new THREE.Group();
+        wp.position.set(ax, ay, az);
+        wp.name = `argusWheel_${wi}`;
+        gltfScene.add(wp);
+        pivots.push(new THREE.Vector3(ax, ay, az));
+        bucketParents.push(wp);
+        wheels.push({
+          pivot: wp,
+          side: wb.side,
+          radius: rad,
+          minX: wb.minX - 0.0004, maxX: wb.maxX + 0.0004,
+          ay, az, r2: (rad * 1.03) * (rad * 1.03)
+        });
+      });
+
+      const bTotal = bucketParents.length;
       for (const mesh of srcMeshes) {
         const g = mesh.geometry.index ? mesh.geometry.toNonIndexed() : mesh.geometry.clone();
         mat4.multiplyMatrices(invRoot, mesh.matrixWorld);
@@ -3626,13 +3843,16 @@
         if (!pos) continue;
 
         const groups = (g.groups && g.groups.length) ? g.groups : [{ start: 0, count: pos.count, materialIndex: 0 }];
-        const bPos = [[], [], [], [], []];
-        const bNor = [[], [], [], [], []];
-        const bUv = [[], [], [], [], []];
-        const bGroups = [[], [], [], [], []];
+        const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+        const bPos = Array.from({ length: bTotal }, () => []);
+        const bNor = Array.from({ length: bTotal }, () => []);
+        const bUv = Array.from({ length: bTotal }, () => []);
+        const bGroups = Array.from({ length: bTotal }, () => []);
 
         for (const grp of groups) {
-          const gStarts = [bPos[0].length / 3, bPos[1].length / 3, bPos[2].length / 3, bPos[3].length / 3, bPos[4].length / 3];
+          const matName = mats[grp.materialIndex || 0]?.name || '';
+          const isWheelMat = matName === 'Opaque(76,76,76)' || matName === 'Opaque(255,255,255)' || matName === 'Opaque(230,230,230)' || matName === 'Opaque(228,227,207)';
+          const gStarts = bPos.map(arr => arr.length / 3);
           const end = Math.min(pos.count, grp.start + grp.count);
           for (let i = grp.start; i + 2 < end; i += 3) {
             va.fromBufferAttribute(pos, i);
@@ -3647,6 +3867,14 @@
               if (cz >= -0.0244) bIdx = 1;
               else if (cz >= -0.0274) bIdx = 2;
               else bIdx = (cx <= 0.0206) ? 3 : 4;
+            } else if (isWheelMat && wheels.length) {
+              for (let w = 0; w < wheels.length; w++) {
+                const wl = wheels[w];
+                if (cx >= wl.minX && cx <= wl.maxX) {
+                  const dy = cy - wl.ay, dz = cz - wl.az;
+                  if (dy * dy + dz * dz <= wl.r2) { bIdx = 5 + w; break; }
+                }
+              }
             }
 
             const piv = pivots[bIdx];
@@ -3665,14 +3893,14 @@
               for (let k = 0; k < 3; k++) bUv[bIdx].push(uv.getX(i + k), uv.getY(i + k));
             }
           }
-          for (let b = 0; b < 5; b++) {
+          for (let b = 0; b < bTotal; b++) {
             const added = bPos[b].length / 3 - gStarts[b];
             if (added > 0) bGroups[b].push({ start: gStarts[b], count: added, materialIndex: grp.materialIndex || 0 });
           }
         }
 
         if (mesh.parent) mesh.parent.remove(mesh);
-        for (let b = 0; b < 5; b++) {
+        for (let b = 0; b < bTotal; b++) {
           if (!bPos[b].length) continue;
           const bg = new THREE.BufferGeometry();
           bg.setAttribute('position', new THREE.Float32BufferAttribute(bPos[b], 3));
@@ -3689,7 +3917,7 @@
       }
 
       gltfScene.add(armPivot);
-      return { armPivot, wristPivot, leftJawPivot, rightJawPivot, clawCarrySlot };
+      return { armPivot, wristPivot, leftJawPivot, rightJawPivot, clawCarrySlot, wheels };
     }
 
     // Load ARGUS Robot #298 — Articulated Arm & Claw, Crystal Acrylic, Cream 5-Spoke Wheels, Matte Black Tires, Red Shrouds & 298 Rear Badge!
@@ -3833,10 +4061,65 @@
     }
 
     function canDriveWithKeyboard() {
-      if (window.innerWidth <= 920) return false;
+      if (isPhoneOrCoarse()) return false;
       const ae = document.activeElement;
       if (ae && /^(INPUT|TEXTAREA|SELECT)$/i.test(ae.tagName)) return false;
       return isVisible || shell.classList.contains('is-pseudo-fs') || document.fullscreenElement === shell;
+    }
+
+    function updateMatchHud() {
+      const mEl = document.getElementById('hudMatchTimer');
+      const btn = document.getElementById('btnMatchToggle');
+      if (mEl) {
+        if (!matchActive) {
+          mEl.textContent = 'FREE DRIVE';
+          mEl.style.color = '';
+        } else {
+          const sec = Math.max(0, Math.ceil(matchRemaining));
+          const mm = String(Math.floor(sec / 60)).padStart(2, '0');
+          const ss = String(sec % 60).padStart(2, '0');
+          mEl.textContent = `${mm}:${ss}`;
+          mEl.style.color = sec <= 30 ? '#facc15' : '#C6FF33';
+        }
+      }
+      if (btn) btn.textContent = matchActive ? '■ END MATCH' : '▶ 2:30 MATCH';
+    }
+
+    function resetArenaState(startTimed = false) {
+      bot.x = fieldCenter.x;
+      bot.z = fieldCenter.z + 1.15;
+      bot.y = floorY;
+      bot.yaw = Math.PI;
+      bot.v = 0; bot.w = 0; bot.snapTargetYaw = null;
+      score = 0; carriedCore = null; levelUpAwarded = false;
+      comboStreak = 0; lastScoreTime = 0; dropZoneCount = 0;
+      scoredHolders.forEach(h => scene.remove(h));
+      scoredHolders = [];
+      poleTargets.forEach(pt => { pt.stack = 0; });
+      dropZoneGroup.visible = false; poleBeaconGroup.visible = false;
+      armIndex = 0;
+      clawIsOpen = true;
+      matchActive = Boolean(startTimed);
+      matchRemaining = 150.0;
+      document.getElementById('hudArmPose').textContent = 'FLOOR';
+      document.getElementById('hudScore').textContent = 'SCORE: 0';
+      document.getElementById('hudClawState').textContent = 'OPEN (0°)';
+      if (statusLedMat) statusLedMat.color.setHex(0x7D39EB);
+      updateMatchHud();
+      spawnCores();
+    }
+
+    function toggleMatch() {
+      if (matchActive) {
+        matchActive = false;
+        updateMatchHud();
+        triggerScorePop(`MATCH ENDED // ${score} PTS`);
+        showToast(`Free Drive resumed. Match score: ${score} pts!`);
+      } else {
+        resetArenaState(true);
+        triggerScorePop('2:30 TELEOP GO!');
+        showToast('HYPERDRIVE 2:30 Match Started! Grab COREs [C], stack on High Poles (+30), climb Ramp (+30)!');
+      }
     }
 
     function toggleClaw() {
@@ -3858,6 +4141,7 @@
       else if (e.code === 'KeyR') { e.preventDefault(); stepArm(1); }
       else if (e.code === 'KeyG') { e.preventDefault(); stepArm(-1); }
       else if (e.code === 'KeyO') { e.preventDefault(); toggleClaw(); }
+      else if (e.code === 'KeyM') { e.preventDefault(); toggleMatch(); }
       else if (e.code === 'KeyC' || e.code === 'Enter') { e.preventDefault(); handleCoreAction(); }
       else if (e.code === 'KeyF') { e.preventDefault(); toggleFullscreen(); }
       else if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') { toggleSpeed(); }
@@ -3878,7 +4162,7 @@
       if (!robotPivot) return;
       const clawEl = document.getElementById('hudClawState');
       if (!carriedCore) {
-        let best = null, bestDist = 0.65;
+        let best = null, bestDist = 0.72;
         for (const c of cores) {
           if (!c.active) continue;
           const d = Math.hypot(c.holder.position.x - bot.x, c.holder.position.z - bot.z);
@@ -3902,29 +4186,61 @@
           dropZoneGroup.visible = true;
           poleBeaconGroup.visible = true;
           triggerScorePop(best.isPayload ? 'PAYLOAD GRABBED!' : 'CORE GRABBED!');
-          showToast('Gripped (105°)! Raise arm [R] & deliver to a High Pole (+30) or Lime Drop Zone (+15).');
+          showToast('Gripped (105°)! Raise arm [R] & score on a Violet Pole (+30) or Lime Drop Zone (+15).');
         } else {
           toggleClaw();
         }
       } else {
-        let nearestPole = 99;
-        for (const pt of poleBeaconGroup.children) {
-          nearestPole = Math.min(nearestPole, Math.hypot(bot.x - pt.position.x, bot.z - pt.position.z));
+        let nearestPt = null, nearestPoleDist = 99;
+        for (const pt of poleTargets) {
+          const pd = Math.hypot(bot.x - pt.x, bot.z - pt.z);
+          if (pd < nearestPoleDist) { nearestPoleDist = pd; nearestPt = pt; }
         }
         const distDrop = Math.hypot(bot.x - dropZoneGroup.position.x, bot.z - dropZoneGroup.position.z);
         let pts = 10;
         let zoneLabel = '+10 PTS // FIELD DROP';
-        if (nearestPole < 0.72) {
-          pts = (armIndex >= 2) ? 30 : 25;
-          zoneLabel = `+${pts} PTS // HIGH POLE!`;
-        } else if (distDrop < 0.75) {
-          pts = carriedCore.isPayload ? 20 : 15;
-          zoneLabel = `+${pts} PTS // ${carriedCore.isPayload ? 'PAYLOAD SCORED!' : 'DROP ZONE!'}`;
-        }
-        score += pts;
-        document.getElementById('hudScore').textContent = `SCORE: ${score}`;
         scene.add(carriedCore.holder);
-        carriedCore.holder.position.set(bot.x + Math.sin(bot.yaw) * 0.34, bot.y + 0.01, bot.z + Math.cos(bot.yaw) * 0.34);
+
+        if (nearestPt && nearestPoleDist < 0.78) {
+          const stk = Math.min(4, nearestPt.stack || 0);
+          nearestPt.stack = stk + 1;
+          const isHigh = armIndex >= 2;
+          pts = isHigh ? 30 : 20;
+          const targetY = isHigh ? (floorY + 0.14 + stk * 0.042) : (floorY + 0.03 + stk * 0.042);
+          carriedCore.holder.position.set(nearestPt.x, targetY, nearestPt.z);
+          zoneLabel = isHigh ? `+${pts} PTS // HIGH POLE STACK #${nearestPt.stack}!` : `+${pts} PTS // POLE (RAISE [R] FOR +30)`;
+          scoredHolders.push(carriedCore.holder);
+        } else if (distDrop < 0.80) {
+          const gx = ((dropZoneCount % 2) - 0.5) * 0.16;
+          const gz = (Math.floor(dropZoneCount / 2) - 0.5) * 0.16;
+          dropZoneCount++;
+          pts = carriedCore.isPayload ? 25 : 15;
+          carriedCore.holder.position.set(dropZoneGroup.position.x + gx, floorY + 0.01, dropZoneGroup.position.z + gz);
+          zoneLabel = `+${pts} PTS // ${carriedCore.isPayload ? 'PAYLOAD ZONE!' : 'DROP ZONE!'}`;
+          scoredHolders.push(carriedCore.holder);
+        } else {
+          carriedCore.holder.position.set(bot.x + Math.sin(bot.yaw) * 0.34, bot.y + 0.01, bot.z + Math.cos(bot.yaw) * 0.34);
+          carriedCore.active = true;
+          carriedCore.subRing.visible = true;
+          pts = 0;
+          zoneLabel = 'RELEASED ON FLOOR';
+        }
+
+        if (pts > 0) {
+          const tNow = performance.now();
+          if (lastScoreTime && (tNow - lastScoreTime) < 11000) {
+            comboStreak++;
+            const bonus = Math.min(15, comboStreak * 5);
+            pts += bonus;
+            zoneLabel += ` (+${bonus} STREAK)`;
+          } else {
+            comboStreak = 0;
+          }
+          lastScoreTime = tNow;
+          score += pts;
+          document.getElementById('hudScore').textContent = `SCORE: ${score}`;
+        }
+
         carriedCore = null;
         clawIsOpen = true;
         dropZoneGroup.visible = false;
@@ -3932,8 +4248,8 @@
         if (clawEl) clawEl.textContent = 'OPEN (0°)';
         if (statusLedMat) statusLedMat.color.setHex(0x7D39EB);
         triggerScorePop(zoneLabel);
-        showToast(`${zoneLabel} Total Score: ${score}`);
-        if (cores.every(c => !c.active)) setTimeout(spawnCores, 1400);
+        showToast(pts > 0 ? `${zoneLabel} — Total Score: ${score}` : 'Released CORE — drive within 0.75m of a Pole or Drop Zone to score!');
+        if (cores.every(c => !c.active)) setTimeout(spawnCores, 1200);
       }
     }
 
@@ -3958,31 +4274,18 @@
       }
     }
 
+    const matchBtnEl = document.getElementById('btnMatchToggle');
+    if (matchBtnEl) matchBtnEl.addEventListener('click', (e) => { e.currentTarget.blur(); toggleMatch(); });
     const camBtnEl = document.getElementById('btnCamToggle');
     if (camBtnEl) camBtnEl.addEventListener('click', (e) => { e.currentTarget.blur(); toggleCam(); });
     const resetBtnEl = document.getElementById('btnArenaReset');
-    if (resetBtnEl) resetBtnEl.addEventListener('click', (e) => {
-      e.currentTarget.blur();
-      bot.x = fieldCenter.x;
-      bot.z = fieldCenter.z + 1.15;
-      bot.y = floorY;
-      bot.yaw = Math.PI;
-      bot.v = 0; bot.w = 0; bot.snapTargetYaw = null;
-      score = 0; carriedCore = null; levelUpAwarded = false;
-      dropZoneGroup.visible = false; poleBeaconGroup.visible = false;
-      armIndex = 0;
-      clawIsOpen = true;
-      document.getElementById('hudArmPose').textContent = 'FLOOR';
-      document.getElementById('hudScore').textContent = 'SCORE: 0';
-      document.getElementById('hudClawState').textContent = 'OPEN (0°)';
-      if (statusLedMat) statusLedMat.color.setHex(0x7D39EB);
-      spawnCores();
-    });
+    if (resetBtnEl) resetBtnEl.addEventListener('click', (e) => { e.currentTarget.blur(); resetArenaState(false); });
 
     function handleResize() {
       if (!wrap.clientWidth || !wrap.clientHeight) return;
       camera.aspect = wrap.clientWidth / wrap.clientHeight;
       camera.updateProjectionMatrix();
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       renderer.setSize(wrap.clientWidth, wrap.clientHeight);
     }
 
@@ -3990,7 +4293,8 @@
       new IntersectionObserver(entries => { isVisible = entries[0].isIntersecting; }, { threshold: 0.05 }).observe(wrap);
     }
     if ('ResizeObserver' in window) new ResizeObserver(handleResize).observe(wrap);
-    else window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize);
+    window.visualViewport?.addEventListener('resize', handleResize);
 
     let lastTime = performance.now();
     const hdgEl = document.getElementById('hudHeading');
@@ -4003,24 +4307,56 @@
       const dt = Math.min(0.05, (now - lastTime) / 1000);
       lastTime = now;
 
-      const maxV = fastMode ? 2.15 : 0.92;
-      const maxW = fastMode ? 3.35 : 1.75;
+      if (matchActive) {
+        matchRemaining -= dt;
+        if (matchRemaining <= 0) {
+          matchRemaining = 0;
+          matchActive = false;
+          triggerScorePop(`TIME UP // ${score} PTS!`);
+          showToast(`BUZZER! 2:30 Match Complete — Final Score: ${score} PTS!`);
+        }
+        updateMatchHud();
+      }
+
+      const maxV = fastMode ? 2.45 : 0.98;
+      const maxW = fastMode ? 3.55 : 1.85;
       const targetV = (keys.f ? 1 : 0) - (keys.b ? 1 : 0);
       const targetW = (keys.l ? 1 : 0) - (keys.r ? 1 : 0);
 
+      // Crisp braking & high-torque launch curve
       bot.prevV = bot.v;
-      bot.v += (targetV * maxV - bot.v) * Math.min(1, dt * 12);
+      const desiredV = targetV * maxV;
+      const reversing = targetV !== 0 && bot.v !== 0 && Math.sign(targetV) !== Math.sign(bot.v);
+      const vLerp = Math.min(1, dt * (reversing ? 24 : targetV === 0 ? 15 : 16));
+      bot.v += (desiredV - bot.v) * vLerp;
+      if (Math.abs(bot.v) < 0.01 && targetV === 0) bot.v = 0;
+
       if (bot.snapTargetYaw !== null) {
         const diff = bot.snapTargetYaw - bot.yaw;
-        if (Math.abs(diff) < 0.04) { bot.yaw = bot.snapTargetYaw; bot.snapTargetYaw = null; }
-        else bot.yaw += diff * Math.min(1, dt * 10);
+        if (Math.abs(diff) < 0.03) { bot.yaw = bot.snapTargetYaw; bot.snapTargetYaw = null; }
+        else bot.yaw += diff * Math.min(1, dt * 11);
       } else {
-        bot.w += (targetW * maxW - bot.w) * Math.min(1, dt * 14);
+        bot.w += (targetW * maxW - bot.w) * Math.min(1, dt * (targetW === 0 ? 18 : 16));
         bot.yaw += bot.w * dt;
       }
 
-      bot.x = Math.max(fieldBounds.minX, Math.min(fieldBounds.maxX, bot.x + Math.sin(bot.yaw) * bot.v * dt));
-      bot.z = Math.max(fieldBounds.minZ, Math.min(fieldBounds.maxZ, bot.z + Math.cos(bot.yaw) * bot.v * dt));
+      let nextX = Math.max(fieldBounds.minX, Math.min(fieldBounds.maxX, bot.x + Math.sin(bot.yaw) * bot.v * dt));
+      let nextZ = Math.max(fieldBounds.minZ, Math.min(fieldBounds.maxZ, bot.z + Math.cos(bot.yaw) * bot.v * dt));
+
+      // Solid pole collider resolution (smooth tangential sliding along vertical poles!)
+      for (const obs of poleObstacles) {
+        const dx = nextX - obs.x;
+        const dz = nextZ - obs.z;
+        const dist = Math.hypot(dx, dz);
+        const minDist = obs.r + 0.14;
+        if (dist > 0.001 && dist < minDist) {
+          nextX = obs.x + (dx / dist) * minDist;
+          nextZ = obs.z + (dz / dist) * minDist;
+          bot.v *= 0.85;
+        }
+      }
+      bot.x = Math.max(fieldBounds.minX, Math.min(fieldBounds.maxX, nextX));
+      bot.z = Math.max(fieldBounds.minZ, Math.min(fieldBounds.maxZ, nextZ));
 
       const gY = sampleGroundY(bot.x, bot.z);
       const fY = sampleGroundY(bot.x + Math.sin(bot.yaw) * 0.16, bot.z + Math.cos(bot.yaw) * 0.16);
@@ -4030,10 +4366,10 @@
       bot.slopePitch += (rawSlope - bot.slopePitch) * Math.min(1, dt * 10);
 
       const accel = (bot.v - bot.prevV) / Math.max(dt, 0.008);
-      bot.pitch += (Math.max(-0.08, Math.min(0.08, accel * 0.008)) - bot.pitch) * Math.min(1, dt * 10);
-      bot.roll += (Math.max(-0.06, Math.min(0.06, -bot.w * bot.v * 0.015)) - bot.roll) * Math.min(1, dt * 10);
-      armCurY += (armHeights[armIndex] - armCurY) * Math.min(1, dt * 10);
-      armCurAngle += (armAngles[armIndex] - armCurAngle) * Math.min(1, dt * 10);
+      bot.pitch += (Math.max(-0.08, Math.min(0.08, accel * 0.007)) - bot.pitch) * Math.min(1, dt * 10);
+      bot.roll += (Math.max(-0.06, Math.min(0.06, -bot.w * bot.v * 0.014)) - bot.roll) * Math.min(1, dt * 10);
+      armCurY += (armHeights[armIndex] - armCurY) * Math.min(1, dt * 11);
+      armCurAngle += (armAngles[armIndex] - armCurAngle) * Math.min(1, dt * 11);
       const targetJaw = clawIsOpen ? 0.56 : -0.05;
       jawCurAngle += (targetJaw - jawCurAngle) * Math.min(1, dt * 14);
       if (armRig) {
@@ -4041,6 +4377,16 @@
         armRig.wristPivot.rotation.x = -armCurAngle;
         armRig.leftJawPivot.rotation.y = jawCurAngle;
         armRig.rightJawPivot.rotation.y = -jawCurAngle;
+        // Spin all 4 physical 5-spoke wheels & tires matching tank differential drive!
+        if (armRig.wheels && armRig.wheels.length) {
+          const halfTrack = 0.17;
+          const vL = bot.v - bot.w * halfTrack;
+          const vR = bot.v + bot.w * halfTrack;
+          for (const wl of armRig.wheels) {
+            const vSide = wl.side === 'L' ? vL : vR;
+            wl.pivot.rotation.x -= (vSide * dt) / 0.055;
+          }
+        }
       }
       if (carriedCore && (!armRig || !armRig.clawCarrySlot)) carriedCore.holder.position.y = armCurY;
 
@@ -4066,17 +4412,30 @@
       for (const c of cores) {
         if (!c.active) continue;
         const d = Math.hypot(c.holder.position.x - bot.x, c.holder.position.z - bot.z);
-        c.subRing.material.opacity = d < 0.65 ? (0.55 + Math.sin(now * 0.008) * 0.25) : 0.28;
+        c.subRing.material.opacity = d < 0.72 ? (0.55 + Math.sin(now * 0.008) * 0.25) : 0.28;
         minCoreDist = Math.min(minCoreDist, d);
       }
+      let minPoleDist = 99;
+      for (const pt of poleTargets) minPoleDist = Math.min(minPoleDist, Math.hypot(bot.x - pt.x, bot.z - pt.z));
+      const dropDist = Math.hypot(bot.x - dropZoneGroup.position.x, bot.z - dropZoneGroup.position.z);
 
       if (objBanner) {
         if (carriedCore) {
-          objBanner.innerHTML = 'CORE GRIPPED: <b>DRIVE TO VIOLET POLE (+30) OR LIME CORNER DROP (+15)</b> &amp; PRESS <b>[C]</b>';
-        } else if (minCoreDist < 0.65) {
+          if (minPoleDist < 0.78) {
+            objBanner.innerHTML = armIndex >= 2
+              ? 'AT HIGH POLE! PRESS <b>[C]</b> NOW FOR <b>+30 PTS STACK</b>'
+              : 'AT POLE! PRESS <b>[R]</b> TO LIFT HIGH ARM, THEN <b>[C]</b> (+30 PTS)';
+          } else if (dropDist < 0.80) {
+            objBanner.innerHTML = 'IN LIME DROP ZONE! PRESS <b>[C]</b> TO SCORE';
+          } else {
+            objBanner.innerHTML = 'CORE GRIPPED: <b>DRIVE TO VIOLET POLE (+30) OR LIME DROP (+15)</b>';
+          }
+        } else if (minCoreDist < 0.72) {
           objBanner.innerHTML = 'IN RANGE! PRESS <b>[C]</b> OR <b>[ENTER]</b> TO GRAB';
+        } else if (matchActive && matchRemaining <= 30) {
+          objBanner.innerHTML = 'ENDGAME (<b style="color:#facc15">' + Math.ceil(matchRemaining) + 's</b>): CLIMB BRIDGE RAMP FOR <b>+30 LEVEL UP!</b>';
         } else {
-          objBanner.innerHTML = 'READY: <b>WASD / ARROWS TO DRIVE • [R/G] ARM UP/DN • [F] FULLSCREEN</b>';
+          objBanner.innerHTML = 'READY: <b>WASD DRIVE • [R/G] ARM • [O] CLAW • [C] GRAB • [M] 2:30 MATCH</b>';
         }
       }
 
@@ -4088,13 +4447,18 @@
       poleBeaconMat.opacity = carriedCore ? (0.48 + Math.sin(now * 0.008) * 0.28) : 0.22;
 
       if (camMode === 0 && robotPivot) {
+        const targetFov = 44 + Math.min(3.5, Math.abs(bot.v) * 1.3);
+        if (Math.abs(camera.fov - targetFov) > 0.05) {
+          camera.fov += (targetFov - camera.fov) * Math.min(1, dt * 6);
+          camera.updateProjectionMatrix();
+        }
         const desiredCam = new THREE.Vector3(
-          bot.x - Math.sin(bot.yaw) * 2.05,
-          bot.y + 1.28,
-          bot.z - Math.cos(bot.yaw) * 2.05
+          bot.x - Math.sin(bot.yaw) * 2.0,
+          bot.y + 1.24,
+          bot.z - Math.cos(bot.yaw) * 2.0
         );
-        camera.position.lerp(desiredCam, Math.min(1, dt * 5.5));
-        orbit.target.lerp(new THREE.Vector3(bot.x + Math.sin(bot.yaw) * 0.45, bot.y + 0.18, bot.z + Math.cos(bot.yaw) * 0.45), Math.min(1, dt * 9));
+        camera.position.lerp(desiredCam, Math.min(1, dt * 6.5));
+        orbit.target.lerp(new THREE.Vector3(bot.x + Math.sin(bot.yaw) * 0.48, bot.y + 0.18, bot.z + Math.cos(bot.yaw) * 0.48), Math.min(1, dt * 9.5));
       }
 
       orbit.update();
